@@ -7,13 +7,14 @@ it, and what is still open. `README.md` has the deeper detail.
     open http://localhost:4000/preview   # every screen, one tap, nothing saved
 
 Port 4000 is pinned in both `package.json` and `.claude/launch.json`
-(`autoPort: false`) so the URL never moves. The other app in this repo (`yosi`,
-a Vite build) floats on autoPort and had been stealing 3000.
+(`autoPort: false`) so the URL never moves.
 
 ## What this is
 
 A conference booth demo for USWHA. **The prospect runs an intake as
-themselves** — not a patient roleplay. They feel the product by being on the
+themselves** — not a patient roleplay. This repo is standalone; the patient
+prototype lives separately in the Health-Passport repo and nothing here depends
+on it. They feel the product by being on the
 receiving end of it, and every answer is a lead field. It ends with a dollar
 figure for their own practice and a booking CTA.
 
@@ -39,7 +40,11 @@ figure for their own practice and a booking CTA.
 - **It is "annual leak", never "ROI".** ROI requires price, adoption and a
   recovery rate we cannot defend. Leak is a claim about their current state and
   is true whether or not they buy.
-- **There is no patient roleplay.** The old patient screens have been deleted.
+- **There is no patient roleplay.** The patient-side screens that briefly lived
+  here (ID capture, medications, a women's health questionnaire, consents) were
+  deleted before this repo's first commit and are not recoverable from it. The
+  canonical patient-facing design is the `yosi/` prototype in the Health-Passport
+  repo, which is intact and far more complete.
 - **Demographics comes before the card scan** so the scan can play back their
   real details. An earlier build wrote a canned identity into every record.
 - **The card scan writes nothing.** It is a demo of capture, labelled as

@@ -1,14 +1,27 @@
-# Yosi booth demo
+# Yosi conference booth demo
 
-A conference booth demo for Yosi. An attendee texts a number, gets a link, runs
-a patient intake on their own phone in under 90 seconds, sees what the
-difference is worth at their practice, and tells us where to send a charger.
-A booth monitor mirrors the front desk as they go.
+A prospect-facing intake demo for trade shows. An attendee texts a number, gets
+a link, and runs an intake **as themselves** — not roleplaying a patient. They
+feel the product by being on the receiving end of it, and every answer they give
+is a lead field. It ends with an annual-leak figure for their own practice and a
+booking CTA.
 
-Everything outside this app is faked. There is no EHR and no eligibility
-clearinghouse. The practice, the patients and the coverage are synthetic —
-phone numbers use the 555-01xx reserved range and no PHI is or has ever been in
-this codebase.
+    npm run dev                          # http://localhost:4000  (pinned)
+    open http://localhost:4000/preview   # every screen, one tap, nothing saved
+
+Everything in here is synthetic. The practice does not exist, the eligibility
+result is canned, and no card is ever charged.
+
+| Route | What it is |
+|---|---|
+| `/` | Booth signage: the `sms:` QR and the keyword fallback |
+| `/d/[token]` | The attendee flow |
+| `/preview` | Every screen, reachable in one tap. Nothing recorded. |
+| `/start` | Mints a fresh session and opens it |
+| `/r/[token]` | The breakdown behind the texted number |
+| `/admin` | Lead list, benchmark aggregates, CSV export |
+| `/staff` | A front desk mirror. Parked — see below. |
+| `/api/sms` | Twilio inbound webhook |
 
 ## The path through it
 
@@ -102,8 +115,9 @@ shipping form means running a two-minute roleplay first.
 
 | File | What is in it |
 |---|---|
-| `src/lib/prospect-content.ts` | Every word the prospect reads as themselves — role question, timer, calculator, qualifying taps, shipping ask, close. |
-| `src/lib/intake-content.ts` | The patient side — canned ID/insurance reads, pre-filled health history, women's health questions, consent text. |
+| `src/lib/flow-content.ts` | Every word, in screen order. Edit copy here. |
+| `src/lib/tech-stack.ts` | Tool list, competitor set, satisfaction options |
+| `src/lib/demo.ts` | Practice, the canned eligibility result, `COPAY_CENTS`, roles |
 
 Numbers are deliberately not in there. The calculator's assumptions and
 formulas live in `src/lib/calc.ts`, because those are figures to defend rather
@@ -130,30 +144,6 @@ patient clock, so they cost nothing against the ninety seconds.
 Expand any row on `/admin` for the whole prospect on one screen — who they are,
 what they run, their numbers, and what they actually did in the demo.
 
-## The intake content
-
-All of it lives in `src/lib/intake-content.ts` — the canned ID and insurance
-reads, the pre-filled medications, and the questionnaire. That file is the one
-place to edit before the show.
-
-**The women's health questions** are scoped to what an OB-GYN front desk
-actually collects before a well-woman or follow-up visit: last period, cycle,
-pregnancy and contraception, obstetric history, screening currency, and an open
-"anything you want to raise". Single-select auto-advances because the tap is the
-commit; multi-select and free text wait for Continue.
-
-There is deliberately **no depression screener**. A PHQ-9 belongs to a different
-conversation than the one happening at a booth, and it is not what this practice
-type is being sold on. If a clinician wants a different instrument in here,
-swapping `WOMENS_HEALTH_QUESTIONS` is the whole change — the screen, the storage
-and the CSV columns all derive from that array.
-
-**The consent text is placeholder.** It reads plausibly at arm's length and
-every document ends with a line saying so. It has not been near a lawyer and
-must be replaced before this pattern goes near a real patient. The interaction
-is the real one, though: each consent opens in full and cannot be acknowledged
-without being shown.
-
 ## The front desk benchmark
 
 The opt-in on the capture screen promises a real thing, and `/admin` shows it
@@ -166,8 +156,7 @@ person at the desk; the median across the show was 14" is a sentence someone
 repeats to their boss; the two raw numbers on their own are not.
 
 It needs a sample before it means anything — aim for around 40 responses, which
-one show should clear. Everything behind it is in the CSV, one row per practice,
-including each questionnaire answer in its own column.
+one show should clear. Everything behind it is in the CSV, one row per practice.
 
 ## How the leak calculator works
 
@@ -208,11 +197,11 @@ it.
 
 ## Things that were built for the room, not the repo
 
-**The timer starts on the first render of the first intake screen.** Not on
-session create, and not on the role tap. The text arriving, the walk back to
-the booth and picking a role are all real time, but none of it is a patient
-filling in intake, which is what the number claims to measure. `openedAt`,
-`roleAt` and `startedAt` are all in the CSV if you want to argue the other way.
+**The timer covers the five sections, nothing else.** It starts when
+Demographics renders and stops when the volumes are answered. The PIN and the
+landing hub sit outside it — one is a gate, the other is a menu, and neither is
+them filling anything in. `openedAt`, `roleAt` and `startedAt` are all in the
+CSV if you want to argue the other way.
 
 **No screen waits on the network.** Every step hands its payload to a keyed,
 durable, idempotent write queue and advances on the next frame. The queue
@@ -231,29 +220,24 @@ demo that stalls on conference wifi is worse than one that resolves without the
 round trip.
 
 **Eligibility runs underneath the attendee, not in front of them.** It starts
-when the card is photographed and lands while they are signing. Waiting on it
-would spend eight of the ninety seconds watching a spinner.
+the moment the card is read and lands while they are on the copay screen.
+Waiting on it would spend eight seconds watching a spinner. The copay it returns
+is the copay the next screen charges — one constant, `COPAY_CENTS`, so the two
+can never disagree.
 
-**The patient roster rotates.** Attendees role-play a different synthetic
-patient each time so `/staff` reads like a real front desk queue instead of
-twenty copies of one row. Maria Alvarez is always first, so a scripted
-walkthrough matches the mockup.
+**`/staff` is parked.** It works and it polls every two seconds — nobody at a
+booth can tell that from a socket, and a poll cannot end up silently
+disconnected for the back half of the show. But it is not part of the current
+story: the plan is to keep the record on our side and close on a booking, so the
+last screen asks for the meeting rather than pointing at a monitor. It is left
+in the repo rather than deleted in case that changes.
 
-**The staff board polls.** Nobody standing at a booth can tell a two-second
-poll from a socket, and a poll cannot end up silently disconnected for the back
-half of the show. A failed poll keeps the last good board up and says so
-quietly rather than going blank behind a rep mid-sentence. It is currently
-parked — `/staff` works, but the show plan is to keep the record on our side and
-close on booking a demo, so the last attendee screen asks for the meeting rather
-than pointing at a monitor.
-
-**Resume comes from the server, not the browser.** Reloading mid-flow returns to
-the screen you left, derived from what has actually been saved. Reading a
-resume point out of `localStorage` during render is a hydration mismatch, and
-deriving it from stored state is better anyway — it survives a cleared cache and
-works if someone reopens the link on a different device. If the write queue had
-not flushed before the reload it lands one step earlier, which is the safe
-direction to be wrong in.
+**Links always open at screen one.** Resuming was the default and it was wrong:
+the whole run is about a minute, so losing your place costs nothing, but
+resuming made the demo impossible to rehearse or show twice. `?resume=1` opts
+back in, deriving the step from what the server has saved rather than from
+`localStorage` — reading a resume point during render is a hydration mismatch,
+and server state survives a cleared cache and a different device.
 
 **Consecutive CTAs are debounced by 400ms.** Two screens in a row put their
 button in the same place, so a bounced finger or a double-tap on a laggy screen
@@ -264,10 +248,8 @@ would otherwise land the second hit on the next screen and skip it.
 First load on `/d/[token]` is about **155 KB gzipped** — 146 KB of JavaScript,
 6 KB of CSS, 3 KB of HTML. Nearly all of the JavaScript is the React and Next
 runtime; the app's own code is around 35 KB. There is no chart library, no icon
-package, no form library and no signature library — the signature is a canvas
-and about eighty lines, and it emits a downsampled SVG path small enough to
-ride along in the same JSON patch as the rest of the consent, which is also
-what lets `/staff` render the actual mark.
+package and no form library — the readiness ring is two SVG circles, the icons
+are hand-drawn, and the sliders are native range inputs.
 
 The webfont is one `woff2` with `font-display: swap` and a real system fallback
 stack, so a dropped font request costs nothing but the typeface.
