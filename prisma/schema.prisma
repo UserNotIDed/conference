@@ -1,0 +1,121 @@
+// Booth demo session store.
+//
+// One row per phone number — the phone is the join key between the SMS that
+// starts the demo, the intake the attendee runs, the leak calc they fill in as
+// themselves, and the lead capture at the end. Everything is synthetic; no PHI
+// has ever been in here.
+//
+// SQLite through the libSQL driver adapter so the same code path serves a local
+// file (DATABASE_URL="file:./dev.db") and a hosted Turso database on Vercel
+// (DATABASE_URL="libsql://…" + TURSO_AUTH_TOKEN). See README — a plain file URL
+// on Vercel does not persist between requests.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id    String @id @default(cuid())
+  token String @unique
+  phone String @unique
+
+  // Where it came from. keyword is the SMS body ("DEMO", "RCM", …) and doubles
+  // as per-event attribution when you print a different word for each show.
+  source  String  @default("sms") // sms | kiosk
+  keyword String?
+
+  // Rep pre-fill. The only field the capture screen starts with a value in.
+  practiceName String?
+
+  // "What brings you by" — billing | frontdesk | owner
+  role      String?
+  roleOther String? // free text when they pick "Something else"
+
+  // Which synthetic patient this attendee role-plays.
+  personaIndex Int @default(0)
+
+  // Intake payload, one JSON blob per screen. Stored as TEXT: SQLite has no
+  // native JSON column and the shapes are read whole, never queried into.
+  otpAt         DateTime? // one-time code accepted
+  cardAt        DateTime? // saw the capture demo — no identity attached to it
+  paidAt        DateTime? // ran the copay collection screen
+  copayCents    Int?
+  identity      String? // { legalName, dob }
+  identification String? // { captured, type, number, state, expires }
+  insurance     String? // { captured, provider, memberId, planType, groupNumber }
+  health        String? // { medications[], conditions[], allergies[], confirmed }
+  questionnaire String? // { [questionId]: answer } — women's health intake
+  consent       String? // { signedAt, reviewed[], strokeCount, path }
+
+  // Timings. startedAt is stamped on the first screen *render*, not on create,
+  // so the SMS round trip and the walk back to the booth are not in the number.
+  openedAt     DateTime? // link opened — the role screen rendered
+  startedAt    DateTime?
+  startedAtMs  String? // client clock (epoch ms) at first render, for drift-free elapsed
+  roleAt       DateTime?
+  finishedAt   DateTime?
+  elapsedMs    Int? // measured client-side; authoritative for the "done in N" number
+  stepTimings  String? // { verify: ms, confirm: ms, insurance: ms, consent: ms }
+
+  // Faked eligibility check. Kicked off when the insurance card is captured and
+  // resolved by wall clock on read, so it survives a reload or a dropped poll.
+  verifyStartedAt  DateTime?
+  verifyDurationMs Int?
+  verifiedAt       DateTime?
+  verifyResult     String? // { payer, plan, memberId, status, copay, deductible… }
+
+  // Faked EHR writeback.
+  ehrWrittenAt DateTime?
+  ehrLog       String? // [{ at, line }]
+
+  // Leak calculator.
+  calcInputs String? // { patientsPerDay, noShowRate, frontDeskStaff }
+  calcResult String? // { missed, staff, rework, total, assumptions }
+  calcAt     DateTime?
+  calcSmsAt  DateTime?
+
+  // Prospect qualification. Asked after the leak number lands, while they are
+  // back to being a practice manager — outside the patient clock entirely, so
+  // it costs nothing against the ninety seconds.
+  techStack              String? // ["athenahealth", "Phreesia", …]
+  ehrSystem              String? // derived from techStack, kept for the benchmark
+  competitorTool         String? // the intake vendor they already pay, if any
+  competitorSatisfaction String?
+  qualifiedAt            DateTime?
+
+  // Lead capture.
+  captureName     String?
+  captureTitle    String?
+  captureEmail    String?
+  capturePractice String?
+  // Structured rather than one free-text box: a shipping label needs parts,
+  // and "88 Congress" in a textarea is not an address anyone can post to.
+  captureStreet   String?
+  captureUnit     String?
+  captureCity     String?
+  captureState    String?
+  captureZip      String?
+  captureAddress  String? // the parts joined, for the CSV and the label
+  // Nullable on purpose: null means "never answered", which is what lets the
+  // result screen show it pre-ticked without overriding a deliberate untick.
+  captureOptIn    Boolean?
+  capturedAt      DateTime?
+
+  // Retargeting: who opened the booking page and who did not. The second list
+  // is the one worth having.
+  bookingClickedAt DateTime?
+  bookedSlot       String? // the slot they picked in the scheduler
+  bookingSmsAt     DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([updatedAt])
+  @@index([finishedAt])
+}
