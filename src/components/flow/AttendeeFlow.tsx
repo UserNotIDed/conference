@@ -152,7 +152,7 @@ export function AttendeeFlow({
               id: "numbers",
               icon: "chart" as const,
               label: "Your numbers",
-              note: "Five sliders. No keyboard, nothing to look up.",
+              note: "Four sliders. No keyboard, nothing to look up.",
               done: Boolean(view.calcInputs),
             },
           ]}

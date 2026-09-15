@@ -75,7 +75,7 @@ export const FLOW = {
   },
 
   // -------------------------------------------------------------------------
-  // 3 — The numbers. Five sliders, no keyboard.
+  // 3 — The numbers. Four sliders, no keyboard.
   // -------------------------------------------------------------------------
   numbers: {
     kicker: "3 · Your numbers",

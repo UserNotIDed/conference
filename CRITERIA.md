@@ -131,12 +131,18 @@ easiest sale we have, but the incumbent is still doing part of the job.
 
 ### Bands
 
-| Score | Label | What we say |
-| --- | --- | --- |
-| 80–100 | **Healthy** | Your front desk is not where your revenue is going. |
-| 65–79 | **Holding** | It works, and it works because people are absorbing the gaps. |
-| 50–64 | **Under strain** | Volume is outrunning the process at the front of the visit. |
-| 0–49 | **At risk** | Intake is costing you more than it would cost to fix. |
+Four bands, four colours. Four rather than three because three cannot separate
+"this is fine" from "this works because people are absorbing it", which is the
+distinction the whole conversation turns on — and five means two neighbouring
+colours nobody can tell apart on a phone in a bright hall. The same four drive
+the ring, the dimension bars and the follow-up email.
+
+| Score | Label | Colour | What we say |
+| --- | --- | --- | --- |
+| 80–100 | **Healthy** | Green `#16a34a` | Your front desk is not where your revenue is going. |
+| 65–79 | **Holding** | Blue `#2563eb` | It works, and it works because people are absorbing the gaps. |
+| 50–64 | **Under strain** | Orange `#ea580c` | Volume is outrunning the process at the front of the visit. |
+| 0–49 | **At risk** | Red `#dc2626` | Intake is costing you more than it would cost to fix. |
 
 ---
 

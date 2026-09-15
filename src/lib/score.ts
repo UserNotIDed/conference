@@ -36,11 +36,39 @@ export type ScoreDimension = {
   note: string;
 };
 
+export type ScoreTone = "good" | "ok" | "warn" | "bad";
+
 export type ScoreBand = {
   min: number;
   label: string;
   blurb: string;
-  tone: "good" | "ok" | "warn" | "bad";
+  tone: ScoreTone;
+};
+
+/**
+ * The health palette. Four bands, four colours, one definition.
+ *
+ * Four rather than three or five because three cannot separate "this is fine"
+ * from "this works because people are absorbing it", which is the distinction
+ * the whole conversation turns on — and five means two neighbouring colours
+ * nobody can tell apart on a phone in a bright hall.
+ *
+ * Hex rather than Tailwind classes because the same four colours have to drive
+ * an SVG gradient, a progress bar and an HTML email, and an email cannot see a
+ * stylesheet. One map, three surfaces, no drift.
+ *
+ * Each band is a two-stop gradient of its own hue — light into deep, which is
+ * what gives the ring its weight. The green one is the showiest on purpose:
+ * it is the only score anybody is pleased to see.
+ */
+export const TONE: Record<
+  ScoreTone,
+  { from: string; to: string; solid: string; soft: string }
+> = {
+  good: { from: "#4ade80", to: "#15803d", solid: "#16a34a", soft: "#dcfce7" },
+  ok: { from: "#60a5fa", to: "#1d4ed8", solid: "#2563eb", soft: "#dbeafe" },
+  warn: { from: "#fb923c", to: "#c2410c", solid: "#ea580c", soft: "#ffedd5" },
+  bad: { from: "#f87171", to: "#b91c1c", solid: "#dc2626", soft: "#fee2e2" },
 };
 
 /** Weights sum to 100. Placeholders. */
@@ -106,6 +134,17 @@ export const SCORE_BANDS: ScoreBand[] = [
     tone: "bad",
   },
 ];
+
+/**
+ * Which band a 0–100 value falls in.
+ *
+ * Exported so the individual dimension bars, the ring and the band label all
+ * read the same thresholds. They used to be written out three times and had
+ * already drifted once.
+ */
+export function toneFor(value: number): ScoreTone {
+  return (SCORE_BANDS.find((b) => value >= b.min) ?? SCORE_BANDS.at(-1)!).tone;
+}
 
 export type ScoreResult = {
   total: number;

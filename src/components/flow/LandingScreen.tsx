@@ -63,16 +63,12 @@ export function ScreenLanding({
               <Meta icon="clock" text={FLOW.landing.metaTime} />
             </div>
           </div>
-          <div className="flex shrink-0 flex-col items-center">
-            <ReadinessRing
-              percent={percent}
-              size={96}
-              display={`${doneCount}/${sections.length}`}
-            />
-            <span className="mt-1.5 text-[9.5px] font-bold uppercase tracking-[0.06em] text-ink-mute">
-              {FLOW.landing.scoreLabel}
-            </span>
-          </div>
+          <ReadinessRing
+            percent={percent}
+            size={96}
+            display={`${doneCount}/${sections.length}`}
+            caption={FLOW.landing.scoreLabel}
+          />
         </div>
 
         <div className="border-t border-hairline p-4">

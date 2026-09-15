@@ -28,7 +28,7 @@ import {
   usd,
   usdRounded,
 } from "./calc";
-import { biggestGap, score, type ScoreResult } from "./score";
+import { TONE, biggestGap, score, toneFor, type ScoreResult } from "./score";
 import type { CalcInputs } from "./calc";
 import { BOOKING_URL } from "./prospect-content";
 
@@ -40,12 +40,6 @@ const CANVAS = "#f8fafc";
 const TEAL = "#0ba5b4";
 const TEAL_BG = "#ecfeff";
 const BLUE = "#2563eb";
-const BAND_COLOR: Record<string, string> = {
-  Healthy: "#16a34a",
-  Holding: "#0ba5b4",
-  "Under strain": "#d97706",
-  "At risk": "#dc2626",
-};
 
 export type EmailMode = "preview" | "hubspot";
 
@@ -216,7 +210,8 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
     competitorSatisfaction: data.competitorSatisfaction,
   });
   const gap = biggestGap(health);
-  const bandColour = BAND_COLOR[health.band.label] ?? TEAL;
+  // Straight off the shared palette, so the email and the phone agree.
+  const bandColour = TONE[health.band.tone].solid;
 
   const first = tok(mode, "firstname", data.firstName);
   const practice = tok(mode, "company", data.practice);
@@ -245,7 +240,7 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
         d.detail,
         d.weight,
         d.value,
-        d.value >= 80 ? "#16a34a" : d.value >= 65 ? TEAL : d.value >= 50 ? "#d97706" : "#dc2626",
+        TONE[toneFor(d.value)].solid,
       ),
     )
     .join("");

@@ -19,7 +19,14 @@ import {
   usd,
   type CalcInputs,
 } from "../src/lib/calc";
-import { BANDS, INTAKE_POSTURE, SCORE_BANDS, WEIGHTS, score } from "../src/lib/score";
+import {
+  BANDS,
+  INTAKE_POSTURE,
+  SCORE_BANDS,
+  TONE,
+  WEIGHTS,
+  score,
+} from "../src/lib/score";
 
 type Row = {
   value: number;
@@ -212,11 +219,18 @@ easiest sale we have, but the incumbent is still doing part of the job.
 
 ### Bands
 
-| Score | Label | What we say |
-| --- | --- | --- |
+Four bands, four colours. Four rather than three because three cannot separate
+"this is fine" from "this works because people are absorbing it", which is the
+distinction the whole conversation turns on — and five means two neighbouring
+colours nobody can tell apart on a phone in a bright hall. The same four drive
+the ring, the dimension bars and the follow-up email.
+
+| Score | Label | Colour | What we say |
+| --- | --- | --- | --- |
 ${SCORE_BANDS.map((b, i) => {
   const upper = i === 0 ? 100 : SCORE_BANDS[i - 1].min - 1;
-  return `| ${b.min}–${upper} | **${b.label}** | ${b.blurb} |`;
+  const hue = { good: "Green", ok: "Blue", warn: "Orange", bad: "Red" }[b.tone];
+  return `| ${b.min}–${upper} | **${b.label}** | ${hue} \`${TONE[b.tone].solid}\` | ${b.blurb} |`;
 }).join("\n")}
 
 ---

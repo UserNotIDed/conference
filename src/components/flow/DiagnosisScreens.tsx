@@ -18,7 +18,13 @@ import {
   usdRounded,
   type CalcInputs,
 } from "@/lib/calc";
-import { biggestGap, score, type ScoreDimension } from "@/lib/score";
+import {
+  TONE,
+  biggestGap,
+  score,
+  toneFor,
+  type ScoreDimension,
+} from "@/lib/score";
 import type { ClientSession } from "@/lib/session";
 import { useCountUp } from "./CountUp";
 
@@ -30,27 +36,6 @@ import { useCountUp } from "./CountUp";
  * question that books a meeting. Putting both on one screen makes the reader
  * choose which one to look at, and at a booth they choose neither.
  * ------------------------------------------------------------------------- */
-
-const TONE_TEXT = {
-  good: "text-green",
-  ok: "text-teal",
-  warn: "text-amber-strong",
-  bad: "text-red",
-} as const;
-
-const BAR = {
-  good: "bg-green",
-  ok: "bg-teal",
-  warn: "bg-amber-strong",
-  bad: "bg-red",
-} as const;
-
-function toneFor(value: number): keyof typeof BAR {
-  if (value >= 80) return "good";
-  if (value >= 65) return "ok";
-  if (value >= 50) return "warn";
-  return "bad";
-}
 
 export function ScreenScore({
   session,
@@ -85,7 +70,7 @@ export function ScreenScore({
         <div className="mt-4 flex items-center gap-5">
           <ReadinessRing
             percent={result.total}
-            size={120}
+            size={124}
             tone={result.band.tone}
             display={String(Math.round(shown))}
             caption={result.band.label}
@@ -166,7 +151,9 @@ function DimensionRow({
   /** The one with the most score available. */
   flagged: boolean;
 }) {
-  const tone = toneFor(d.value);
+  // Same four breakpoints as the ring and the follow-up email — they all read
+  // score.ts rather than each keeping their own idea of what 64 looks like.
+  const colours = TONE[toneFor(d.value)];
   return (
     <div
       className={`rounded-[14px] border bg-white px-4 py-3 ${
@@ -184,7 +171,10 @@ function DimensionRow({
           ) : null}
         </span>
         <span className="shrink-0 tabular-nums">
-          <span className={`text-[16px] font-extrabold ${TONE_TEXT[tone]}`}>
+          <span
+            className="text-[16px] font-extrabold"
+            style={{ color: colours.solid }}
+          >
             {d.value}
           </span>
           <span className="text-[11px] font-bold text-ink-pale"> / 100</span>
@@ -192,8 +182,11 @@ function DimensionRow({
       </div>
       <div className="mt-2 h-[6px] w-full overflow-hidden rounded-full bg-hairline">
         <div
-          className={`h-full rounded-full transition-[width] duration-700 ease-out ${BAR[tone]}`}
-          style={{ width: `${d.value}%` }}
+          className="h-full rounded-full transition-[width] duration-700 ease-out"
+          style={{
+            width: `${d.value}%`,
+            backgroundImage: `linear-gradient(90deg, ${colours.from}, ${colours.to})`,
+          }}
         />
       </div>
       <div className="mt-2 flex items-baseline justify-between gap-3">

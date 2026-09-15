@@ -42,6 +42,12 @@ Health-Passport repo and nothing here depends on it.
   booth. The patient-side screens are not recoverable from this repo — the
   canonical patient-facing design is the `yosi/` prototype in the
   Health-Passport repo.
+- **Four health bands, four colours, one definition.** `TONE` in `score.ts` —
+  red under 50, orange to 64, blue to 79, green from 80. Hex rather than
+  Tailwind classes because the same four have to drive an SVG gradient, a
+  progress bar and an HTML email, and an email cannot see a stylesheet. The
+  ring, the dimension bars and the email all read it; they used to each keep
+  their own thresholds and had already drifted.
 - **Score and money do different jobs, on different screens.** The score answers
   "where do I stand", which is what the landing page promised. The money answers
   "so what", which is what books a meeting. On one screen the reader picks
