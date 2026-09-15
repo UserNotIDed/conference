@@ -166,6 +166,8 @@ export async function applyPatches(
           patientsPerDay: num(body.patientsPerDay),
           noShowRate: num(body.noShowRate),
           frontDeskStaff: num(body.frontDeskStaff),
+          minutesPerIntake: num(body.minutesPerIntake),
+          collectedRate: num(body.collectedRate),
         });
         data.calcInputs = JSON.stringify(result.inputs);
         data.calcResult = JSON.stringify({

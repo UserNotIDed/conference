@@ -11,47 +11,47 @@ Port 4000 is pinned in both `package.json` and `.claude/launch.json`
 
 ## What this is
 
-A conference booth demo for USWHA. **The prospect runs an intake as
-themselves** — not a patient roleplay. This repo is standalone; the patient
-prototype lives separately in the Health-Passport repo and nothing here depends
-on it. They feel the product by being on the
-receiving end of it, and every answer is a lead field. It ends with a dollar
-figure for their own practice and a booking CTA.
+A conference booth demo for USWHA, framed as **"check the health of your
+practice"**. The prospect answers about their own practice — there is no patient
+roleplay and nothing is simulated. Every answer is a lead field. It ends with a
+practice health score, an annual leak figure, an ROI, and a booking CTA.
+
+This repo is standalone; the patient prototype lives separately in the
+Health-Passport repo and nothing here depends on it.
 
 ## The flow
 
-    QR on the booth → they text us → we text back a link → they open it
+    QR on the booth → the microsite
 
 | | Screen | Captures |
 |---|---|---|
-| — | PIN | Phone verified. Code autofills on arrival; one Continue tap. |
-| — | Landing hub | Readiness ring, five tappable sections, charger promise. |
-| 1 | Demographics | Role (chips + free-text Other), name, email, practice, address |
-| 2 | Insurance | Card scan → live eligibility check → Aetna Active, $25 copay |
-| 3 | Copay | Simulated payment of that same $25. No card charged. |
-| 4 | Tech stack | Their stack; EHR derived from it |
-| 4b | Incumbent satisfaction | Only shown if they already pay an intake vendor |
-| 5 | Leak diagnosis | Patients/day, no-show rate, front desk headcount |
-| — | Annual leak | The number. Benchmark opt-in, pre-ticked. |
+| — | Landing | What it is, what it takes, the charger. |
+| 1 | About you | Role chips, name, email, practice, address |
+| 2 | Your setup | Their stack; EHR and any incumbent derived from it |
+| 2b | Incumbent satisfaction | Only if they already pay an intake vendor |
+| 3 | Your numbers | Five sliders: patients/day, no-show, headcount, minutes per registration, collected up front |
+| — | Practice health score | Ring, band, four weighted dimensions, the scoring |
+| — | Leak and ROI | Four leak components, what we recover, what we cost |
 | — | Book a demo | Their figure in the headline → yosi.health, click recorded |
 
 ## Decisions that are settled — do not re-litigate without asking
 
-- **It is "annual leak", never "ROI".** ROI requires price, adoption and a
-  recovery rate we cannot defend. Leak is a claim about their current state and
-  is true whether or not they buy.
-- **There is no patient roleplay.** The patient-side screens that briefly lived
-  here (ID capture, medications, a women's health questionnaire, consents) were
-  deleted before this repo's first commit and are not recoverable from it. The
-  canonical patient-facing design is the `yosi/` prototype in the Health-Passport
-  repo, which is intact and far more complete.
-- **Demographics comes before the card scan** so the scan can play back their
-  real details. An earlier build wrote a canned identity into every record.
-- **The card scan writes nothing.** It is a demo of capture, labelled as
-  simulated.
-- **One capture of identity**, on Demographics, not twice.
-- **`COPAY_CENTS` is one constant** shared by the eligibility result and the
-  payment screen. They must never disagree.
+- **There is no patient roleplay, and nothing is simulated.** The PIN, the card
+  scan, the eligibility check and the copay screen were all removed: they were a
+  patient's experience demonstrated to a buyer, which needed explaining at a
+  booth. The patient-side screens are not recoverable from this repo — the
+  canonical patient-facing design is the `yosi/` prototype in the
+  Health-Passport repo.
+- **Score and money do different jobs, on different screens.** The score answers
+  "where do I stand", which is what the landing page promised. The money answers
+  "so what", which is what books a meeting. On one screen the reader picks
+  neither.
+- **Every constant is printed on the prospect's phone, tagged Ours or Sourced.**
+  A visible assumption gets argued with, and arguing is engagement.
+- **Internal notes never render.** `Constant.source` is what the buyer reads;
+  `Constant.internal` is for `CRITERIA.md`. "NEEDS MARKETING SIGN-OFF" once made
+  it onto the buyer's screen.
+- **Nothing is asked that has to be looked up.** Five sliders, no keyboard.
 - **Links always start at screen one.** `?resume=1` opts into resuming.
 - **No delivery promise on the charger.**
 
@@ -60,12 +60,13 @@ figure for their own practice and a booking CTA.
 | File | What |
 |---|---|
 | `src/lib/flow-content.ts` | Every word, in screen order. Edit copy here. |
-| `public/yosi-logo.svg` | The real Yosi logo. Replacing it is a file drop, no code change. |
-| `src/lib/calc.ts` | Leak formula and the published assumptions. Numbers to defend. |
+| `src/lib/calc.ts` | The leak and the ROI. Constants, formulas, recovery rates, price. |
+| `src/lib/score.ts` | The practice health score: weights, bands, posture. |
+| `scripts/criteria.ts` | Generates `CRITERIA.md` from those two. `npm run criteria`. |
 | `src/lib/tech-stack.ts` | Tool list, competitor set, satisfaction options |
-| `src/lib/demo.ts` | Practice, eligibility result, `COPAY_CENTS`, roles |
 | `src/components/flow/AttendeeFlow.tsx` | Stage machine |
 | `src/components/FlowPreview.tsx` | The `/preview` picker |
+| `public/yosi-logo.svg` | The real Yosi logo. Replacing it is a file drop. |
 | `prisma/schema.prisma` | One row per phone number |
 
 ## Open, needs your call
@@ -75,9 +76,13 @@ figure for their own practice and a booking CTA.
 2. **The benchmark report.** The opt-in promises a front desk benchmark built
    from this show's own data. `/admin` computes it live (median patients/day,
    no-show, headcount, patients per FTE). Somebody has to actually send it.
-3. **Assumptions in `calc.ts`** — $145 net revenue per visit, $26/hr loaded
-   front desk, 7 min manual entry, 5% rework, $25 per rework. Conservative and
-   printed on screen. Marketing should sign them off.
+3. **Every placeholder in `CRITERIA.md`.** That sheet is generated from the
+   code, lists what each number is, who owns it and what it needs. The four
+   recovery rates and the price are the ones that gate the ROI claim; the score
+   weights and bands are invented outright.
+4. **HubSpot.** The no-SMS, no-database rearchitecture — QR straight to the
+   microsite, Forms API to portal 45713988 — is designed but not built. Needs
+   the two form GUIDs and the final domain.
 4. **Deployment.** Local SQLite works; Vercel needs Turso — see `.env.example`.
    A `file:` URL on Vercel silently loses every session.
 5. **Twilio.** Unset means outbound texts are logged, not sent. The inbound

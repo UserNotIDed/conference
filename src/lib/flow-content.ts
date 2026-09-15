@@ -1,61 +1,49 @@
 /**
- * Every word in the attendee flow, in the order they see it.
+ * Every word in the flow, in the order they read it.
  *
- * One file so copy can be rewritten without opening a component. The product
- * callouts (`alert`) are the marketing job of each screen: the prospect is
- * doing a patient's intake, and the alert says what the patient's version does
- * that this one cannot show. No invented statistics — benefit statements only.
+ * One file so copy can be rewritten without opening a component.
+ *
+ * The frame: the person holding the phone is the prospect, not a patient.
+ * They are running a check on their own practice and the payoff is a score and
+ * a number. There is no patient roleplay and nothing here is simulated, so the
+ * product callouts (`alert`) have one job — say what Yosi does about the thing
+ * they just told us, in one sentence, with no invented statistics.
  */
 
 export const FLOW = {
   // -------------------------------------------------------------------------
-  // Gate. No name yet, so nothing here is personalised.
-  // -------------------------------------------------------------------------
-  pin: {
-    kicker: "Yosi",
-    codeTitle: "Confirming it's you",
-    codeSubtitle: "We texted a code to {masked} and filled it in for you.",
-    codeCta: "Continue",
-    codeVerifying: "Checking…",
-    codeFootnote: "Your patients don't type this either.",
-    matched: "Verified",
-    alert:
-      "Every Yosi link opens this way. Nothing on the record loads until the phone it belongs to answers.",
-  },
-
-  // -------------------------------------------------------------------------
-  // The hub. Readiness score, four sections, one CTA.
+  // The hub. What this is, what it takes, what they get.
   // -------------------------------------------------------------------------
   landing: {
-    kicker: "Your demo",
-    title: "Intake, end to end",
-    badge: "5 sections",
-    metaWho: "Run as yourself",
-    metaTime: "About a minute",
-    scoreLabel: "Readiness score",
-    startCta: "Start intake",
-    resumeCta: "Resume intake",
+    kicker: "Yosi",
+    title: "Check the health of your practice",
+    badge: "3 sections",
+    metaWho: "About your practice, not your patients",
+    metaTime: "Around 90 seconds",
+    scoreLabel: "Sections done",
+    startCta: "Start the check",
+    resumeCta: "Pick up where you left off",
     footnote: "Finish it and we'll send you a charger.",
-    sectionsLabel: "What to do",
+    sectionsLabel: "What we'll ask",
     alert:
-      "Your patients see a screen like this before a visit: what's outstanding, what's due, and how ready they are. Nobody has to phone them about it.",
+      "Nothing clinical and nothing about your patients — this is about how the front of the visit runs. You'll get a score, the arithmetic behind it, and what fixing it is worth.",
   },
 
   // -------------------------------------------------------------------------
-  // 1 — Demographics.
+  // 1 — Who they are. Every field is a lead field.
   // -------------------------------------------------------------------------
-  demographics: {
-    kicker: "1 · Demographics",
-    title: "About you",
-    subtitle: "The same details a patient confirms before a visit.",
+  contact: {
+    kicker: "1 · About you",
+    title: "Who are we scoring?",
+    subtitle: "So we can send you the result and put your name on it.",
     cta: "Continue",
     fixIt: "Fill in the highlighted fields to continue.",
-    footnote: "You'll only be asked for this once.",
+    footnote: "One follow-up email. Unsubscribe any time.",
     alert:
-      "Returning patients don't type this again. Yosi fills it from their last visit and asks them to confirm, so the form gets shorter every time.",
+      "We'll email you the full breakdown — the score, every assumption behind it, and what each one is worth in your numbers.",
     addressAlert:
       "This is where we'll post your charger, so use an address you're happy to receive post at.",
-    roleLabel: "What brings you by",
+    roleLabel: "What's your seat at the practice",
     roleOther: "Something else",
     roleOtherPlaceholder: "Tell us in a few words",
     labels: {
@@ -81,89 +69,78 @@ export const FLOW = {
   },
 
   // -------------------------------------------------------------------------
-  // 2 — Card scan and the eligibility check. The RCM moment.
-  // -------------------------------------------------------------------------
-  card: {
-    kicker: "2 · Insurance",
-    title: "Insurance",
-    subtitle:
-      "Photograph the card and we read it, then check the coverage with the payer while the rest of the form is still being filled in.",
-    scanTitle: "Tap to scan a card",
-    scanSubtitle: "Insurance card, business card — anything",
-    readingTitle: "Reading card…",
-    capturedLabel: "Card read",
-    cta: "Continue",
-    footnote: "Nothing is photographed and nothing leaves your phone.",
-    sampleNote: "Simulated — those are the details you gave us a moment ago.",
-    alert:
-      "Your front desk makes this check by phone or portal, one patient at a time. Yosi runs it the moment the card is captured and writes the answer to the chart.",
-    eligibilityPending: "Checking eligibility",
-    eligibilityAlert:
-      "Coverage is confirmed before the visit, so there's no surprise self-pay at the desk and no claim denied for an inactive plan.",
-  },
-
-  // -------------------------------------------------------------------------
-  // 3 — Copay collection.
-  // -------------------------------------------------------------------------
-  payment: {
-    kicker: "3 · Payment",
-    title: "Copay",
-    subtitle:
-      "Eligibility came back with an amount due. Yosi asks for it while the phone is still in their hand.",
-    dueLabel: "Copay due",
-    cardLabel: "Card number",
-    cardPlaceholder: "Card on file · •••• 4242",
-    cta: "Pay {amount}",
-    paying: "Taking payment…",
-    paidTitle: "Paid",
-    paidNote: "Receipt texted. Nothing to collect at the desk.",
-    continueCta: "Continue",
-    skipCta: "Skip — I'll pay at the desk",
-    alert:
-      "Anything collected before the visit is something nobody has to invoice, chase or write off later. This is a demo — no card is charged.",
-    multiLocation:
-      "Each location processes separately. You'll confirm once and we'll handle the rest.",
-  },
-
-  // -------------------------------------------------------------------------
-  // 4 — Tech stack. The patient's analogue is the medication list.
+  // 2 — The stack. Who else is already in the workflow.
   // -------------------------------------------------------------------------
   stack: {
     alert:
-      "For a patient, this screen is their medication list and health history. Filled in from their last visit, confirmed in two taps, never rewritten on a clipboard.",
+      "This sets a quarter of your score. Anything a patient can finish on their own phone before they arrive counts for it; a clipboard counts against it.",
   },
 
   // -------------------------------------------------------------------------
-  // 5 — Leak diagnosis. The patient's analogue is the screener.
+  // 3 — The numbers. Five sliders, no keyboard.
   // -------------------------------------------------------------------------
-  leak: {
-    kicker: "5 · Leak diagnosis",
-    title: "Your numbers",
+  numbers: {
+    kicker: "3 · Your numbers",
+    title: "Five you'll know off the top of your head",
     subtitle:
-      "Three you'll know off the top of your head. We'll put a figure on the no-shows, the front desk hours and the reworked claims.",
-    cta: "See my annual leak",
+      "Nothing here needs looking up. If you're not sure, your best guess is close enough to put a figure on.",
+    cta: "Score my practice",
     alert:
-      "For a patient, this is the screener: a few taps that route them, flag anything urgent and reach the provider before the visit starts.",
+      "Rough is fine. Everything here is yours, and every figure we add to it is printed next to the answer.",
+    labels: {
+      patientsPerDay: "Patients per day",
+      noShowRate: "No-show rate",
+      frontDeskStaff: "Front desk headcount",
+      minutesPerIntake: "Minutes per patient on registration",
+      collectedRate: "Patient balance collected up front",
+    },
+    hints: {
+      minutesPerIntake:
+        "Checking them in, keying the form, chasing the coverage.",
+      collectedRate: "Copay and balance taken before they leave.",
+    },
   },
 
   // -------------------------------------------------------------------------
-  // Result.
+  // The diagnosis.
   // -------------------------------------------------------------------------
-  result: {
+  score: {
+    kicker: "Practice health score",
+    // {practice} is theirs when we have it.
+    titleNamed: "{practice} scores {score}",
+    title: "Your practice scores {score}",
+    weightsLabel: "What it's made of",
+    weightNote: "Each scored 0–100, then weighted. The weights are on screen.",
+    cta: "What's it costing?",
+    disclosure: "How is this scored?",
+    hideDisclosure: "Hide the scoring",
+    weakestLabel: "Most to gain: {label}.",
+    disclosureBody:
+      "Four measures, weighted into one number. Two come straight from what you just told us, two are worked out from your volumes. No industry data is mixed in — this is your answers, arranged.",
+  },
+
+  // -------------------------------------------------------------------------
+  // The money. Leak first, then what fixing it returns.
+  // -------------------------------------------------------------------------
+  money: {
     kicker: "Estimated annual leak",
-    elapsed:
-      "You did all that in {seconds} seconds — that is exactly what your patients feel.",
-    cta: "Text this to me",
-    ctaSending: "Sending…",
-    ctaSent: "Sent — check your messages",
-    skip: "Skip the text, keep going",
+    roiKicker: "What fixing it returns",
+    // {multiple} is like "5.9x"
+    roiHeadline: "{net} a year back, net of what we cost",
+    roiSub: "Every dollar you spend with us returns {multiple}. Payback in {months}.",
+    roiCostLabel: "What Yosi costs at your volume",
+    roiRecoveredLabel: "What we recover",
+    cta: "Book a demo",
+    skip: "Email it to me instead",
     showWork: "What are we assuming?",
     hideWork: "Hide the assumptions",
     assumptionsIntro:
-      "Two of these are ours, not yours. They are deliberately conservative and they are the right thing to argue with.",
+      "Some of these are yours and some are ours. Ours are marked, and they are the right thing to argue with — tell us what your number is and we'll rerun it.",
+    placeholderTag: "Ours",
+    sourcedTag: "Sourced",
     benchmarkTitle: "How does that compare?",
     benchmarkBody:
-      "We're asking every practice at this show the same three questions. We'll send you where you land against them.",
+      "We're asking every practice at this show the same questions. We'll send you where you land against them.",
     benchmarkOptIn: "Send me the front desk benchmark",
   },
 
@@ -176,11 +153,21 @@ export const FLOW = {
     title: "That's {leak} a year",
     titleNoLeak: "Worth half an hour of your time",
     subtitle:
-      "What you just did takes a front desk about five minutes a patient. Give us thirty and we'll show you it running on your forms, in your EHR.",
+      "Give us thirty minutes and we'll show you the same arithmetic running on your forms, in your EHR, with your own volumes in it.",
     cta: "Book a demo",
     opened: "Opened in a new tab. Pick any time that works.",
-    footnote: "Your breakdown is in your messages and the charger is on its way.",
+    footnote: "Your breakdown is on its way by email, and so is the charger.",
     alert:
-      "We'll bring the figure you just worked out, so there's no discovery call to sit through twice.",
+      "We'll bring the score and the figure you just worked out, so there's no discovery call to sit through twice.",
   },
 } as const;
+
+/** Fills {placeholders} in the copy above. */
+export function fill(
+  template: string,
+  values: Record<string, string | number>,
+): string {
+  return template.replace(/\{(\w+)\}/g, (whole, key) =>
+    key in values ? String(values[key]) : whole,
+  );
+}

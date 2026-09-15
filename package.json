@@ -10,7 +10,8 @@
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "seed": "node scripts/seed-demo.mjs"
+    "seed": "node scripts/seed-demo.mjs",
+    "criteria": "npx tsx scripts/criteria.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.17.4",

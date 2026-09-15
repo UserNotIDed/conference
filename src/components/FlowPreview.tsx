@@ -1,45 +1,93 @@
 "use client";
 
 import { useState } from "react";
-import { mockSession } from "@/lib/mock-session";
+import { answeredSession, mockSession } from "@/lib/mock-session";
 import { AttendeeFlow, type Stage } from "@/components/flow/AttendeeFlow";
 
 /**
  * Every screen in the flow, reachable in one tap — and fully working.
  *
- * The prospect-facing screens sit at the end of the attendee path, behind six
- * patient screens, which makes reviewing or changing them a two-minute
- * roleplay every time. Pick one here and it renders on its own.
+ * Reviewing the last screen should not cost a ninety-second run through the
+ * first four. Pick one here and it renders on its own.
  *
  * It runs the real AttendeeFlow rather than a parallel copy of it, so every
- * button works and you can click forward from wherever you land. What is
- * switched off is persistence: writes go to a queue that drops them, the
- * eligibility check runs on a local clock, and the outbound text is faked.
- * Nothing reaches the database and no lead is created.
+ * button works and you can click forward from wherever you land — which is
+ * also the only way to stop the picker drifting out of date. What is switched
+ * off is persistence: writes go to a queue that drops them, so nothing reaches
+ * the database and no lead is created.
  */
 
-type Group = "gate" | "form" | "payoff";
-type Entry = { id: Stage; label: string; group: Group; note: string };
+type Group = "ask" | "diagnosis";
+type Entry = {
+  id: Stage;
+  label: string;
+  group: Group;
+  note: string;
+  /** Needs the earlier answers to have something to show. */
+  answered?: boolean;
+};
 
 const SCREENS: Entry[] = [
-  { id: "pin", label: "PIN", group: "gate", note: "Prefilled code. No personalisation yet." },
-  { id: "landing", label: "Landing hub", group: "gate", note: "Readiness score and the five sections." },
-  { id: "demographics", label: "1 · Demographics", group: "form", note: "Role chips, details, shipping address." },
-  { id: "card", label: "2 · Insurance", group: "form", note: "Card scan, then a live eligibility check." },
-  { id: "payment", label: "3 · Copay", group: "form", note: "Simulated payment. Matches the eligibility copay." },
-  { id: "stack", label: "4 · Tech stack", group: "form", note: "Common tools, then search." },
-  { id: "competitor", label: "4b · How's it working out", group: "form", note: "Only if they already pay a rival." },
-  { id: "leak", label: "5 · Leak diagnosis", group: "form", note: "Three sliders. The clock stops here." },
-  { id: "result", label: "Your annual leak", group: "payoff", note: "Assumptions, benchmark (prechecked), text CTA." },
-  { id: "booking", label: "Book a demo", group: "payoff", note: "Their figure, then out to yosi.health." },
+  {
+    id: "landing",
+    label: "Landing",
+    group: "ask",
+    note: "What it is, what it takes, what they get.",
+  },
+  {
+    id: "contact",
+    label: "1 · About you",
+    group: "ask",
+    note: "Role chips, contact details, charger address.",
+  },
+  {
+    id: "stack",
+    label: "2 · Your setup",
+    group: "ask",
+    note: "Common tools, then search. Feeds a quarter of the score.",
+  },
+  {
+    id: "competitor",
+    answered: true,
+    label: "2b · How's it working out",
+    group: "ask",
+    note: "Only if they already pay an intake vendor.",
+  },
+  {
+    id: "numbers",
+    label: "3 · Your numbers",
+    group: "ask",
+    note: "Five sliders. No keyboard.",
+  },
+  {
+    id: "score",
+    answered: true,
+    label: "Practice health score",
+    group: "diagnosis",
+    note: "Ring, band, four weighted dimensions, the scoring.",
+  },
+  {
+    id: "money",
+    answered: true,
+    label: "Leak and ROI",
+    group: "diagnosis",
+    note: "Four leak components, what we recover, what we cost.",
+  },
+  {
+    id: "booking",
+    answered: true,
+    label: "Book a demo",
+    group: "diagnosis",
+    note: "Their figure, then out to yosi.health.",
+  },
 ];
 
 export function FlowPreview() {
-  const [id, setId] = useState<Stage>("pin");
+  const [id, setId] = useState<Stage>("landing");
   // Bumped to remount the flow, so "Restart" replays the screen you are on.
   const [nonce, setNonce] = useState(0);
-  const session = mockSession();
   const current = SCREENS.find((s) => s.id === id) ?? SCREENS[0];
+  const session = current.answered ? answeredSession() : mockSession();
 
   return (
     <div className="min-h-dvh lg:flex">
@@ -51,23 +99,27 @@ export function FlowPreview() {
           Every screen
         </h1>
         <p className="mt-2 text-[12.5px] leading-[1.5] text-ink-sub">
-          The prospect goes through intake as themselves. Every button works and
-          you can click forward from anywhere; nothing is saved and no lead is
-          created. All copy lives in{" "}
+          A prospect checks the health of their own practice. Every button
+          works and you can click forward from anywhere; nothing is saved and
+          no lead is created. Copy lives in{" "}
           <code className="rounded bg-canvas px-1 py-0.5 text-[11.5px]">
-            src/lib/flow-content.ts
+            flow-content.ts
+          </code>
+          , the money in{" "}
+          <code className="rounded bg-canvas px-1 py-0.5 text-[11.5px]">
+            calc.ts
+          </code>
+          , the score in{" "}
+          <code className="rounded bg-canvas px-1 py-0.5 text-[11.5px]">
+            score.ts
           </code>
           .
         </p>
 
-        {(["gate", "form", "payoff"] as Group[]).map((group) => (
+        {(["ask", "diagnosis"] as Group[]).map((group) => (
           <section key={group} className="mt-5">
             <h2 className="text-[10px] font-bold uppercase tracking-[0.08em] text-ink-mute">
-              {group === "gate"
-                ? "Getting in"
-                : group === "form"
-                  ? "The five sections — on the clock"
-                  : "The payoff"}
+              {group === "ask" ? "What we ask" : "What they get"}
             </h2>
             <div className="mt-2 space-y-1">
               {SCREENS.filter((s) => s.group === group).map((s) => (

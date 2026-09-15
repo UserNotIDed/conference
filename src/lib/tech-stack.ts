@@ -90,10 +90,10 @@ export const SATISFACTION = [
 ] as const;
 
 export const TECH_STACK_COPY = {
-  kicker: "4 · Tech stack",
+  kicker: "2 · Your setup",
   title: "What are you already running?",
   subtitle:
-    "Pick anything you use today. We'll tell you what plugs in and what doesn't.",
+    "Pick anything you use today, including the things that aren't software.",
   showMore: (n: number) => `Show ${n} more`,
   showLess: "Show fewer",
   addLabel: "Add anything else",
@@ -104,7 +104,7 @@ export const TECH_STACK_COPY = {
   countFooter: (n: number) => `${n} selected`,
   cta: "Continue",
   competitor: {
-    kicker: "4 · Tech stack",
+    kicker: "2 · Your setup",
     title: "How's {tool} working out?",
     subtitle: "Straight answer is more useful to you than a polite one.",
   },

@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db";
 import { parseJson } from "@/lib/session";
 import {
   ASSUMPTIONS,
+  clampInputs,
+  type CalcInputs,
   calculate,
   orderComponents,
   pct,
@@ -34,11 +36,11 @@ export default async function BreakdownPage({
   });
   if (!session?.calcInputs) notFound();
 
-  const inputs = parseJson<{
-    patientsPerDay: number;
-    noShowRate: number;
-    frontDeskStaff: number;
-  }>(session.calcInputs, { patientsPerDay: 40, noShowRate: 0.12, frontDeskStaff: 3 });
+  // Run through the same clamp the flow uses, so a record written before a
+  // question existed still produces the model's defaults rather than NaN.
+  const inputs = clampInputs(
+    parseJson<Partial<CalcInputs>>(session.calcInputs, {}),
+  );
 
   const result = calculate(inputs);
   const ordered = orderComponents(result, session.role);

@@ -1,0 +1,185 @@
+# Practice health check — criteria to validate
+
+*Generated from the code by `npm run criteria`. Do not edit by hand — edit
+`src/lib/calc.ts` and `src/lib/score.ts` and regenerate, or this sheet and the
+app will disagree.*
+
+Everything marked **⚠️ Ours** is a number we made up so the screens would work.
+It is on the attendee's phone, under "What are we assuming?", tagged as ours —
+so it is arguable in public, which is the point. It still has to be right.
+
+---
+
+## 1 · The questions we ask
+
+Five sliders, section 3. Nothing else is asked, and nothing is looked up.
+
+| Input | Range | Used by |
+| --- | --- | --- |
+| Patients per day | 5–150 | Leak, score |
+| No-show rate | 0–30% | Leak, score |
+| Front desk headcount | 1–12 | Leak (cap), score |
+| Minutes per patient on registration | 1–20 | Leak, score |
+| Patient balance collected up front | 0–100% | Leak, score |
+
+Plus, from section 2: what they run today, and — if that includes an intake
+vendor — whether it is working. That pair is the only input to one quarter of
+the score.
+
+---
+
+## 2 · The dollar model
+
+### The leak — four components, summed
+
+```
+missed     = patients/day × clinic days × no-show rate × net revenue per visit
+staff      = minutes each ÷ 60 × patients/day × clinic days × loaded hourly rate
+             capped at: headcount × paid hours per FTE × loaded hourly rate
+rework     = patients/day × clinic days × rework rate × cost to rework one claim
+collection = kept visits × patient responsibility
+             × (1 − collected up front) × write-off rate
+
+kept visits = patients/day × clinic days × (1 − no-show rate)
+```
+
+The cap on `staff` exists because you cannot save more front desk time than
+the front desk is paid for. Without it, a high-volume practice with a small desk
+produces a figure a CFO throws out on sight.
+
+### The return
+
+```
+recovered = Σ (each leak component × its recovery rate)
+cost      = platform fee × 12  +  completed intakes × per-intake price
+net       = recovered − cost
+multiple  = recovered ÷ cost          (gross, not net — the screen says so)
+payback   = cost ÷ (recovered ÷ 12)   months
+```
+
+Completed intakes, not booked visits — a patient who no-shows does not fill in
+a form, so we do not bill for one.
+
+### Constants in the leak
+
+What we add to their answers to turn them into money.
+
+| Constant | Value | Status | Owner | What it needs |
+| --- | --- | --- | --- | --- |
+| **Net revenue per completed visit** | `$145` | ⚠️ **Ours** | Marketing | Carries the largest component of the leak. Marketing to confirm the blended figure before the show. |
+| **Loaded front desk hourly cost** | `$26/hr` | Sourced | — | Signed off. |
+| **Patient responsibility per visit** | `$32` | ⚠️ **Ours** | RCM | Replace with the average off our own book of customers. |
+| **Uncollected balance never recovered** | `40%` | ⚠️ **Ours** | RCM | Invented. Needs a real write-off rate. |
+| **Claims reworked for registration errors** | `5%` | ⚠️ **Ours** | RCM | Needs a citation. Smallest component, so the least urgent of the four. |
+| **Cost to rework one claim** | `$25` | Sourced | — | Signed off. |
+| **Clinic days per year** | `250` | Sourced | — | Signed off. |
+| **Paid hours per front desk FTE** | `2,080` | Sourced | — | Signed off. |
+
+### Recovery rates
+
+The share of each component we claim to recover. **These are the numbers a CFO will attack.** Every one is invented today.
+
+| Constant | Value | Status | Owner | What it needs |
+| --- | --- | --- | --- | --- |
+| **No-shows recovered** | `35%` | ⚠️ **Ours** | Customer success | The single most aggressive number in the model and the first one a CFO will attack. Needs before/after data from real customers. |
+| **Manual entry removed** | `60%` | ⚠️ **Ours** | Customer success | Should be the easiest to evidence — we can measure it. |
+| **Registration rework avoided** | `50%` | ⚠️ **Ours** | Customer success | Needs a customer denial-rate before/after. |
+| **Patient balance recovered** | `50%` | ⚠️ **Ours** | Customer success | Needs a customer collection-rate before/after. |
+
+### What we charge
+
+Drives the payback period and the multiple. Modelled as fee plus per-intake so the ROI scales honestly with practice size.
+
+| Constant | Value | Status | Owner | What it needs |
+| --- | --- | --- | --- | --- |
+| **Platform fee** | `$600/mo` | ⚠️ **Ours** | Sales | Replace with real list price or the mid-market deal band. |
+| **Per completed intake** | `$1.10` | ⚠️ **Ours** | Sales | Replace with the real per-transaction price. |
+
+
+---
+
+## 3 · The practice health score
+
+Four dimensions, each scored 0–100 from an answer they gave, then weighted.
+**Every weight and every band below is a placeholder.**
+
+| Dimension | Weight | Measure | 100 at | 0 at |
+| --- | --- | --- | --- | --- |
+| Patients who show up | 30% | No-show rate | 3% | 20% |
+| Load on the front desk | 25% | Registration minutes per person per day | 30 min | 240 min |
+| How intake gets done | 25% | What they run today | see below | see below |
+| Money collected up front | 20% | Share collected before or at the visit | 95% | 20% |
+
+Between the two ends, straight line. Registration minutes per person per day is
+`patients/day × minutes each ÷ headcount`.
+
+### How intake gets done, scored
+
+| What they told us | Score |
+| --- | --- |
+| Digital intake vendor in place | 85 |
+| Intake vendor in place, not working | 55 |
+| EHR patient portal only | 50 |
+| Paper, clipboard or keyed by the desk | 15 |
+| Nothing digital in the workflow | 30 |
+
+An intake vendor they are unhappy with scores below one that works, and above
+paper. That is deliberate: they have already bought the category, which is the
+easiest sale we have, but the incumbent is still doing part of the job.
+
+### Bands
+
+| Score | Label | What we say |
+| --- | --- | --- |
+| 80–100 | **Healthy** | Your front desk is not where your revenue is going. |
+| 65–79 | **Holding** | It works, and it works because people are absorbing the gaps. |
+| 50–64 | **Under strain** | Volume is outrunning the process at the front of the visit. |
+| 0–49 | **At risk** | Intake is costing you more than it would cost to fix. |
+
+---
+
+## 4 · Worked example
+
+A practice seeing **45 patients a day**, **14% no-show**, **3 on the front desk**,
+**8 minutes** per patient on registration, **50%** of patient balance collected up front,
+already running athenahealth and an intake vendor they are unhappy with.
+
+**Practice health score: 47 — At risk**
+
+| Dimension | Score | Weight | Contribution |
+| --- | --- | --- | --- |
+| Patients who show up | 35 | 30% | 10.5 |
+| Load on the front desk | 57 | 25% | 14.3 |
+| How intake gets done | 55 | 25% | 13.8 |
+| Money collected up front | 40 | 20% | 8.0 |
+
+**Annual leak: $343,358**
+
+| Component | Amount | Formula |
+| --- | --- | --- |
+| Missed visit revenue | $228,375 | 45/day × 250 days × 14% no-show × $145 |
+| Front desk time on manual entry | $39,000 | 8 min × 45/day × 250 days × $26/hr |
+| Claim rework from intake errors | $14,063 | 45/day × 250 days × 5% × $25 |
+| Patient balances written off | $61,920 | 9,675 visits × $32 × 50% uncollected × 40% |
+
+**Return: $141,323 recovered − $17,843 cost = $123,480 net.**
+7.92x on spend, payback in 1.5 months.
+
+
+---
+
+## 5 · What we need back
+
+1. **The four recovery rates.** Highest priority — they are the entire ROI half
+   and none of them is evidenced. No-shows first; it is the largest and the
+   least defensible.
+2. **Net revenue per completed visit.** Carries the largest single component of
+   the leak.
+3. **Patient responsibility per visit** and the **write-off rate**.
+4. **Price.** Whatever the ROI should be divided by.
+5. **The weights and bands in section 3.** Argue with them — they were set to
+   produce sensible-looking scores, which is not the same as being right.
+
+Anything you change, change it in `src/lib/calc.ts` or `src/lib/score.ts` and
+run `npm run criteria`. The prospect's screen, the follow-up and this sheet all
+read from the same place.

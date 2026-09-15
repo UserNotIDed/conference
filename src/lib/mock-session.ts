@@ -12,7 +12,7 @@ export function mockSession(over: Partial<ClientSession> = {}): ClientSession {
   return {
     token: "d3k9",
     phone: "+12145550148",
-    role: "frontdesk",
+    role: null,
     practiceName: null,
     practice: PRACTICE,
     persona: personaFor(0),
@@ -50,13 +50,13 @@ export function mockSession(over: Partial<ClientSession> = {}): ClientSession {
     ehrSystem: null,
     competitorTool: null,
     competitorSatisfaction: null,
-    calcInputs: { patientsPerDay: 42, noShowRate: 0.12, frontDeskStaff: 3 },
+    calcInputs: null,
     calcResult: null,
     capture: {
       name: null,
       title: null,
       email: null,
-      practice: "Cedar Park OB-GYN",
+      practice: null,
       street: null,
       unit: null,
       city: null,
@@ -70,4 +70,41 @@ export function mockSession(over: Partial<ClientSession> = {}): ClientSession {
     },
     ...over,
   };
+}
+
+/**
+ * A session that has already answered everything.
+ *
+ * The diagnosis screens read prior answers — the stack sets a quarter of the
+ * score, the volumes set all of the money — so previewing them against a blank
+ * session shows an unscored practice, which is not a screen that exists. The
+ * landing page has the opposite problem: handed a filled session it opens
+ * reading "2 of 3 done", which is not the screen an attendee meets either. So
+ * the picker uses whichever of the two the screen actually needs.
+ */
+export function answeredSession(over: Partial<ClientSession> = {}): ClientSession {
+  return mockSession({
+    role: "frontdesk",
+    // athena plus an incumbent they are unhappy with — the segment worth
+    // showing, and the only one that exercises the 2b screen.
+    techStack: ["athenahealth", "Phreesia"],
+    ehrSystem: "athenahealth",
+    competitorTool: "Phreesia",
+    competitorSatisfaction: "It frustrates us",
+    calcInputs: {
+      patientsPerDay: 45,
+      noShowRate: 0.14,
+      frontDeskStaff: 3,
+      minutesPerIntake: 8,
+      collectedRate: 0.5,
+    },
+    capture: {
+      ...mockSession().capture,
+      name: "Dana Whitfield",
+      email: "dana@lakeviewwh.com",
+      practice: "Lakeview Women's Health",
+      capturedAt: new Date().toISOString(),
+    },
+    ...over,
+  });
 }

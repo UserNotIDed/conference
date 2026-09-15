@@ -4,61 +4,37 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ClientSession } from "@/lib/session";
 import { getQueue, type PatchKey } from "@/lib/sync";
 import { ScreenLanding } from "./LandingScreen";
-import { ScreenPayment } from "./PaymentScreen";
-import { useVerify } from "./useVerify";
-import {
-  ScreenBusinessCard,
-  ScreenCompetitor,
-  ScreenTechStack,
-  ScreenVerify,
-} from "./ProspectScreens";
-import {
-  ScreenCalc,
-  ScreenCalcResult,
-  ScreenCapture,
-  ScreenThanks,
-} from "./PayoffScreens";
+import { ScreenContact } from "./ContactScreen";
+import { ScreenNumbers } from "./NumbersScreen";
+import { ScreenCompetitor, ScreenTechStack } from "./StackScreens";
+import { ScreenMoney, ScreenScore, ScreenThanks } from "./DiagnosisScreens";
 import { competitorIn } from "@/lib/tech-stack";
-import { COPAY_CENTS } from "@/lib/demo";
-import { calculate } from "@/lib/calc";
+import { calculate, clampInputs, type CalcInputs } from "@/lib/calc";
 
 export type Stage =
-  | "pin"
   | "landing"
-  | "demographics"
-  | "card"
-  | "payment"
+  | "contact"
   | "stack"
   | "competitor"
-  | "leak"
-  | "result"
+  | "numbers"
+  | "score"
+  | "money"
   | "booking";
 
-/** The four form sections named on the landing page — the ones on the clock. */
-const INTAKE_STAGES: Stage[] = [
-  "demographics",
-  "card",
-  "payment",
-  "stack",
-  "competitor",
-  "leak",
-];
-
-
-
 /**
- * The attendee flow.
+ * The practice health check.
  *
- * The one rule that shapes everything here: no screen ever waits on the
- * network. Each step hands its payload to the sync queue and advances on the
- * next frame, the queue retries in the background, and the server applies
- * patches idempotently by key. On a good connection that is invisible; on
- * conference wifi it is the difference between 60 seconds and a demo that
- * dies in front of an audience.
+ * Three sections and a two-screen diagnosis. The person holding the phone is
+ * the prospect answering about their own practice — there is no patient
+ * roleplay and nothing here is simulated, so every answer is a lead field and
+ * every screen is either a question or the payoff for having answered it.
  *
- * A reload — or a phone that locked and dropped the tab — comes back to the
- * screen it left, resumed from what the server has stored rather than from
- * anything in this browser. See initialStage at the bottom.
+ * The one rule that shapes the plumbing: no screen ever waits on the network.
+ * Each step hands its payload to the sync queue and advances on the next
+ * frame, the queue retries in the background, and the server applies patches
+ * idempotently by key. On a good connection that is invisible; on conference
+ * wifi it is the difference between 90 seconds and a demo that dies in front
+ * of an audience.
  */
 export function AttendeeFlow({
   session,
@@ -71,10 +47,9 @@ export function AttendeeFlow({
   resume?: boolean;
   /**
    * Runs the real flow against a session that does not exist: writes go to a
-   * queue that drops them, the eligibility check runs on a local clock, and
-   * the outbound text is faked. Everything else — the components, the stage
-   * machine, the timings — is the same code the attendee gets, so the preview
-   * cannot drift from the thing it is previewing.
+   * queue that drops them. Everything else — the components, the stage
+   * machine, the arithmetic — is the same code the attendee gets, so the
+   * preview cannot drift from the thing it is previewing.
    */
   preview?: boolean;
   /** Jump straight to one screen. Preview only. */
@@ -88,54 +63,43 @@ export function AttendeeFlow({
     () => startAt ?? initialStage(session, resume),
   );
   const [role, setRole] = useState<string | null>(session.role);
-  /**
-   * What the card scan read, held locally.
-   *
-   * The page was server-rendered before any of it existed, so the shipping
-   * screen and the close both have to read it from here rather than from the
-   * session snapshot — otherwise the fields they were promised would arrive
-   * pre-filled show up empty. Carried as one object because carrying the
-   * fields individually is how the email got dropped the first time.
-   */
-  const { verify, startVerify } = useVerify(session.token, session.verify, preview);
   const [techStack, setTechStack] = useState<string[]>(session.techStack ?? []);
   const [competitor, setCompetitor] = useState<string | null>(
     session.competitorTool,
   );
-  const [card, setCard] = useState({
+  const [satisfaction, setSatisfaction] = useState<string | null>(
+    session.competitorSatisfaction,
+  );
+  /**
+   * What they typed on the contact screen, held locally.
+   *
+   * The page was server-rendered before any of it existed, so the score and
+   * the close both have to read it from here rather than from the session
+   * snapshot. Carried as one object because carrying the fields individually
+   * is how the email got dropped the first time.
+   */
+  const [contact, setContact] = useState({
     name: session.capture.name,
     email: session.capture.email,
     practice: session.capture.practice ?? session.practiceName,
   });
-  const [elapsedMs, setElapsed] = useState(session.elapsedMs ?? 0);
-  const [calcInputs, setCalcInputs] = useState(() =>
-    session.calcInputs
-      ? {
-          patientsPerDay: session.calcInputs.patientsPerDay,
-          noShowRate: session.calcInputs.noShowRate,
-          frontDeskStaff: session.calcInputs.frontDeskStaff,
-        }
-      : null,
+  const [calcInputs, setCalcInputs] = useState<CalcInputs | null>(
+    // Widened to Record<string, number> coming off the server snapshot, so it
+    // goes through the same clamp the calculator uses rather than being cast.
+    session.calcInputs ? clampInputs(session.calcInputs) : null,
   );
-  const [textState, setTextState] = useState<"idle" | "sending" | "sent">("idle");
   const [sync, setSync] = useState({ pending: 0, failing: false });
 
-  const startRef = useRef<number | null>(session.startedAtMs ?? null);
-  // Two CTAs sit in the same place on consecutive screens, so a fast double-tap
-  // — a bounced finger, or a laggy screen someone taps twice — lands the second
-  // hit on the next screen's button and silently skips it. Ignore anything
-  // inside 400ms of the last advance; no human fills in a screen that fast.
+  // Two CTAs sit in the same place on consecutive screens, so a fast
+  // double-tap — a bounced finger, or a laggy screen someone taps twice —
+  // lands the second hit on the next screen's button and silently skips it.
+  // Ignore anything inside 400ms of the last advance; no human fills in a
+  // screen that fast.
   const lastAdvance = useRef(0);
-  // Set on the first intake render rather than at construction: reading the
-  // clock during render is impure, and the value is meaningless until the
-  // first screen is actually on the glass.
-  const stepStart = useRef<number>(0);
-  const timings = useRef<Record<string, number>>({});
-
 
   useEffect(() => queue.subscribe(setSync), [queue]);
 
-  // Role is picked in this component, so the copy downstream reads it from
+  // These are picked in this component, so the copy downstream reads them from
   // here rather than from the server snapshot the page was rendered with.
   const view = useMemo<ClientSession>(
     () => ({
@@ -143,179 +107,77 @@ export function AttendeeFlow({
       role,
       techStack,
       competitorTool: competitor,
-      capture: { ...session.capture, ...card },
+      competitorSatisfaction: satisfaction,
+      capture: { ...session.capture, ...contact },
     }),
-    [session, role, card, techStack, competitor],
+    [session, role, contact, techStack, competitor, satisfaction],
   );
 
   useEffect(() => {
     queue.push("opened", {});
   }, [queue]);
 
-  /**
-   * The clock starts on the first render of the one-time-code screen — the
-   * first thing the patient actually touches. Not on session create, and not on
-   * the role tap: the SMS round trip, the walk back to the booth and picking a
-   * role are all real time, but none of it is the patient doing intake, and
-   * that is what the number on the done screen claims to measure. The code
-   * screen is inside the clock precisely because it is part of the product.
-   */
-  useEffect(() => {
-    if (stage !== "demographics" || startRef.current !== null) return;
-    const now = Date.now();
-    startRef.current = now;
-    stepStart.current = now;
-    queue.push("started", { clientMs: now });
-  }, [stage, queue]);
-
   const advance = useCallback(
     (next: Stage, key?: PatchKey, body?: Record<string, unknown>) => {
       const now = Date.now();
       if (now - lastAdvance.current < 400) return;
       lastAdvance.current = now;
-      if (INTAKE_STAGES.includes(stage) && stepStart.current > 0) {
-        timings.current[stage] = now - stepStart.current;
-      }
-      stepStart.current = now;
       if (key) queue.push(key, body ?? {});
       setStage(next);
-    },
-    [queue, stage],
-  );
-
-  /**
-   * Ends the timed part of the run.
-   *
-   * The clock stops when the last thing we ask for is answered — the volumes —
-   * because that is the point at which the prospect has finished doing intake.
-   * Everything after it (their number, the charger, booking) is the payoff, and
-   * putting it inside the measurement would be dishonest about what took 47
-   * seconds.
-   */
-  const finish = useCallback(
-    (inputs: Record<string, unknown>) => {
-      const now = Date.now();
-      if (now - lastAdvance.current < 400) return;
-      lastAdvance.current = now;
-      if (stepStart.current > 0) timings.current.leak = now - stepStart.current;
-      const total = startRef.current ? now - startRef.current : 0;
-      setElapsed(total);
-      queue.push("calc", inputs);
-      queue.push("finished", { elapsedMs: total, stepTimings: timings.current });
-      setStage("result");
     },
     [queue],
   );
 
-  const textResult = useCallback(async () => {
-    setTextState("sending");
-    if (preview) {
-      setTimeout(() => setTextState("sent"), 600);
-      return;
-    }
-    try {
-      const res = await fetch(`/api/session/${session.token}/text-result`, {
-        method: "POST",
-      });
-      setTextState(res.ok ? "sent" : "idle");
-    } catch {
-      // The estimate is already saved and the breakdown page is live; a failed
-      // text is a retry, not a dead end.
-      setTextState("idle");
-    }
-  }, [session.token, preview]);
-
   return (
     <>
-      {/* 1. The PIN. Nothing shows until the phone that owns the link is
-             proved — same gate the patient gets, and the reason the link is
-             safe to text. */}
-      {stage === "pin" ? (
-        <ScreenVerify session={view} onNext={() => advance("landing", "otp", {})} />
-      ) : null}
-
-      {/* 2. The menu: what is in here, and why finishing is worth it. */}
+      {/* The hub: what this is, what it takes, what they get for finishing. */}
       {stage === "landing" ? (
         <ScreenLanding
           sections={[
             {
-              id: "demographics",
+              id: "contact",
               icon: "person" as const,
-              label: "Demographics",
+              label: "About you",
               note: "Who you are, and where the charger goes.",
               done: Boolean(view.capture.capturedAt || view.capture.name),
             },
             {
-              id: "card",
-              icon: "card" as const,
-              label: "Insurance",
-              note: "Card scan and a live eligibility check.",
-              done: Boolean(view.cardAt),
-            },
-            {
-              id: "payment",
-              icon: "wallet" as const,
-              label: "Copay",
-              note: "Collected before the visit, not at the desk.",
-              done: Boolean(view.paidAt),
-              action: `$${(COPAY_CENTS / 100).toFixed(0)}`,
-            },
-            {
               id: "stack",
               icon: "stack" as const,
-              label: "Tech stack",
-              note: "What you're already running.",
+              label: "Your setup",
+              note: "What you're already running today.",
               done: view.techStack.length > 0,
             },
             {
-              id: "leak",
+              id: "numbers",
               icon: "chart" as const,
-              label: "Leak diagnosis",
-              note: "Three numbers in, your annual leak out.",
+              label: "Your numbers",
+              note: "Five sliders. No keyboard, nothing to look up.",
               done: Boolean(view.calcInputs),
             },
           ]}
-          onStart={() => advance("demographics")}
+          onStart={() => advance("contact")}
           onJump={(id) => advance(id as Stage)}
         />
       ) : null}
 
-      {/* 3. Demographics. Also where the charger is going. */}
-      {stage === "demographics" ? (
-        <ScreenCapture
+      {/* 1 — who they are. Every field is a lead field. */}
+      {stage === "contact" ? (
+        <ScreenContact
           session={view}
           onSubmit={(body) => {
             setRole((body.role as string) || null);
-            setCard({
+            setContact({
               name: (body.name as string) || null,
               email: (body.email as string) || null,
               practice: (body.practice as string) || null,
             });
-            advance("card", "capture", body);
+            advance("stack", "capture", body);
           }}
         />
       ) : null}
 
-      {/* 4. Card scan. */}
-      {stage === "card" ? (
-        <ScreenBusinessCard
-          session={view}
-          verify={verify}
-          onScan={() => void startVerify()}
-          onNext={() => advance("payment", "card", {})}
-        />
-      ) : null}
-
-      {stage === "payment" ? (
-        <ScreenPayment
-          amountCents={COPAY_CENTS}
-          onNext={(paid) =>
-            advance("stack", "payment", { paid, amountCents: COPAY_CENTS })
-          }
-        />
-      ) : null}
-
-      {/* 5. Tech stack, with the incumbent follow-up when there is one. */}
+      {/* 2 — the stack, with the incumbent follow-up when there is one. */}
       {stage === "stack" ? (
         <ScreenTechStack
           session={view}
@@ -323,7 +185,8 @@ export function AttendeeFlow({
             setTechStack(tools);
             const rival = competitorIn(tools);
             setCompetitor(rival);
-            advance(rival ? "competitor" : "leak", "stack", { tools });
+            if (!rival) setSatisfaction(null);
+            advance(rival ? "competitor" : "numbers", "stack", { tools });
           }}
         />
       ) : null}
@@ -331,36 +194,43 @@ export function AttendeeFlow({
       {stage === "competitor" && competitor ? (
         <ScreenCompetitor
           tool={competitor}
-          onNext={(satisfaction) =>
-            advance("leak", "competitor", { satisfaction })
-          }
-        />
-      ) : null}
-
-      {/* 6. Leak diagnosis. */}
-      {stage === "leak" ? (
-        <ScreenCalc
-          session={view}
-          onSubmit={(inputs) => {
-            setCalcInputs(inputs);
-            finish(inputs);
+          onNext={(value) => {
+            setSatisfaction(value);
+            advance("numbers", "competitor", { satisfaction: value });
           }}
         />
       ) : null}
 
-      {stage === "result" && calcInputs ? (
-        <ScreenCalcResult
+      {/* 3 — the five numbers. */}
+      {stage === "numbers" ? (
+        <ScreenNumbers
           session={view}
-          inputs={calcInputs}
-          elapsedMs={elapsedMs}
-          onText={textResult}
-          onBenchmark={(optIn) => queue.push("benchmark", { optIn })}
-          textState={textState}
-          onNext={() => advance("booking")}
+          onSubmit={(inputs) => {
+            setCalcInputs(inputs);
+            advance("score", "calc", { ...inputs });
+          }}
         />
       ) : null}
 
-      {/* 7. Out to the booking page. */}
+      {/* The diagnosis: where they stand, then what it costs. */}
+      {stage === "score" && calcInputs ? (
+        <ScreenScore
+          session={view}
+          inputs={calcInputs}
+          onNext={() => advance("money")}
+        />
+      ) : null}
+
+      {stage === "money" && calcInputs ? (
+        <ScreenMoney
+          session={view}
+          inputs={calcInputs}
+          onBenchmark={(optIn) => queue.push("benchmark", { optIn })}
+          onNext={() => advance("booking", "finished", {})}
+        />
+      ) : null}
+
+      {/* Out to the booking page. */}
       {stage === "booking" ? (
         <ScreenThanks
           session={view}
@@ -406,22 +276,18 @@ function SyncBadge({ pending, failing }: { pending: number; failing: boolean }) 
  * Always at the beginning, unless the link explicitly asks to resume.
  *
  * Resuming from saved state was the default and it was wrong. The whole run is
- * about a minute, so a reload losing your place costs nothing — but resuming
- * means anyone opening the same link twice lands halfway through, which makes
- * the demo impossible to rehearse, impossible to show twice, and baffling when
- * a second person picks up the phone. Starting over is the behaviour everyone
- * expects from a link.
+ * about ninety seconds, so a reload losing your place costs nothing — but
+ * resuming means anyone opening the same link twice lands halfway through,
+ * which makes the demo impossible to rehearse, impossible to show twice, and
+ * baffling when a second person picks up the phone.
  *
  * ?resume=1 brings the old behaviour back for the one case it suits: someone
  * whose phone locked mid-flow and who wants to pick up where they were.
  */
 function initialStage(session: ClientSession, resume: boolean): Stage {
-  if (!resume) return "pin";
-  if (session.calcInputs) return "result";
-  if (session.techStack.length > 0) return "leak";
-  if (session.paidAt) return "stack";
-  if (session.cardAt) return "payment";
-  if (session.capture.capturedAt) return "card";
-  if (session.otpAt) return "landing";
-  return "pin";
+  if (!resume) return "landing";
+  if (session.calcInputs) return "score";
+  if (session.techStack.length > 0) return "numbers";
+  if (session.capture.capturedAt) return "stack";
+  return "landing";
 }
