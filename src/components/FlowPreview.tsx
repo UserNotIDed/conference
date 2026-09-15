@@ -57,7 +57,7 @@ const SCREENS: Entry[] = [
     id: "numbers",
     label: "3 · Your numbers",
     group: "ask",
-    note: "Five sliders. No keyboard.",
+    note: "Four sliders. No keyboard, nothing to look up.",
   },
   {
     id: "score",

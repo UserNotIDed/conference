@@ -382,8 +382,7 @@ export function ScreenMoney({
 
         <p className="mt-4 text-[12px] leading-[1.5] text-ink-mute">
           Based on {inputs.patientsPerDay} patients a day, {pct(inputs.noShowRate)}{" "}
-          no-show, {inputs.frontDeskStaff} at the front desk,{" "}
-          {inputs.minutesPerIntake} minutes each on registration, and{" "}
+          no-show, {inputs.frontDeskStaff} at the front desk and{" "}
           {pct(inputs.collectedRate)} collected up front.
         </p>
 

@@ -2,100 +2,37 @@ import { prisma } from "@/lib/db";
 import { guardApi } from "@/lib/guard";
 import { toCsv } from "@/lib/csv";
 import { toRow } from "@/lib/rows";
+import { CSV_HEADERS, csvRow } from "@/lib/hubspot";
 
 export const dynamic = "force-dynamic";
 
-const HEADERS = [
-  "token",
-  "phone",
-  "source",
-  "keyword",
-  "role",
-  "ehr_system",
-  "tech_stack",
-  "competitor_tool",
-  "competitor_satisfaction",
-  "created_at",
-  "link_opened_at",
-  "intake_started_at",
-  "intake_finished_at",
-  "intake_seconds",
-  "link_opened_to_done",
-  "patients_per_day",
-  "no_show_rate",
-  "front_desk_staff",
-  "estimated_annual_leak",
-  "result_texted_at",
-  "capture_name",
-  "capture_title",
-  "capture_email",
-  "capture_practice",
-  "capture_street",
-  "capture_unit",
-  "capture_city",
-  "capture_state",
-  "capture_zip",
-  "capture_address",
-  "benchmark_opt_in",
-  "captured_at",
-  "booked_at",
-  "booked_slot",
-  "retarget",
-];
-
-/** Everything, flat, one row per phone number. The on-site escape hatch. */
+/**
+ * Every lead, in HubSpot's own column names.
+ *
+ * Deliberately the same shape as the submit rather than a dump of our row
+ * type: the file's whole reason to exist is that a booth with no signal, or a
+ * form GUID that turns out to be wrong, does not lose the day's leads. Import
+ * this straight onto the Contact object and the columns land on the properties
+ * they were already going to land on.
+ *
+ * Sessions with no email are skipped — HubSpot dedupes on email, and a row
+ * without one imports as a new contact every time.
+ */
 export async function GET() {
   const denied = await guardApi();
   if (denied) return denied;
 
   const sessions = await prisma.session.findMany({ orderBy: { createdAt: "asc" } });
-  const rows = sessions.map(toRow).map((r) => [
-    r.token,
-    r.phone,
-    r.source,
-    r.keyword,
-    r.roleLabel,
-    r.ehrSystem,
-    r.techStack.join(" | "),
-    r.competitorTool,
-    r.competitorSatisfaction,
-    r.createdAt,
-    r.openedAt,
-    r.startedAt,
-    r.finishedAt,
-    r.elapsedMs !== null ? (r.elapsedMs / 1000).toFixed(1) : "",
-    r.openedAt && r.finishedAt
-      ? ((Date.parse(r.finishedAt) - Date.parse(r.openedAt)) / 1000).toFixed(1)
-      : "",
-    r.calcInputs?.patientsPerDay ?? "",
-    r.calcInputs?.noShowRate !== undefined
-      ? `${Math.round((r.calcInputs.noShowRate ?? 0) * 100)}%`
-      : "",
-    r.calcInputs?.frontDeskStaff ?? "",
-    r.calcTotal !== null ? Math.round(r.calcTotal) : "",
-    r.calcSmsAt,
-    r.captureName,
-    r.captureTitle,
-    r.captureEmail,
-    r.capturePractice,
-    r.captureStreet,
-    r.captureUnit,
-    r.captureCity,
-    r.captureState,
-    r.captureZip,
-    r.captureAddress,
-    r.captureOptIn ? "yes" : "no",
-    r.capturedAt,
-    r.bookedAt,
-    r.bookedSlot,
-    r.capturedAt && !r.bookedAt ? "yes" : "no",
-  ]);
+  const rows = sessions
+    .map(toRow)
+    .filter((r) => r.captureEmail)
+    .map(csvRow);
 
   const stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-");
-  return new Response("﻿" + toCsv(HEADERS, rows), {
+  return new Response("﻿" + toCsv(CSV_HEADERS, rows), {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="yosi-booth-${stamp}.csv"`,
+      "Content-Disposition": `attachment; filename="yosi-booth-hubspot-${stamp}.csv"`,
       "Cache-Control": "no-store",
     },
   });

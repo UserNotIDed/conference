@@ -29,7 +29,7 @@ Health-Passport repo and nothing here depends on it.
 | 1 | About you | Role chips, name, email, practice, address |
 | 2 | Your setup | Their stack; EHR and any incumbent derived from it |
 | 2b | Incumbent satisfaction | Only if they already pay an intake vendor |
-| 3 | Your numbers | Five sliders: patients/day, no-show, headcount, minutes per registration, collected up front |
+| 3 | Your numbers | Four sliders: patients/day, no-show, headcount, collected up front |
 | — | Practice health score | Ring, band, four weighted dimensions, the scoring |
 | — | Leak and ROI | Four leak components, what we recover, what we cost |
 | — | Book a demo | Their figure in the headline → yosi.health, click recorded |
@@ -51,7 +51,17 @@ Health-Passport repo and nothing here depends on it.
 - **Internal notes never render.** `Constant.source` is what the buyer reads;
   `Constant.internal` is for `CRITERIA.md`. "NEEDS MARKETING SIGN-OFF" once made
   it onto the buyer's screen.
-- **Nothing is asked that has to be looked up.** Five sliders, no keyboard.
+- **Nothing is asked that has to be looked up.** Four sliders, no keyboard.
+  Minutes per patient on registration is locked at 14 rather than asked — most
+  people guess it badly and slowly, and a slider nobody can answer confidently
+  costs more time than the precision buys. It is still printed as an
+  assumption, tagged as ours.
+- **HubSpot is the database.** `src/lib/hubspot.ts` is the single mapping: the
+  property spec, the payload builder and the CSV columns all come from it, so a
+  renamed property cannot half-break the integration.
+- **The email is sent by HubSpot, not by us.** `/email` renders it two ways —
+  real values to argue with, and `{{ contact.booth_* }}` tokens to paste in.
+  Any figure the email shows has to exist as a property in `hubspot.ts`.
 - **Links always start at screen one.** `?resume=1` opts into resuming.
 - **No delivery promise on the charger.**
 
@@ -66,6 +76,8 @@ Health-Passport repo and nothing here depends on it.
 | `src/lib/tech-stack.ts` | Tool list, competitor set, satisfaction options |
 | `src/components/flow/AttendeeFlow.tsx` | Stage machine |
 | `src/components/FlowPreview.tsx` | The `/preview` picker |
+| `src/lib/hubspot.ts` | Property spec, payload builder, CSV columns. One file. |
+| `src/lib/email.ts` | The follow-up email. `/email` previews and copies it. |
 | `public/yosi-logo.svg` | The real Yosi logo. Replacing it is a file drop. |
 | `prisma/schema.prisma` | One row per phone number |
 
@@ -80,9 +92,12 @@ Health-Passport repo and nothing here depends on it.
    code, lists what each number is, who owns it and what it needs. The four
    recovery rates and the price are the ones that gate the ROI claim; the score
    weights and bands are invented outright.
-4. **HubSpot.** The no-SMS, no-database rearchitecture — QR straight to the
-   microsite, Forms API to portal 45713988 — is designed but not built. Needs
-   the two form GUIDs and the final domain.
+4. **The two HubSpot form GUIDs.** `HUBSPOT_FORM_LEAD` and
+   `HUBSPOT_FORM_DIAGNOSIS`. `/admin` shows both as "not set" until they are,
+   and the mapping and payloads are already visible there without them.
+5. **The domain the QR points at.** Vercel gives you
+   `something.vercel.app` free; a CNAME onto `check.yosi.health` (or similar)
+   takes ten minutes and is what should be on the printed QR.
 4. **Deployment.** Local SQLite works; Vercel needs Turso — see `.env.example`.
    A `file:` URL on Vercel silently loses every session.
 5. **Twilio.** Unset means outbound texts are logged, not sent. The inbound

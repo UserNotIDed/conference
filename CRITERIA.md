@@ -12,14 +12,15 @@ so it is arguable in public, which is the point. It still has to be right.
 
 ## 1 · The questions we ask
 
-Five sliders, section 3. Nothing else is asked, and nothing is looked up.
+Four sliders, section 3. Nothing else is asked, and nothing is looked up.
+Minutes per patient on registration is **not** asked — it is locked at
+`14 min` and printed in the assumptions.
 
 | Input | Range | Used by |
 | --- | --- | --- |
 | Patients per day | 5–150 | Leak, score |
 | No-show rate | 0–30% | Leak, score |
 | Front desk headcount | 1–12 | Leak (cap), score |
-| Minutes per patient on registration | 1–20 | Leak, score |
 | Patient balance collected up front | 0–100% | Leak, score |
 
 Plus, from section 2: what they run today, and — if that includes an intake
@@ -70,6 +71,7 @@ What we add to their answers to turn them into money.
 | **Loaded front desk hourly cost** | `$26/hr` | Sourced | — | Signed off. |
 | **Patient responsibility per visit** | `$32` | ⚠️ **Ours** | RCM | Replace with the average off our own book of customers. |
 | **Uncollected balance never recovered** | `40%` | ⚠️ **Ours** | RCM | Invented. Needs a real write-off rate. |
+| **Front desk minutes per patient on registration** | `14 min` | ⚠️ **Ours** | — | Locked at 14 by Logan rather than asked for. It drives both the staff component and a quarter of the score, so it is the highest-leverage constant in the model after the recovery rates. |
 | **Claims reworked for registration errors** | `5%` | ⚠️ **Ours** | RCM | Needs a citation. Smallest component, so the least urgent of the four. |
 | **Cost to rework one claim** | `$25` | Sourced | — | Signed off. |
 | **Clinic days per year** | `250` | Sourced | — | Signed off. |
@@ -106,12 +108,12 @@ Four dimensions, each scored 0–100 from an answer they gave, then weighted.
 | Dimension | Weight | Measure | 100 at | 0 at |
 | --- | --- | --- | --- | --- |
 | Patients who show up | 30% | No-show rate | 3% | 20% |
-| Load on the front desk | 25% | Registration minutes per person per day | 30 min | 240 min |
+| Load on the front desk | 25% | Registration minutes per person per day | 60 min | 420 min |
 | How intake gets done | 25% | What they run today | see below | see below |
 | Money collected up front | 20% | Share collected before or at the visit | 95% | 20% |
 
 Between the two ends, straight line. Registration minutes per person per day is
-`patients/day × minutes each ÷ headcount`.
+`patients/day × 14 minutes ÷ headcount`.
 
 ### How intake gets done, scored
 
@@ -141,7 +143,7 @@ easiest sale we have, but the incumbent is still doing part of the job.
 ## 4 · Worked example
 
 A practice seeing **45 patients a day**, **14% no-show**, **3 on the front desk**,
-**8 minutes** per patient on registration, **50%** of patient balance collected up front,
+**50%** of patient balance collected up front,
 already running athenahealth and an intake vendor they are unhappy with.
 
 **Practice health score: 47 — At risk**
@@ -149,21 +151,21 @@ already running athenahealth and an intake vendor they are unhappy with.
 | Dimension | Score | Weight | Contribution |
 | --- | --- | --- | --- |
 | Patients who show up | 35 | 30% | 10.5 |
-| Load on the front desk | 57 | 25% | 14.3 |
+| Load on the front desk | 58 | 25% | 14.5 |
 | How intake gets done | 55 | 25% | 13.8 |
 | Money collected up front | 40 | 20% | 8.0 |
 
-**Annual leak: $343,358**
+**Annual leak: $372,608**
 
 | Component | Amount | Formula |
 | --- | --- | --- |
 | Missed visit revenue | $228,375 | 45/day × 250 days × 14% no-show × $145 |
-| Front desk time on manual entry | $39,000 | 8 min × 45/day × 250 days × $26/hr |
+| Front desk time on manual entry | $68,250 | 14 min × 45/day × 250 days × $26/hr |
 | Claim rework from intake errors | $14,063 | 45/day × 250 days × 5% × $25 |
 | Patient balances written off | $61,920 | 9,675 visits × $32 × 50% uncollected × 40% |
 
-**Return: $141,323 recovered − $17,843 cost = $123,480 net.**
-7.92x on spend, payback in 1.5 months.
+**Return: $158,873 recovered − $17,843 cost = $141,030 net.**
+8.90x on spend, payback in 1.3 months.
 
 
 ---

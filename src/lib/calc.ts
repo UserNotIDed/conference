@@ -24,8 +24,6 @@ export type CalcInputs = {
   patientsPerDay: number;
   noShowRate: number; // 0–1
   frontDeskStaff: number;
-  /** Front desk minutes per patient on registration and intake. */
-  minutesPerIntake: number;
   /** Share of patient responsibility collected before or at the visit. 0–1. */
   collectedRate: number;
 };
@@ -83,6 +81,16 @@ export const ASSUMPTIONS: Record<string, Constant> = {
     source:
       "Share of patient balances not collected at the time of service that are eventually written off rather than recovered by statements or collections.",
     internal: "Invented. Needs a real write-off rate.",
+  },
+  minutesPerIntake: {
+    value: 14,
+    label: "Front desk minutes per patient on registration",
+    display: "14 min",
+    status: "placeholder",
+    source:
+      "Checking them in, keying the form into the chart, and chasing the coverage. Excludes the patient's own form-filling time.",
+    internal:
+      "Locked at 14 by Logan rather than asked for. It drives both the staff component and a quarter of the score, so it is the highest-leverage constant in the model after the recovery rates.",
   },
   reworkRate: {
     value: 0.05,
@@ -214,7 +222,6 @@ export const INPUT_DEFAULTS: CalcInputs = {
   patientsPerDay: 40,
   noShowRate: 0.12,
   frontDeskStaff: 3,
-  minutesPerIntake: 7,
   collectedRate: 0.6,
 };
 
@@ -229,7 +236,6 @@ export function clampInputs(raw: Partial<CalcInputs>): CalcInputs {
     patientsPerDay: Math.round(n(raw.patientsPerDay, 1, 500, d.patientsPerDay)),
     noShowRate: n(raw.noShowRate, 0, 0.6, d.noShowRate),
     frontDeskStaff: Math.round(n(raw.frontDeskStaff, 1, 100, d.frontDeskStaff)),
-    minutesPerIntake: n(raw.minutesPerIntake, 1, 30, d.minutesPerIntake),
     collectedRate: n(raw.collectedRate, 0, 1, d.collectedRate),
   };
 }
@@ -242,7 +248,7 @@ export function calculate(rawInputs: Partial<CalcInputs>): CalcResult {
   const missed = visitsPerYear * inputs.noShowRate * A.avgVisitRevenue.value;
 
   const staffRaw =
-    (inputs.minutesPerIntake / 60) * visitsPerYear * A.loadedHourlyRate.value;
+    (A.minutesPerIntake.value / 60) * visitsPerYear * A.loadedHourlyRate.value;
   // You cannot save more front desk time than the front desk is paid for. The
   // headcount input exists to enforce that ceiling — without it, a big practice
   // with a small desk produces a number that a CFO throws out on sight.
@@ -271,7 +277,7 @@ export function calculate(rawInputs: Partial<CalcInputs>): CalcResult {
       key: "staff",
       label: "Front desk time on manual entry",
       amount: staff,
-      formula: `${round1(inputs.minutesPerIntake)} min × ${inputs.patientsPerDay}/day × ${A.workingDays.display} days × ${A.loadedHourlyRate.display}`,
+      formula: `${A.minutesPerIntake.display} × ${inputs.patientsPerDay}/day × ${A.workingDays.display} days × ${A.loadedHourlyRate.display}`,
       note: staffCapped
         ? `Capped at ${inputs.frontDeskStaff} FTE of paid hours — the raw figure exceeded what your desk is paid for.`
         : "Hours your desk spends keying in what the patient already wrote down.",

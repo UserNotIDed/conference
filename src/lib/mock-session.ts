@@ -95,7 +95,6 @@ export function answeredSession(over: Partial<ClientSession> = {}): ClientSessio
       patientsPerDay: 45,
       noShowRate: 0.14,
       frontDeskStaff: 3,
-      minutesPerIntake: 8,
       collectedRate: 0.5,
     },
     capture: {

@@ -41,8 +41,6 @@ export const FLOW = {
     footnote: "One follow-up email. Unsubscribe any time.",
     alert:
       "We'll email you the full breakdown — the score, every assumption behind it, and what each one is worth in your numbers.",
-    addressAlert:
-      "This is where we'll post your charger, so use an address you're happy to receive post at.",
     roleLabel: "What's your seat at the practice",
     roleOther: "Something else",
     roleOtherPlaceholder: "Tell us in a few words",
@@ -81,7 +79,7 @@ export const FLOW = {
   // -------------------------------------------------------------------------
   numbers: {
     kicker: "3 · Your numbers",
-    title: "Five you'll know off the top of your head",
+    title: "Four you'll know off the top of your head",
     subtitle:
       "Nothing here needs looking up. If you're not sure, your best guess is close enough to put a figure on.",
     cta: "Score my practice",
@@ -91,12 +89,9 @@ export const FLOW = {
       patientsPerDay: "Patients per day",
       noShowRate: "No-show rate",
       frontDeskStaff: "Front desk headcount",
-      minutesPerIntake: "Minutes per patient on registration",
       collectedRate: "Patient balance collected up front",
     },
     hints: {
-      minutesPerIntake:
-        "Checking them in, keying the form, chasing the coverage.",
       collectedRate: "Copay and balance taken before they leave.",
     },
   },

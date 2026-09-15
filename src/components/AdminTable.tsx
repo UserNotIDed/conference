@@ -6,6 +6,7 @@ import { formatPhone } from "@/lib/ids";
 import { pct, usd, usdRounded } from "@/lib/calc";
 import { benchmark, benchmarkByRole } from "@/lib/benchmark";
 import { ProspectCard } from "@/components/ProspectCard";
+import { HubSpotView } from "@/components/HubSpotView";
 
 /**
  * The screen you open when something has gone sideways.
@@ -39,6 +40,9 @@ export function AdminTable({ origin }: { origin: string }) {
   const [practice, setPractice] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
   const [open, setOpen] = useState<string | null>(null);
+  // HubSpot first: it is what the show actually depends on, and the session
+  // table is the fallback you reach for when something has gone wrong.
+  const [view, setView] = useState<"hubspot" | "sessions">("hubspot");
 
   const load = useCallback(async () => {
     try {
@@ -99,7 +103,7 @@ export function AdminTable({ origin }: { origin: string }) {
             Yosi booth
           </p>
           <h1 className="mt-1.5 text-[30px] font-extrabold leading-none tracking-[-0.025em] text-ink">
-            Sessions
+            {view === "hubspot" ? "HubSpot" : "Sessions"}
           </h1>
           <p className="mt-2 text-[13px] font-medium text-ink-sub">
             {rows.length} started · {done} finished intake · {leads} left an
@@ -109,13 +113,38 @@ export function AdminTable({ origin }: { origin: string }) {
             </span>
           </p>
         </div>
-        <a
-          href="/api/admin/export"
-          className="inline-flex min-h-[44px] items-center rounded-[14px] bg-blue px-5 text-[14px] font-bold text-white"
-        >
-          Export CSV
-        </a>
+        <div className="flex items-center gap-2">
+          <div className="flex rounded-[14px] border border-hairline bg-white p-1">
+            {(["hubspot", "sessions"] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => setView(v)}
+                className={`min-h-[36px] rounded-[10px] px-3.5 text-[13px] font-bold transition ${
+                  view === v ? "bg-ink text-white" : "text-ink-sub"
+                }`}
+              >
+                {v === "hubspot" ? "HubSpot fields" : "Sessions"}
+              </button>
+            ))}
+          </div>
+          {/* Same property names as the submit, so a failed POST is
+              recoverable by importing the file. */}
+          <a
+            href="/api/admin/export"
+            className="inline-flex min-h-[44px] items-center rounded-[14px] bg-blue px-5 text-[14px] font-bold text-white"
+          >
+            Export CSV
+          </a>
+        </div>
       </header>
+
+      {view === "hubspot" ? (
+        <div className="mt-6">
+          <HubSpotView rows={rows} />
+        </div>
+      ) : (
+      <>
 
       <section className="mt-6 rounded-[16px] border border-hairline bg-white p-4">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -312,6 +341,8 @@ export function AdminTable({ origin }: { origin: string }) {
           </tbody>
         </table>
       </div>
+      </>
+      )}
     </main>
   );
 }

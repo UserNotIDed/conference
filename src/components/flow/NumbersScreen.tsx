@@ -14,10 +14,10 @@ import type { ClientSession } from "@/lib/session";
  * wrong. Typing "12%" into a phone in a loud room is how you lose someone at
  * the last question.
  *
- * Two of these used to be constants in calc.ts. Minutes per patient and the
- * up-front collection rate moved here because they were the two assumptions
- * doing the most work in the arithmetic — every one we can ask for instead of
- * assume is one fewer thing for a CFO to throw the whole number out over.
+ * Four questions, not five. Minutes per patient on registration is fixed at
+ * 14 in calc.ts rather than asked: it is a number most people guess badly and
+ * slowly, and a slider nobody can answer confidently costs more time than the
+ * precision buys. It is still printed in the assumptions, tagged as ours.
  */
 export function ScreenNumbers({
   session,
@@ -31,7 +31,6 @@ export function ScreenNumbers({
     patientsPerDay: saved?.patientsPerDay ?? INPUT_DEFAULTS.patientsPerDay,
     noShowRate: saved?.noShowRate ?? INPUT_DEFAULTS.noShowRate,
     frontDeskStaff: saved?.frontDeskStaff ?? INPUT_DEFAULTS.frontDeskStaff,
-    minutesPerIntake: saved?.minutesPerIntake ?? INPUT_DEFAULTS.minutesPerIntake,
     collectedRate: saved?.collectedRate ?? INPUT_DEFAULTS.collectedRate,
   });
   const set = <K extends keyof CalcInputs>(k: K) => (n: number) =>
@@ -78,16 +77,6 @@ export function ScreenNumbers({
           max={12}
           step={1}
           onChange={set("frontDeskStaff")}
-        />
-        <Slider
-          label={L.minutesPerIntake}
-          hint={FLOW.numbers.hints.minutesPerIntake}
-          display={`${v.minutesPerIntake} min`}
-          value={v.minutesPerIntake}
-          min={1}
-          max={20}
-          step={1}
-          onChange={set("minutesPerIntake")}
         />
         <Slider
           label={L.collectedRate}

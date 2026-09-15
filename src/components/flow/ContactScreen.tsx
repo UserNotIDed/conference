@@ -230,10 +230,6 @@ export function ScreenContact({
           />
         </label>
 
-        <div className="pt-1">
-          <Alert>{F.addressAlert}</Alert>
-        </div>
-
         <label className="block">
           <CapLabel>{F.labels.street}</CapLabel>
           <input

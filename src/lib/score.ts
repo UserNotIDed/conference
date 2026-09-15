@@ -18,7 +18,7 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-import type { CalcInputs } from "./calc";
+import { ASSUMPTIONS, type CalcInputs } from "./calc";
 import { COMPETITOR_TOOLS } from "./tech-stack";
 
 export type ScoreDimension = {
@@ -58,8 +58,15 @@ export const WEIGHTS = {
 export const BANDS = {
   /** No-show rate. */
   noShow: { best: 0.03, worst: 0.2 },
-  /** Front desk minutes per FTE per day spent on registration. */
-  deskMinutes: { best: 30, worst: 240 },
+  /**
+   * Front desk minutes per FTE per day spent on registration.
+   *
+   * Recalibrated when minutes-per-patient stopped being a slider and was
+   * locked at 14. At that figure the old 30–240 band scored almost every
+   * practice near zero, which is not a diagnosis — it is a broken instrument.
+   * 60 is a desk with almost nothing to key; 420 is seven hours of a shift.
+   */
+  deskMinutes: { best: 60, worst: 420 },
   /** Share of patient responsibility collected before or at the visit. */
   collected: { best: 0.95, worst: 0.2 },
 } as const;
@@ -146,7 +153,8 @@ export function score(ctx: ScoreContext): ScoreResult {
   const { inputs } = ctx;
 
   const deskMinutes =
-    (inputs.patientsPerDay * inputs.minutesPerIntake) / inputs.frontDeskStaff;
+    (inputs.patientsPerDay * ASSUMPTIONS.minutesPerIntake.value) /
+    inputs.frontDeskStaff;
   const posture = intakePosture(ctx.techStack, ctx.competitorSatisfaction);
 
   const dimensions: ScoreDimension[] = [
@@ -166,7 +174,7 @@ export function score(ctx: ScoreContext): ScoreResult {
       value: band(deskMinutes, BANDS.deskMinutes.best, BANDS.deskMinutes.worst),
       detail: `${Math.round(deskMinutes)} min per person per day on registration`,
       basis: `100 at ${BANDS.deskMinutes.best} min, 0 at ${BANDS.deskMinutes.worst} min`,
-      note: "Patients/day × minutes each ÷ headcount. This is the one we cut first.",
+      note: `Patients/day × ${ASSUMPTIONS.minutesPerIntake.display} each ÷ headcount. This is the one we cut first.`,
     },
     {
       key: "digitalIntake",

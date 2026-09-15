@@ -75,7 +75,6 @@ const EXAMPLE: CalcInputs = {
   patientsPerDay: 45,
   noShowRate: 0.14,
   frontDeskStaff: 3,
-  minutesPerIntake: 8,
   collectedRate: 0.5,
 };
 
@@ -90,7 +89,7 @@ function worked(): string {
 
   const lines = [
     "A practice seeing **45 patients a day**, **14% no-show**, **3 on the front desk**,",
-    "**8 minutes** per patient on registration, **50%** of patient balance collected up front,",
+    "**50%** of patient balance collected up front,",
     "already running athenahealth and an intake vendor they are unhappy with.",
     "",
     `**Practice health score: ${s.total} — ${s.band.label}**`,
@@ -129,14 +128,15 @@ so it is arguable in public, which is the point. It still has to be right.
 
 ## 1 · The questions we ask
 
-Five sliders, section 3. Nothing else is asked, and nothing is looked up.
+Four sliders, section 3. Nothing else is asked, and nothing is looked up.
+Minutes per patient on registration is **not** asked — it is locked at
+\`${ASSUMPTIONS.minutesPerIntake.display}\` and printed in the assumptions.
 
 | Input | Range | Used by |
 | --- | --- | --- |
 | Patients per day | 5–150 | Leak, score |
 | No-show rate | 0–30% | Leak, score |
 | Front desk headcount | 1–12 | Leak (cap), score |
-| Minutes per patient on registration | 1–20 | Leak, score |
 | Patient balance collected up front | 0–100% | Leak, score |
 
 Plus, from section 2: what they run today, and — if that includes an intake
@@ -196,7 +196,7 @@ Four dimensions, each scored 0–100 from an answer they gave, then weighted.
 | Money collected up front | ${WEIGHTS.collection}% | Share collected before or at the visit | ${Math.round(BANDS.collected.best * 100)}% | ${Math.round(BANDS.collected.worst * 100)}% |
 
 Between the two ends, straight line. Registration minutes per person per day is
-\`patients/day × minutes each ÷ headcount\`.
+\`patients/day × ${ASSUMPTIONS.minutesPerIntake.value} minutes ÷ headcount\`.
 
 ### How intake gets done, scored
 
