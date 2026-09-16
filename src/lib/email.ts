@@ -269,6 +269,55 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
          </td></tr>`
       : dimensionLines;
 
+  /**
+   * The growth block, or an honest absence of one.
+   *
+   * A practice that already asks for reviews and already takes bookings online
+   * has nothing to win here, and "$0 a year in patients you never see" is a
+   * worse thing to send than no block at all. In the token render we cannot
+   * know which they are, so the copy has to work either way: HubSpot has no
+   * conditionals we can rely on in a rich text module.
+   */
+  const growthBlock =
+    mode === "hubspot"
+      ? `<div style="border-top:1px solid #cffafe;margin-top:14px;padding-top:14px;">
+              <div style="font:700 11px/1 ${FONT};letter-spacing:0.06em;text-transform:uppercase;color:${MUTE};">
+                And what you are not winning yet
+              </div>
+              <div style="font:800 20px/1.25 ${FONT};color:${INK};letter-spacing:-0.02em;padding-top:6px;">
+                ${upsideAmount} a year in patients you never see
+              </div>
+              <div style="font:500 13.5px/1.5 ${FONT};color:${SUB};padding-top:8px;">
+                Different money from the figure above. That one is leaking out of
+                something you already do; this is demand that never reaches you.
+                It is what a review after every visit and a booking link are
+                worth at your volume. If it reads zero, you already do both.
+              </div>
+            </div>`
+      : upside.alreadyDoing
+        ? `<div style="border-top:1px solid #cffafe;margin-top:14px;padding-top:14px;">
+              <div style="font:700 11px/1 ${FONT};letter-spacing:0.06em;text-transform:uppercase;color:${MUTE};">
+                And what you are not winning yet
+              </div>
+              <div style="font:500 13.5px/1.5 ${FONT};color:${SUB};padding-top:8px;">
+                Nothing. You already ask for reviews and you already take bookings
+                online, which is rarer than you would think.
+              </div>
+            </div>`
+        : `<div style="border-top:1px solid #cffafe;margin-top:14px;padding-top:14px;">
+              <div style="font:700 11px/1 ${FONT};letter-spacing:0.06em;text-transform:uppercase;color:${MUTE};">
+                And what you are not winning yet
+              </div>
+              <div style="font:800 20px/1.25 ${FONT};color:${INK};letter-spacing:-0.02em;padding-top:6px;">
+                ${upsideAmount} a year in patients you never see
+              </div>
+              <div style="font:500 13.5px/1.5 ${FONT};color:${SUB};padding-top:8px;">
+                Different money from the figure above. That one is leaking out of
+                something you already do; this is demand that never reaches you.
+                ${upside.lines.map((l) => l.label).join(" and ").toLowerCase()}, at your volume.
+              </div>
+            </div>`;
+
   const assumptions = [
     ASSUMPTIONS.avgVisitRevenue,
     ASSUMPTIONS.minutesPerIntake,
@@ -412,20 +461,7 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
               than yours, they are listed at the bottom, and they are the right thing
               to push back on.
             </div>
-            <div style="border-top:1px solid #cffafe;margin-top:14px;padding-top:14px;">
-              <div style="font:700 11px/1 ${FONT};letter-spacing:0.06em;text-transform:uppercase;color:${MUTE};">
-                And what you are not winning yet
-              </div>
-              <div style="font:800 20px/1.25 ${FONT};color:${INK};letter-spacing:-0.02em;padding-top:6px;">
-                ${upsideAmount} a year in patients you never see
-              </div>
-              <div style="font:500 13.5px/1.5 ${FONT};color:${SUB};padding-top:8px;">
-                Different money from the figure above. That one is leaking out of
-                something you already do; this is demand that never reaches you,
-                because nobody asks your happy patients for a review and because
-                booking still means phoning during office hours.
-              </div>
-            </div>
+            ${growthBlock}
           </td>
         </tr>
       </table>
