@@ -82,6 +82,8 @@ export function toRow(s: Session) {
     competitorTool: s.competitorTool,
     intakeSatisfaction: s.intakeSatisfaction,
     painPoints: parseJson<string[]>(s.painPoints, []),
+    onlineBooking: s.onlineBooking,
+    asksForReviews: s.asksForReviews,
     captureName: s.captureName,
     captureTitle: s.captureTitle,
     captureEmail: s.captureEmail,

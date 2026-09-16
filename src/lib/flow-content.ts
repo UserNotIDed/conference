@@ -75,11 +75,11 @@ export const FLOW = {
   },
 
   // -------------------------------------------------------------------------
-  // 3. The numbers. Four sliders, no keyboard.
+  // 3. The numbers. Five sliders, no keyboard.
   // -------------------------------------------------------------------------
   numbers: {
     kicker: "3 · Your numbers",
-    title: "Four you'll know off the top of your head",
+    title: "Five you'll know off the top of your head",
     subtitle:
       "Nothing here needs looking up. If you're not sure, your best guess is close enough to put a figure on.",
     cta: "Score my practice",
@@ -90,9 +90,11 @@ export const FLOW = {
       noShowRate: "No-show rate",
       frontDeskStaff: "Front desk headcount",
       collectedRate: "Patient balance collected up front",
+      newPatientsPerMonth: "New patients a month",
     },
     hints: {
       collectedRate: "Copay and balance taken before they leave.",
+      newPatientsPerMonth: "Somebody who has never been seen at your practice.",
     },
   },
 
@@ -120,12 +122,20 @@ export const FLOW = {
   // -------------------------------------------------------------------------
   money: {
     kicker: "Estimated annual leak",
-    roiKicker: "What fixing it returns",
-    // {multiple} is like "5.9x"
-    roiHeadline: "{net} a year back, net of what we cost",
-    roiSub: "Every dollar you spend with us returns {multiple}. Payback in {months}.",
-    roiCostLabel: "What Yosi costs at your volume",
-    roiRecoveredLabel: "What we recover",
+    recoveryKicker: "What you'd get back",
+    recoveryHeadline: "{amount} a year, recovered",
+    recoverySub:
+      "A share of each of the four above, not all of it. The share is ours to defend and it is printed below.",
+    growthKicker: "And what you're not winning yet",
+    growthHeadline: "{amount} a year in patients you never see",
+    growthSub:
+      "Different money from the figure above. That one is leaking out of something you already do; this is demand that never reaches you.",
+    growthNone:
+      "Nothing here. You already ask for reviews and you already take bookings online, which is rarer than you would think.",
+    growthNoteReviews:
+      "A survey after every visit puts your happy patients on Google, which is what moves where you rank when somebody searches nearby.",
+    growthNoteBooking:
+      "People who find you and then have to phone during office hours are the ones you never hear from.",
     cta: "Book a demo",
     skip: "Email it to me instead",
     showWork: "What are we assuming?",

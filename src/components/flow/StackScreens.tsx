@@ -94,20 +94,33 @@ export function ScreenTechStack({
  * counting a complaint about them again would score the same problem twice.
  * What it buys is an opening line for the follow-up that is in their words.
  */
+export type IntakeCheckAnswer = {
+  satisfaction: string | null;
+  painPoints: string[];
+  onlineBooking: boolean;
+  asksForReviews: boolean;
+};
+
 export function ScreenIntakeCheck({
   subject,
   satisfaction: saved,
   painPoints: savedPain,
+  onlineBooking: savedBooking,
+  asksForReviews: savedReviews,
   onNext,
 }: {
   /** Their vendor's name, or what they do instead. */
   subject: string;
   satisfaction: string | null;
   painPoints: string[];
-  onNext: (answer: { satisfaction: string | null; painPoints: string[] }) => void;
+  onlineBooking: boolean;
+  asksForReviews: boolean;
+  onNext: (answer: IntakeCheckAnswer) => void;
 }) {
   const [satisfaction, setSatisfaction] = useState<string | null>(saved);
   const [pain, setPain] = useState<string[]>(savedPain);
+  const [booking, setBooking] = useState(savedBooking);
+  const [reviews, setReviews] = useState(savedReviews);
 
   const togglePain = (option: string) =>
     setPain((prev) => {
@@ -129,14 +142,30 @@ export function ScreenIntakeCheck({
       subtitle={T.competitor.subtitle}
       footer={
         <>
-          <Button onClick={() => onNext({ satisfaction, painPoints: pain })}>
+          <Button
+            onClick={() =>
+              onNext({
+                satisfaction,
+                painPoints: pain,
+                onlineBooking: booking,
+                asksForReviews: reviews,
+              })
+            }
+          >
             {T.competitor.cta}
           </Button>
           {/* Never a dead end. Somebody will have no opinion, and a screen
               they cannot get past is worse than a blank field. */}
           <button
             type="button"
-            onClick={() => onNext({ satisfaction: null, painPoints: [] })}
+            onClick={() =>
+              onNext({
+                satisfaction: null,
+                painPoints: [],
+                onlineBooking: booking,
+                asksForReviews: reviews,
+              })
+            }
             className="mt-1 min-h-[44px] w-full text-[13px] font-bold text-ink-sub"
           >
             {T.competitor.skip}
@@ -177,6 +206,25 @@ export function ScreenIntakeCheck({
         })}
       </div>
 
+      {/* Growth rather than waste, and the only dimension the volumes cannot
+          tell us anything about, so it has to be asked. Two taps. */}
+      <div className="mt-7">
+        <CapLabel>{T.competitor.reachLabel}</CapLabel>
+        <p className="mt-1 text-[12px] text-ink-mute">{T.competitor.reachHint}</p>
+        <div className="mt-2.5 space-y-2">
+          <Toggle
+            on={booking}
+            onClick={() => setBooking((v) => !v)}
+            label={T.competitor.onlineBooking}
+          />
+          <Toggle
+            on={reviews}
+            onClick={() => setReviews((v) => !v)}
+            label={T.competitor.asksForReviews}
+          />
+        </div>
+      </div>
+
       <div className="mt-7">
         <CapLabel>{T.competitor.painLabel}</CapLabel>
         <p className="mt-1 text-[12px] text-ink-mute">{T.competitor.painHint}</p>
@@ -202,5 +250,55 @@ export function ScreenIntakeCheck({
         </div>
       </div>
     </Screen>
+  );
+}
+
+/**
+ * A yes/no row that reads as answered either way.
+ *
+ * A plain checkbox left unticked is indistinguishable from a question nobody
+ * got to, and both of these count against the score when false. So the "no"
+ * state is drawn, not absent.
+ */
+function Toggle({
+  on,
+  onClick,
+  label,
+}: {
+  on: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={on}
+      className={`flex w-full items-center gap-3 rounded-[14px] border-2 px-4 py-3.5 text-left transition active:scale-[0.99] ${
+        on ? "border-blue bg-blue" : "border-hairline bg-white"
+      }`}
+    >
+      <span
+        className={`flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-[7px] border-2 ${
+          on ? "border-white bg-white/20 text-white" : "border-hairline bg-white"
+        }`}
+      >
+        {on ? <Check className="h-3 w-3" /> : null}
+      </span>
+      <span
+        className={`flex-1 text-[14.5px] font-semibold leading-[1.35] ${
+          on ? "text-white" : "text-ink"
+        }`}
+      >
+        {label}
+      </span>
+      <span
+        className={`shrink-0 text-[11px] font-bold uppercase tracking-[0.05em] ${
+          on ? "text-white/70" : "text-ink-pale"
+        }`}
+      >
+        {on ? "Yes" : "No"}
+      </span>
+    </button>
   );
 }

@@ -73,6 +73,8 @@ export function AttendeeFlow({
     session.intakeSatisfaction,
   );
   const [painPoints, setPainPoints] = useState<string[]>(session.painPoints ?? []);
+  const [onlineBooking, setOnlineBooking] = useState(session.onlineBooking);
+  const [asksForReviews, setAsksForReviews] = useState(session.asksForReviews);
   /**
    * What they typed on the contact screen, held locally.
    *
@@ -112,9 +114,21 @@ export function AttendeeFlow({
       competitorTool: competitor,
       intakeSatisfaction: satisfaction,
       painPoints,
+      onlineBooking,
+      asksForReviews,
       capture: { ...session.capture, ...contact },
     }),
-    [session, role, contact, techStack, competitor, satisfaction, painPoints],
+    [
+      session,
+      role,
+      contact,
+      techStack,
+      competitor,
+      satisfaction,
+      painPoints,
+      onlineBooking,
+      asksForReviews,
+    ],
   );
 
   useEffect(() => {
@@ -156,7 +170,7 @@ export function AttendeeFlow({
               id: "numbers",
               icon: "chart" as const,
               label: "Your numbers",
-              note: "Four sliders. No keyboard, nothing to look up.",
+              note: "Five sliders. No keyboard, nothing to look up.",
               done: Boolean(view.calcInputs),
             },
           ]}
@@ -200,9 +214,13 @@ export function AttendeeFlow({
           subject={intakeSubject(techStack)}
           satisfaction={satisfaction}
           painPoints={painPoints}
+          onlineBooking={onlineBooking}
+          asksForReviews={asksForReviews}
           onNext={(answer) => {
             setSatisfaction(answer.satisfaction);
             setPainPoints(answer.painPoints);
+            setOnlineBooking(answer.onlineBooking);
+            setAsksForReviews(answer.asksForReviews);
             advance("numbers", "intakeCheck", { ...answer });
           }}
         />

@@ -12,10 +12,11 @@
 import { writeFileSync } from "node:fs";
 import {
   ASSUMPTIONS,
-  PRICING,
+  GROWTH,
   RECOVERY,
   calculate,
-  roi,
+  growth,
+  recovery,
   usd,
   type CalcInputs,
 } from "../src/lib/calc";
@@ -54,8 +55,9 @@ const OWNER = {
   staff: "Customer success",
   rework: "Customer success",
   collection: "Customer success",
-  baseMonthly: "Sales",
-  perIntake: "Sales",
+  visitsPerNewPatient: "RCM",
+  reviewUplift: "Marketing",
+  bookingUplift: "Customer success",
 } as const;
 
 function table(title: string, rows: Record<string, Row>, blurb: string): string {
@@ -87,11 +89,13 @@ const EXAMPLE: CalcInputs = {
   noShowRate: 0.14,
   frontDeskStaff: 3,
   collectedRate: 0.5,
+  newPatientsPerMonth: 35,
 };
 
 function worked(): string {
   const r = calculate(EXAMPLE);
-  const ret = roi(r);
+  const back = recovery(r);
+  const up = growth(r, {});
   const s = score({
     inputs: EXAMPLE,
     techStack: ["athenahealth", "Phreesia"],
@@ -118,8 +122,13 @@ function worked(): string {
     "| --- | --- | --- |",
     ...r.components.map((c) => `| ${c.label} | ${usd(c.amount)} | ${c.formula} |`),
     "",
-    `**Return: ${usd(ret.recovered)} recovered − ${usd(ret.cost)} cost = ${usd(ret.net)} net.**`,
-    `${ret.multiple.toFixed(2)}x on spend, payback in ${ret.paybackMonths.toFixed(1)} months.`,
+    `**Recoverable: ${usd(back.total)}.** A share of each component above.`,
+    `**New-patient upside: ${usd(up.total)}**, for a practice that neither asks`,
+    "for reviews nor takes bookings online. Different money: the leak is coming",
+    "out of something they already do, this never reaches them at all.",
+    "",
+    "Nothing is netted off for what Yosi costs. Price is a conversation to have",
+    "with a number in front of you, not a variable buried inside one.",
     "",
   ];
   return lines.join("\n");
@@ -192,7 +201,7 @@ a form, so we do not bill for one.
 
 ${table("Constants in the leak", ASSUMPTIONS as unknown as Record<string, Row>, "What we add to their answers to turn them into money.")}
 ${table("Recovery rates", RECOVERY as unknown as Record<string, Row>, "The share of each component we claim to recover. **These are the numbers a CFO will attack.** Every one is invented today.")}
-${table("What we charge", PRICING as unknown as Record<string, Row>, "Drives the payback period and the multiple. Modelled as fee plus per-intake so the ROI scales honestly with practice size.")}
+${table("The growth half", GROWTH as unknown as Record<string, Row>, "What a new patient is worth, and what share of new patients a better review profile and online booking are worth. The softest numbers in the model.")}
 
 ---
 

@@ -199,6 +199,8 @@ export async function applyPatches(
         // to be distinguishable from never having reached the screen.
         data.intakeSatisfaction = str(body.satisfaction) ?? null;
         data.painPoints = JSON.stringify(arr(body.painPoints));
+        data.onlineBooking = Boolean(body.onlineBooking);
+        data.asksForReviews = Boolean(body.asksForReviews);
         break;
       }
 

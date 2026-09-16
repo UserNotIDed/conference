@@ -29,7 +29,7 @@
  */
 
 import type { Row } from "./rows";
-import { ASSUMPTIONS, calculate, clampInputs, roi } from "./calc";
+import { ASSUMPTIONS, calculate, clampInputs, growth, recovery } from "./calc";
 import { score } from "./score";
 import { ROLES } from "./demo";
 import { SATISFACTION } from "./tech-stack";
@@ -265,11 +265,39 @@ export const PROPERTIES: PropertyDef[] = [
     note: "",
   },
   {
-    name: "booth_annual_return",
-    label: "Booth: estimated net return ($)",
+    name: "booth_annual_recovery",
+    label: "Booth: recoverable from the leak ($)",
     type: "number",
     form: "diagnosis",
-    note: "Recovered less what we cost, at their volume.",
+    note: "The share of the leak we claim to recover. Nothing is netted off for price; that conversation happens with a human.",
+  },
+  {
+    name: "booth_annual_growth",
+    label: "Booth: new-patient upside ($)",
+    type: "number",
+    form: "diagnosis",
+    note: "Patients they never see because nobody asks for reviews or because booking means phoning. Zero when they already do both.",
+  },
+  {
+    name: "booth_new_patients_per_month",
+    label: "Booth: new patients a month",
+    type: "number",
+    form: "diagnosis",
+    note: "Sizes the growth half, and is the single best proxy for how fast the practice is moving.",
+  },
+  {
+    name: "booth_online_booking",
+    label: "Booth: patients can book online",
+    type: "bool",
+    form: "diagnosis",
+    note: "False is a scheduling conversation. Pair it with the next one for the whole growth pitch.",
+  },
+  {
+    name: "booth_asks_for_reviews",
+    label: "Booth: asks for a review after the visit",
+    type: "bool",
+    form: "diagnosis",
+    note: "False is the easiest thing we switch on and the one with the longest tail.",
   },
   {
     name: "booth_benchmark_optin",
@@ -344,16 +372,23 @@ export function contactProperties(
     if (row.calcInputs) {
       const inputs = clampInputs(row.calcInputs);
       const money = calculate(inputs);
-      const ret = roi(money);
+      const back = recovery(money);
+      const upside = growth(money, {
+        onlineBooking: row.onlineBooking,
+        asksForReviews: row.asksForReviews,
+      });
       const health = score({
         inputs,
         techStack: row.techStack,
         intakeSatisfaction: row.intakeSatisfaction,
+        onlineBooking: row.onlineBooking,
+        asksForReviews: row.asksForReviews,
       });
       put("booth_patients_per_day", inputs.patientsPerDay);
       put("booth_no_show_rate", Math.round(inputs.noShowRate * 100));
       put("booth_front_desk_fte", inputs.frontDeskStaff);
       put("booth_collected_up_front", Math.round(inputs.collectedRate * 100));
+      put("booth_new_patients_per_month", inputs.newPatientsPerMonth);
       put("booth_health_score", health.total);
       put("booth_health_band", health.band.label);
       put("booth_biggest_gap", biggestGapLabel(row));
@@ -361,7 +396,8 @@ export function contactProperties(
         put(`booth_leak_${c.key}`, Math.round(c.amount));
       }
       put("booth_annual_leak", Math.round(money.total));
-      put("booth_annual_return", Math.round(ret.net));
+      put("booth_annual_recovery", Math.round(back.total));
+      put("booth_annual_growth", Math.round(upside.total));
     }
 
     // Written whether true or false: a pre-ticked box that never reaches the
@@ -369,6 +405,8 @@ export function contactProperties(
     if (row.captureOptIn !== null && row.captureOptIn !== undefined) {
       out.booth_benchmark_optin = String(Boolean(row.captureOptIn));
     }
+    out.booth_online_booking = String(Boolean(row.onlineBooking));
+    out.booth_asks_for_reviews = String(Boolean(row.asksForReviews));
     out.booth_booking_clicked = String(Boolean(row.bookedAt));
   }
 
@@ -381,6 +419,8 @@ function biggestGapLabel(row: Row): string | null {
     inputs: clampInputs(row.calcInputs),
     techStack: row.techStack,
     intakeSatisfaction: row.intakeSatisfaction,
+    onlineBooking: row.onlineBooking,
+    asksForReviews: row.asksForReviews,
   });
   return [...health.dimensions].sort(
     (a, b) => (100 - b.value) * b.weight - (100 - a.value) * a.weight,

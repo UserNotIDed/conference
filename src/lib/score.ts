@@ -22,7 +22,7 @@ import { ASSUMPTIONS, type CalcInputs } from "./calc";
 import { intakeMode } from "./tech-stack";
 
 export type ScoreDimension = {
-  key: "showRate" | "deskLoad" | "digitalIntake" | "collection";
+  key: "showRate" | "deskLoad" | "digitalIntake" | "collection" | "reputation";
   label: string;
   /** Contribution to the total, out of 100. */
   weight: number;
@@ -73,10 +73,11 @@ export const TONE: Record<
 
 /** Weights sum to 100. Placeholders. */
 export const WEIGHTS = {
-  showRate: 30,
-  deskLoad: 25,
-  digitalIntake: 25,
-  collection: 20,
+  showRate: 25,
+  deskLoad: 20,
+  digitalIntake: 20,
+  collection: 15,
+  reputation: 20,
 } as const;
 
 /**
@@ -97,6 +98,20 @@ export const BANDS = {
   deskMinutes: { best: 60, worst: 420 },
   /** Share of patient responsibility collected before or at the visit. */
   collected: { best: 0.95, worst: 0.2 },
+} as const;
+
+/**
+ * Getting found and booked, scored from two taps. Placeholders.
+ *
+ * The only dimension that is about growth rather than waste, which is why it
+ * is worth a fifth of the score on its own: a practice can run a flawless
+ * front desk and still be invisible to the people searching for it.
+ */
+export const REPUTATION_POSTURE = {
+  both: { value: 95, label: "Online booking, and you ask for reviews" },
+  bookingOnly: { value: 55, label: "Online booking, but nobody asks for reviews" },
+  reviewsOnly: { value: 45, label: "You ask for reviews, but booking means phoning" },
+  neither: { value: 15, label: "No online booking, and nobody asks for reviews" },
 } as const;
 
 /** How intake is done today, before satisfaction is taken off. Placeholders. */
@@ -173,7 +188,21 @@ export type ScoreContext = {
   techStack: string[];
   /** Their answer to "how is that working out", whatever "that" is. */
   intakeSatisfaction?: string | null;
+  /** Patients can book without phoning during office hours. */
+  onlineBooking?: boolean;
+  /** Every patient is asked for a review after the visit. */
+  asksForReviews?: boolean;
 };
+
+export function reputationPosture(
+  onlineBooking?: boolean,
+  asksForReviews?: boolean,
+): { value: number; label: string } {
+  if (onlineBooking && asksForReviews) return REPUTATION_POSTURE.both;
+  if (onlineBooking) return REPUTATION_POSTURE.bookingOnly;
+  if (asksForReviews) return REPUTATION_POSTURE.reviewsOnly;
+  return REPUTATION_POSTURE.neither;
+}
 
 /** 100 at `best`, 0 at `worst`, linear between. Works in either direction. */
 function band(value: number, best: number, worst: number): number {
@@ -203,6 +232,7 @@ export function score(ctx: ScoreContext): ScoreResult {
     (inputs.patientsPerDay * ASSUMPTIONS.minutesPerIntake.value) /
     inputs.frontDeskStaff;
   const posture = intakePosture(ctx.techStack, ctx.intakeSatisfaction);
+  const reputation = reputationPosture(ctx.onlineBooking, ctx.asksForReviews);
 
   const dimensions: ScoreDimension[] = [
     {
@@ -244,6 +274,15 @@ export function score(ctx: ScoreContext): ScoreResult {
       detail: `${Math.round(inputs.collectedRate * 100)}% collected before or at the visit`,
       basis: `100 at ${Math.round(BANDS.collected.best * 100)}%, 0 at ${Math.round(BANDS.collected.worst * 100)}%`,
       note: "Asked on the phone before the visit, not at a desk with a queue behind it.",
+    },
+    {
+      key: "reputation",
+      label: "Getting found and booked",
+      weight: WEIGHTS.reputation,
+      value: reputation.value,
+      detail: reputation.label,
+      basis: "Scored from whether patients can book online and whether you ask for reviews",
+      note: "A survey after every visit puts your happy patients on Google, and online booking keeps the people who find you.",
     },
   ];
 

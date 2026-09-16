@@ -90,6 +90,10 @@ model Session {
   // people with a vendor, so the column name no longer says "competitor".
   intakeSatisfaction     String?
   painPoints             String? // ["Re-keying it into the chart", ...]
+  // Growth, not waste. The only pair the volumes cannot tell us anything
+  // about, so they have to be asked.
+  onlineBooking          Boolean @default(false)
+  asksForReviews         Boolean @default(false)
   qualifiedAt            DateTime?
 
   // Lead capture.

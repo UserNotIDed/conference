@@ -51,6 +51,8 @@ export function blankSession(over: Partial<ClientSession> = {}): ClientSession {
     competitorTool: null,
     intakeSatisfaction: null,
     painPoints: [],
+    onlineBooking: false,
+    asksForReviews: false,
     calcInputs: null,
     calcResult: null,
     capture: {
@@ -92,12 +94,15 @@ export function answeredSession(over: Partial<ClientSession> = {}): ClientSessio
     ehrSystem: "athenahealth",
     competitorTool: "Phreesia",
     intakeSatisfaction: "It frustrates us",
+    onlineBooking: false,
+    asksForReviews: false,
     painPoints: ["Re-keying it into the chart", "Chasing insurance before the visit"],
     calcInputs: {
       patientsPerDay: 45,
       noShowRate: 0.14,
       frontDeskStaff: 3,
       collectedRate: 0.5,
+      newPatientsPerMonth: 35,
     },
     capture: {
       ...blankSession().capture,

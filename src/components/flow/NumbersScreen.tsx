@@ -14,7 +14,7 @@ import type { ClientSession } from "@/lib/session";
  * wrong. Typing "12%" into a phone in a loud room is how you lose someone at
  * the last question.
  *
- * Four questions, not five. Minutes per patient on registration is fixed at
+ * Five questions, not six. Minutes per patient on registration is fixed at
  * 14 in calc.ts rather than asked: it is a number most people guess badly and
  * slowly, and a slider nobody can answer confidently costs more time than the
  * precision buys. It is still printed in the assumptions, tagged as ours.
@@ -32,6 +32,8 @@ export function ScreenNumbers({
     noShowRate: saved?.noShowRate ?? INPUT_DEFAULTS.noShowRate,
     frontDeskStaff: saved?.frontDeskStaff ?? INPUT_DEFAULTS.frontDeskStaff,
     collectedRate: saved?.collectedRate ?? INPUT_DEFAULTS.collectedRate,
+    newPatientsPerMonth:
+      saved?.newPatientsPerMonth ?? INPUT_DEFAULTS.newPatientsPerMonth,
   });
   const set = <K extends keyof CalcInputs>(k: K) => (n: number) =>
     setV((prev) => ({ ...prev, [k]: n }));
@@ -77,6 +79,16 @@ export function ScreenNumbers({
           max={12}
           step={1}
           onChange={set("frontDeskStaff")}
+        />
+        <Slider
+          label={L.newPatientsPerMonth}
+          hint={FLOW.numbers.hints.newPatientsPerMonth}
+          display={String(v.newPatientsPerMonth)}
+          value={v.newPatientsPerMonth}
+          min={0}
+          max={150}
+          step={5}
+          onChange={set("newPatientsPerMonth")}
         />
         <Slider
           label={L.collectedRate}

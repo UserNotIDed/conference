@@ -26,6 +26,8 @@ export type CalcInputs = {
   frontDeskStaff: number;
   /** Share of patient responsibility collected before or at the visit. 0–1. */
   collectedRate: number;
+  /** New patients a month. Drives the growth half, not the leak. */
+  newPatientsPerMonth: number;
 };
 
 type Constant = {
@@ -174,28 +176,41 @@ export const RECOVERY: Record<CalcComponent["key"], Constant> = {
 };
 
 /**
- * What Yosi costs. Drives the payback period and the multiple.
+ * What a new patient is worth in their first year.
  *
- * Modelled as platform fee plus per-intake so the ROI scales honestly with
- * practice size. A flat fee makes the number look absurd for a large practice
- * and impossible for a small one.
+ * The growth half needs one figure the leak half does not: a new patient is
+ * not one visit. This is deliberately first-year only. Lifetime value is a
+ * bigger, truer and far less defensible number, and at a booth the bigger
+ * number is the one that gets you argued with rather than believed.
  */
-export const PRICING = {
-  baseMonthly: {
-    value: 600,
-    label: "Platform fee",
-    display: "$600/mo",
+export const GROWTH = {
+  visitsPerNewPatient: {
+    value: 2.4,
+    label: "Visits from a new patient in year one",
+    display: "2.4",
     status: "placeholder" as const,
-    source: "Our platform fee at your size.",
-    internal: "Replace with real list price or the mid-market deal band.",
+    source:
+      "A first visit plus the follow-ups it leads to, inside twelve months. Women's health runs higher than this once obstetrics is counted; we use the lower figure.",
+    internal: "Needs a real figure off our own book.",
   },
-  perIntake: {
-    value: 1.1,
-    label: "Per completed intake",
-    display: "$1.10",
+  reviewUplift: {
+    value: 0.08,
+    label: "More new patients from a better review profile",
+    display: "8%",
     status: "placeholder" as const,
-    source: "Charged on intakes a patient actually completes.",
-    internal: "Replace with the real per-transaction price.",
+    source:
+      "Asking every patient for a review after the visit moves the rating and the count, which moves where you rank when somebody searches for a practice near them.",
+    internal:
+      "The softest number in the model. It chains through local search ranking, which we do not control and cannot measure directly. Treat as directional until somebody has before-and-after data.",
+  },
+  bookingUplift: {
+    value: 0.12,
+    label: "More new patients from online booking",
+    display: "12%",
+    status: "placeholder" as const,
+    source:
+      "Share of people who find you and then give up because booking means phoning during office hours.",
+    internal: "Needs a real drop-off figure. Should be measurable from our own booking funnel.",
   },
 };
 
@@ -223,6 +238,7 @@ export const INPUT_DEFAULTS: CalcInputs = {
   noShowRate: 0.12,
   frontDeskStaff: 3,
   collectedRate: 0.6,
+  newPatientsPerMonth: 30,
 };
 
 export function clampInputs(raw: Partial<CalcInputs>): CalcInputs {
@@ -237,6 +253,9 @@ export function clampInputs(raw: Partial<CalcInputs>): CalcInputs {
     noShowRate: n(raw.noShowRate, 0, 0.6, d.noShowRate),
     frontDeskStaff: Math.round(n(raw.frontDeskStaff, 1, 100, d.frontDeskStaff)),
     collectedRate: n(raw.collectedRate, 0, 1, d.collectedRate),
+    newPatientsPerMonth: Math.round(
+      n(raw.newPatientsPerMonth, 0, 400, d.newPatientsPerMonth),
+    ),
   };
 }
 
@@ -310,64 +329,92 @@ export function calculate(rawInputs: Partial<CalcInputs>): CalcResult {
 }
 
 // ---------------------------------------------------------------------------
-// ROI
+// What fixing it is worth
+//
+// Two halves that do different jobs and must not be added together on the
+// screen without saying which is which. Recovery is money the practice is
+// already losing out of an operation that exists. Growth is money it has never
+// earned. One is an argument about waste, the other an argument about demand,
+// and a buyer who conflates them stops believing both.
+//
+// Neither is netted against what Yosi costs. Price is a conversation to have
+// with a number in front of you, not a variable to bury inside one, and a
+// booth is the wrong place to have it.
 // ---------------------------------------------------------------------------
 
-export type RoiLine = {
-  key: CalcComponent["key"];
+export type ValueLine = {
+  key: string;
   label: string;
-  leak: number;
-  rate: number;
+  basis: string;
   amount: number;
 };
 
-export type RoiResult = {
-  lines: RoiLine[];
-  recovered: number;
-  cost: number;
-  costLines: { label: string; formula: string; amount: number }[];
-  net: number;
-  /** Recovered ÷ cost. "Every dollar returns $N." */
-  multiple: number;
-  /** Months of recovery it takes to cover a year of fees. */
-  paybackMonths: number;
-};
+export type RecoveryResult = { lines: ValueLine[]; total: number };
 
-export function roi(result: CalcResult): RoiResult {
-  const lines: RoiLine[] = result.components.map((c) => ({
+export function recovery(result: CalcResult): RecoveryResult {
+  const lines: ValueLine[] = result.components.map((c) => ({
     key: c.key,
     label: RECOVERY[c.key].label,
-    leak: c.amount,
-    rate: RECOVERY[c.key].value,
+    basis: `${pct(RECOVERY[c.key].value)} of ${usd(c.amount)}`,
     amount: c.amount * RECOVERY[c.key].value,
   }));
-  const recovered = lines.reduce((s, l) => s + l.amount, 0);
+  return { lines, total: lines.reduce((s, l) => s + l.amount, 0) };
+}
 
-  const platform = PRICING.baseMonthly.value * 12;
-  // Completed intakes, not booked visits, because a no-show does not fill a form.
-  const intakes = result.visitsPerYear * (1 - result.inputs.noShowRate);
-  const perIntake = intakes * PRICING.perIntake.value;
-  const cost = platform + perIntake;
+export type GrowthContext = {
+  /** Patients can book without phoning during office hours. */
+  onlineBooking?: boolean;
+  /** Every patient is asked for a review after the visit. */
+  asksForReviews?: boolean;
+};
+
+export type GrowthResult = {
+  lines: ValueLine[];
+  total: number;
+  newPatientValue: number;
+  /** True when they already do both and there is nothing here to win. */
+  alreadyDoing: boolean;
+};
+
+/**
+ * New patients they are not getting.
+ *
+ * Only the gap is counted. A practice that already asks for reviews and
+ * already takes online bookings gets nothing here and is told so, which is the
+ * whole reason the number is worth reading when it is not zero.
+ */
+export function growth(
+  result: CalcResult,
+  ctx: GrowthContext = {},
+): GrowthResult {
+  const A = ASSUMPTIONS;
+  const newPerYear = result.inputs.newPatientsPerMonth * 12;
+  const newPatientValue =
+    GROWTH.visitsPerNewPatient.value * A.avgVisitRevenue.value;
+
+  const lines: ValueLine[] = [];
+  if (!ctx.asksForReviews) {
+    lines.push({
+      key: "reviews",
+      label: "Found by more people",
+      basis: `${newPerYear.toLocaleString("en-US")} new patients a year × ${GROWTH.reviewUplift.display} × ${usd(newPatientValue)}`,
+      amount: newPerYear * GROWTH.reviewUplift.value * newPatientValue,
+    });
+  }
+  if (!ctx.onlineBooking) {
+    lines.push({
+      key: "booking",
+      label: "Booked instead of lost",
+      basis: `${newPerYear.toLocaleString("en-US")} new patients a year × ${GROWTH.bookingUplift.display} × ${usd(newPatientValue)}`,
+      amount: newPerYear * GROWTH.bookingUplift.value * newPatientValue,
+    });
+  }
 
   return {
     lines,
-    recovered,
-    cost,
-    costLines: [
-      {
-        label: "Platform",
-        formula: `${PRICING.baseMonthly.display} × 12`,
-        amount: platform,
-      },
-      {
-        label: "Completed intakes",
-        formula: `${Math.round(intakes).toLocaleString("en-US")} × ${PRICING.perIntake.display}`,
-        amount: perIntake,
-      },
-    ],
-    net: recovered - cost,
-    multiple: cost > 0 ? recovered / cost : 0,
-    paybackMonths: recovered > 0 ? cost / (recovered / 12) : Infinity,
+    total: lines.reduce((s, l) => s + l.amount, 0),
+    newPatientValue,
+    alreadyDoing: lines.length === 0,
   };
 }
 
@@ -460,6 +507,6 @@ export function allConstants(): (Constant & { group: string })[] {
   return [
     ...Object.values(ASSUMPTIONS).map((c) => ({ ...c, group: "Leak" })),
     ...Object.values(RECOVERY).map((c) => ({ ...c, group: "Recovery" })),
-    ...Object.values(PRICING).map((c) => ({ ...c, group: "Price" })),
+    ...Object.values(GROWTH).map((c) => ({ ...c, group: "Growth" })),
   ];
 }

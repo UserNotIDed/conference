@@ -20,11 +20,12 @@
 
 import {
   ASSUMPTIONS,
+  GROWTH,
   INPUT_DEFAULTS,
-  PRICING,
   RECOVERY,
   calculate,
-  roi,
+  growth,
+  recovery,
   usd,
   usdRounded,
 } from "./calc";
@@ -61,6 +62,7 @@ export const EMAIL_PRESETS: EmailPreset[] = [
       noShowRate: 0.14,
       frontDeskStaff: 3,
       collectedRate: 0.5,
+      newPatientsPerMonth: 35,
     },
     techStack: ["athenahealth", "Phreesia"],
     intakeSatisfaction: "It frustrates us",
@@ -75,6 +77,7 @@ export const EMAIL_PRESETS: EmailPreset[] = [
       noShowRate: 0.18,
       frontDeskStaff: 2,
       collectedRate: 0.35,
+      newPatientsPerMonth: 14,
     },
     techStack: ["eClinicalWorks", "Paper on a clipboard"],
   },
@@ -88,8 +91,11 @@ export const EMAIL_PRESETS: EmailPreset[] = [
       noShowRate: 0.05,
       frontDeskStaff: 6,
       collectedRate: 0.9,
+      newPatientsPerMonth: 60,
     },
     techStack: ["Epic", "Klara"],
+    onlineBooking: true,
+    asksForReviews: true,
   },
   {
     id: "default",
@@ -111,6 +117,8 @@ export type EmailData = {
   inputs: CalcInputs;
   techStack: string[];
   intakeSatisfaction?: string | null;
+  onlineBooking?: boolean;
+  asksForReviews?: boolean;
 };
 
 /** A value that is real in preview and a HubSpot token in the paste version. */
@@ -203,11 +211,14 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
   html: string;
 } {
   const money = calculate(data.inputs);
-  const ret = roi(money);
+  const back = recovery(money);
+  const upside = growth(money, data);
   const health = score({
     inputs: data.inputs,
     techStack: data.techStack,
     intakeSatisfaction: data.intakeSatisfaction,
+    onlineBooking: data.onlineBooking,
+    asksForReviews: data.asksForReviews,
   });
   const gap = biggestGap(health);
   // Straight off the shared palette, so the email and the phone agree.
@@ -219,7 +230,8 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
   const bandLabel = tok(mode, "booth_health_band", health.band.label);
   const gapLabel = tok(mode, "booth_biggest_gap", gap.label);
   const leakTotal = tok(mode, "booth_annual_leak", usdRounded(money.total));
-  const netReturn = tok(mode, "booth_annual_return", usdRounded(ret.net));
+  const recovered = tok(mode, "booth_annual_recovery", usdRounded(back.total));
+  const upsideAmount = tok(mode, "booth_annual_growth", usdRounded(upside.total));
 
   const byKey = Object.fromEntries(money.components.map((c) => [c.key, c]));
   const leakLines = (["missed", "staff", "collection", "rework"] as const)
@@ -269,8 +281,9 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
     RECOVERY.staff,
     RECOVERY.rework,
     RECOVERY.collection,
-    PRICING.baseMonthly,
-    PRICING.perIntake,
+    GROWTH.visitsPerNewPatient,
+    GROWTH.reviewUplift,
+    GROWTH.bookingUplift,
   ]
     .map(
       (a) => `
@@ -389,14 +402,29 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
         <tr>
           <td style="padding:18px 18px;">
             <div style="font:700 11px/1 ${FONT};letter-spacing:0.06em;text-transform:uppercase;color:${MUTE};">
-              What fixing it returns
+              What you would get back
             </div>
             <div style="font:800 24px/1.2 ${FONT};color:${INK};letter-spacing:-0.025em;padding-top:6px;">
-              ${netReturn} a year back, net of what we cost
+              ${recovered} a year, recovered
             </div>
             <div style="font:500 13.5px/1.5 ${FONT};color:${SUB};padding-top:8px;">
-              At your volume, after our fees. The recovery rates behind it are ours,
-              not yours. They are listed below and they are the right thing to push on.
+              A share of each figure above, not all of it. The shares are ours rather
+              than yours, they are listed at the bottom, and they are the right thing
+              to push back on.
+            </div>
+            <div style="border-top:1px solid #cffafe;margin-top:14px;padding-top:14px;">
+              <div style="font:700 11px/1 ${FONT};letter-spacing:0.06em;text-transform:uppercase;color:${MUTE};">
+                And what you are not winning yet
+              </div>
+              <div style="font:800 20px/1.25 ${FONT};color:${INK};letter-spacing:-0.02em;padding-top:6px;">
+                ${upsideAmount} a year in patients you never see
+              </div>
+              <div style="font:500 13.5px/1.5 ${FONT};color:${SUB};padding-top:8px;">
+                Different money from the figure above. That one is leaking out of
+                something you already do; this is demand that never reaches you,
+                because nobody asks your happy patients for a review and because
+                booking still means phoning during office hours.
+              </div>
             </div>
           </td>
         </tr>

@@ -90,14 +90,15 @@ The share of each component we claim to recover. **These are the numbers a CFO w
 | **Registration rework avoided** | `50%` | ⚠️ **Ours** | Customer success | Needs a customer denial-rate before/after. |
 | **Patient balance recovered** | `50%` | ⚠️ **Ours** | Customer success | Needs a customer collection-rate before/after. |
 
-### What we charge
+### The growth half
 
-Drives the payback period and the multiple. Modelled as fee plus per-intake so the ROI scales honestly with practice size.
+What a new patient is worth, and what share of new patients a better review profile and online booking are worth. The softest numbers in the model.
 
 | Constant | Value | Status | Owner | What it needs |
 | --- | --- | --- | --- | --- |
-| **Platform fee** | `$600/mo` | ⚠️ **Ours** | Sales | Replace with real list price or the mid-market deal band. |
-| **Per completed intake** | `$1.10` | ⚠️ **Ours** | Sales | Replace with the real per-transaction price. |
+| **Visits from a new patient in year one** | `2.4` | ⚠️ **Ours** | RCM | Needs a real figure off our own book. |
+| **More new patients from a better review profile** | `8%` | ⚠️ **Ours** | Marketing | The softest number in the model. It chains through local search ranking, which we do not control and cannot measure directly. Treat as directional until somebody has before-and-after data. |
+| **More new patients from online booking** | `12%` | ⚠️ **Ours** | Customer success | Needs a real drop-off figure. Should be measurable from our own booking funnel. |
 
 
 ---
@@ -109,10 +110,10 @@ Four dimensions, each scored 0–100 from an answer they gave, then weighted.
 
 | Dimension | Weight | Measure | 100 at | 0 at |
 | --- | --- | --- | --- | --- |
-| Patients who show up | 30% | No-show rate | 3% | 20% |
-| Load on the front desk | 25% | Registration minutes per person per day | 60 min | 420 min |
-| How intake gets done | 25% | What they run today | see below | see below |
-| Money collected up front | 20% | Share collected before or at the visit | 95% | 20% |
+| Patients who show up | 25% | No-show rate | 3% | 20% |
+| Load on the front desk | 20% | Registration minutes per person per day | 60 min | 420 min |
+| How intake gets done | 20% | What they run today | see below | see below |
+| Money collected up front | 15% | Share collected before or at the visit | 95% | 20% |
 
 Between the two ends, straight line. Registration minutes per person per day is
 `patients/day × 14 minutes ÷ headcount`.
@@ -168,14 +169,15 @@ A practice seeing **45 patients a day**, **14% no-show**, **3 on the front desk*
 **50%** of patient balance collected up front,
 already running athenahealth and an intake vendor they are unhappy with.
 
-**Practice health score: 51, Under strain**
+**Practice health score: 43, At risk**
 
 | Dimension | Score | Weight | Contribution |
 | --- | --- | --- | --- |
-| Patients who show up | 35 | 30% | 10.5 |
-| Load on the front desk | 58 | 25% | 14.5 |
-| How intake gets done | 70 | 25% | 17.5 |
-| Money collected up front | 40 | 20% | 8.0 |
+| Patients who show up | 35 | 25% | 8.8 |
+| Load on the front desk | 58 | 20% | 11.6 |
+| How intake gets done | 70 | 20% | 14.0 |
+| Money collected up front | 40 | 15% | 6.0 |
+| Getting found and booked | 15 | 20% | 3.0 |
 
 **Annual leak: $372,608**
 
@@ -186,8 +188,13 @@ already running athenahealth and an intake vendor they are unhappy with.
 | Claim rework from intake errors | $14,063 | 45/day × 250 days × 5% × $25 |
 | Patient balances written off | $61,920 | 9,675 visits × $32 × 50% uncollected × 40% |
 
-**Return: $158,873 recovered − $17,843 cost = $141,030 net.**
-8.90x on spend, payback in 1.3 months.
+**Recoverable: $158,873.** A share of each component above.
+**New-patient upside: $29,232**, for a practice that neither asks
+for reviews nor takes bookings online. Different money: the leak is coming
+out of something they already do, this never reaches them at all.
+
+Nothing is netted off for what Yosi costs. Price is a conversation to have
+with a number in front of you, not a variable buried inside one.
 
 
 ---

@@ -32,8 +32,8 @@ Health-Passport repo and nothing here depends on it.
 | | Landing | What it is, what it takes, what they get. |
 | 1 | About you | Role chips, name, email, practice, address |
 | 2 | Your setup | Their stack; EHR and any incumbent derived from it |
-| 2b | How it's working out | Everyone. Satisfaction with whatever they run, plus what costs them time |
-| 3 | Your numbers | Four sliders: patients/day, no-show, headcount, collected up front |
+| 2b | How it's working out | Satisfaction, what costs them time, online booking and reviews |
+| 3 | Your numbers | Five sliders: patients/day, no-show, headcount, collected up front, new patients/month |
 | | Practice health score | Ring, band, four weighted dimensions, the scoring |
 | | Leak and ROI | Four leak components, what we recover, what we cost |
 | | Book a demo | Their figure in the headline → yosi.health, click recorded |
@@ -61,7 +61,7 @@ Health-Passport repo and nothing here depends on it.
 - **Internal notes never render.** `Constant.source` is what the buyer reads;
   `Constant.internal` is for `CRITERIA.md`. "NEEDS MARKETING SIGN-OFF" once made
   it onto the buyer's screen.
-- **Nothing is asked that has to be looked up.** Four sliders, no keyboard.
+- **Nothing is asked that has to be looked up.** Five sliders, no keyboard.
   Minutes per patient on registration is locked at 14 rather than asked, because most
   people guess it badly and slowly, and a slider nobody can answer confidently
   costs more time than the precision buys. It is still printed as an

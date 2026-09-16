@@ -10,9 +10,10 @@ import { BOOKING_URL } from "@/lib/booking";
 import {
   allConstants,
   calculate,
+  growth,
   orderComponents,
   pct,
-  roi,
+  recovery,
   roleLead,
   usd,
   usdRounded,
@@ -27,7 +28,6 @@ import {
 } from "@/lib/score";
 import type { ClientSession } from "@/lib/session";
 import { useCountUp } from "./CountUp";
-import { EMPTY } from "@/lib/display";
 
 /* -------------------------------------------------------------------------
  * The diagnosis, in two screens.
@@ -53,8 +53,16 @@ export function ScreenScore({
         inputs,
         techStack: session.techStack,
         intakeSatisfaction: session.intakeSatisfaction,
+        onlineBooking: session.onlineBooking,
+        asksForReviews: session.asksForReviews,
       }),
-    [inputs, session.techStack, session.intakeSatisfaction],
+    [
+      inputs,
+      session.techStack,
+      session.intakeSatisfaction,
+      session.onlineBooking,
+      session.asksForReviews,
+    ],
   );
   const shown = useCountUp(result.total, 900);
   const [open, setOpen] = useState(false);
@@ -222,7 +230,15 @@ export function ScreenMoney({
   onNext: () => void;
 }) {
   const result = useMemo(() => calculate(inputs), [inputs]);
-  const ret = useMemo(() => roi(result), [result]);
+  const back = useMemo(() => recovery(result), [result]);
+  const upside = useMemo(
+    () =>
+      growth(result, {
+        onlineBooking: session.onlineBooking,
+        asksForReviews: session.asksForReviews,
+      }),
+    [result, session.onlineBooking, session.asksForReviews],
+  );
   const ordered = orderComponents(result, session.role);
   const lead = roleLead(result, session.role);
   const shown = useCountUp(result.total, 1000);
@@ -278,70 +294,78 @@ export function ScreenMoney({
           ))}
         </div>
 
-        {/* ---- The return. Separated by a rule and a tint so it reads as a
-               second, different claim rather than more of the same list. ---- */}
+        {/* ---- What you get back. A share of the four above, not all of
+               it, and nothing netted off for what we cost: price is a
+               conversation to have with a number in front of you, not a
+               variable buried inside one. ---- */}
         <div className="mt-7 rounded-[18px] border border-teal/25 bg-teal-bg p-4">
-          <CapLabel>{M.roiKicker}</CapLabel>
+          <CapLabel>{M.recoveryKicker}</CapLabel>
           <p className="mt-1.5 text-[24px] font-extrabold leading-[1.15] tracking-[-0.025em] text-ink">
-            {fill(M.roiHeadline, { net: usdRounded(ret.net) })}
+            {fill(M.recoveryHeadline, { amount: usdRounded(back.total) })}
           </p>
           <p className="mt-2 text-[13px] font-medium leading-[1.45] text-ink-sub">
-            {fill(M.roiSub, {
-              multiple: `$${ret.multiple.toFixed(2)}`,
-              months: payback(ret.paybackMonths),
-            })}
+            {M.recoverySub}
           </p>
-
-          <div className="mt-4 rounded-[14px] border border-teal/15 bg-white p-3.5">
-            <CapLabel>{M.roiRecoveredLabel}</CapLabel>
-            <div className="mt-2 space-y-1.5">
-              {ret.lines.map((l) => (
-                <div key={l.key} className="flex items-baseline justify-between gap-3">
-                  <span className="text-[12.5px] font-medium text-ink-sub">
-                    {l.label}{" "}
-                    <span className="text-ink-pale">
-                      ({pct(l.rate)} of {usd(l.leak)})
-                    </span>
-                  </span>
-                  <span className="shrink-0 text-[13px] font-bold tabular-nums text-ink">
-                    {usd(l.amount)}
-                  </span>
-                </div>
-              ))}
-              <div className="flex items-baseline justify-between gap-3 border-t border-hairline pt-2">
-                <span className="text-[13px] font-bold text-ink">Recovered</span>
-                <span className="text-[14px] font-extrabold tabular-nums text-green">
-                  {usd(ret.recovered)}
+          <div className="mt-3.5 space-y-1.5 rounded-[14px] border border-teal/15 bg-white p-3.5">
+            {back.lines.map((l) => (
+              <div key={l.key} className="flex items-baseline justify-between gap-3">
+                <span className="text-[12.5px] font-medium text-ink-sub">
+                  {l.label} <span className="text-ink-pale">({l.basis})</span>
+                </span>
+                <span className="shrink-0 text-[13px] font-bold tabular-nums text-ink">
+                  {usd(l.amount)}
                 </span>
               </div>
-            </div>
+            ))}
           </div>
+        </div>
 
-          <div className="mt-2.5 rounded-[14px] border border-teal/15 bg-white p-3.5">
-            <CapLabel>{M.roiCostLabel}</CapLabel>
-            <div className="mt-2 space-y-1.5">
-              {ret.costLines.map((l) => (
-                <div
-                  key={l.label}
-                  className="flex items-baseline justify-between gap-3"
-                >
-                  <span className="text-[12.5px] font-medium text-ink-sub">
-                    {l.label}{" "}
-                    <span className="text-ink-pale">({l.formula})</span>
-                  </span>
-                  <span className="shrink-0 text-[13px] font-bold tabular-nums text-ink">
-                    {usd(l.amount)}
-                  </span>
-                </div>
-              ))}
-              <div className="flex items-baseline justify-between gap-3 border-t border-hairline pt-2">
-                <span className="text-[13px] font-bold text-ink">Cost</span>
-                <span className="text-[14px] font-extrabold tabular-nums text-ink">
-                  {usd(ret.cost)}
-                </span>
+        {/* ---- Growth. Deliberately its own block and never added to the
+               figure above: one is money leaking out of something they
+               already do, the other is demand that never reaches them, and a
+               buyer who catches you conflating the two stops believing
+               both. ---- */}
+        <div className="mt-3 rounded-[18px] border border-hairline bg-white p-4">
+          <CapLabel>{M.growthKicker}</CapLabel>
+          {upside.alreadyDoing ? (
+            <p className="mt-2 text-[13.5px] font-medium leading-[1.5] text-ink-sub">
+              {M.growthNone}
+            </p>
+          ) : (
+            <>
+              <p className="mt-1.5 text-[24px] font-extrabold leading-[1.15] tracking-[-0.025em] text-ink">
+                {fill(M.growthHeadline, { amount: usdRounded(upside.total) })}
+              </p>
+              <p className="mt-2 text-[13px] font-medium leading-[1.45] text-ink-sub">
+                {M.growthSub}
+              </p>
+              <div className="mt-3.5 space-y-2.5">
+                {upside.lines.map((l) => (
+                  <div
+                    key={l.key}
+                    className="rounded-[14px] border border-hairline bg-canvas p-3.5"
+                  >
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className="text-[13.5px] font-semibold text-ink">
+                        {l.label}
+                      </span>
+                      <span className="shrink-0 text-[14px] font-extrabold tabular-nums text-ink">
+                        {usd(l.amount)}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-[12px] font-medium leading-[1.45] text-ink-mute">
+                      {l.basis}
+                    </p>
+                    <p className="mt-1.5 text-[12px] leading-[1.45] text-ink-sub">
+                      {l.key === "reviews"
+                        ? M.growthNoteReviews
+                        : M.growthNoteBooking}
+                    </p>
+                  </div>
+                ))}
               </div>
-            </div>
-          </div>
+            </>
+          )}
         </div>
 
         <button
@@ -384,8 +408,9 @@ export function ScreenMoney({
 
         <p className="mt-4 text-[12px] leading-[1.5] text-ink-mute">
           Based on {inputs.patientsPerDay} patients a day, {pct(inputs.noShowRate)}{" "}
-          no-show, {inputs.frontDeskStaff} at the front desk and{" "}
-          {pct(inputs.collectedRate)} collected up front.
+          no-show, {inputs.frontDeskStaff} at the front desk,{" "}
+          {pct(inputs.collectedRate)} collected up front and{" "}
+          {inputs.newPatientsPerMonth} new patients a month.
         </p>
 
         <div className="mt-6 rounded-[14px] border border-hairline bg-white p-4">
@@ -418,13 +443,6 @@ export function ScreenMoney({
       </div>
     </Screen>
   );
-}
-
-function payback(months: number): string {
-  if (!Number.isFinite(months)) return EMPTY;
-  if (months < 1) return "under a month";
-  if (months < 1.5) return "about a month";
-  return `${Math.round(months)} months`;
 }
 
 /* ------------------------------------------------------------------------- */

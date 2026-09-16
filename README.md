@@ -45,8 +45,8 @@ which of them are sourced and which are still ours to defend.
 | | Landing | What it is, what it takes, what they get |
 | 1 | About you | Role chips, name, work email, practice. Address optional. |
 | 2 | Your setup | Their stack. EHR and any incumbent are derived from it. |
-| 2b | How it's working out | Satisfaction with whatever they run, plus what costs them time |
-| 3 | Your numbers | Four sliders: patients/day, no-show, headcount, collected up front |
+| 2b | How it's working out | Satisfaction, what costs them time, online booking and reviews |
+| 3 | Your numbers | Five sliders: patients/day, no-show, headcount, collected up front, new patients/month |
 | | Practice health score | Ring, band, four weighted dimensions, the scoring |
 | | Leak and ROI | Four leak components, what we recover, what we cost |
 | | Book a demo | Their own figure in the headline, then out to yosi.health |
@@ -74,23 +74,36 @@ The cap on `staff` exists because you cannot save more front desk time than the
 front desk is paid for. Without it, a high-volume practice with a small desk
 produces a figure a CFO throws out on sight.
 
-### The return
+### What fixing it is worth
+
+Two halves that do different jobs and are never added together on screen.
 
 ```
 recovered = Σ (each leak component × its recovery rate)
-cost      = platform fee × 12 + completed intakes × per-intake price
-net       = recovered − cost
-payback   = cost ÷ (recovered ÷ 12) months
+
+growth    = new patients/year × uplift × (visits per new patient × net revenue)
+            reviews  uplift counted only if nobody asks for reviews today
+            booking  uplift counted only if patients cannot book online today
 ```
 
-Completed intakes rather than booked visits, because a patient who no-shows does
-not fill in a form.
+Recovery is money leaking out of an operation that already exists. Growth is
+money the practice has never earned. One is an argument about waste and the
+other about demand, and a buyer who catches you conflating them stops believing
+both.
+
+Neither has anything netted off for what Yosi costs. Price is a conversation to
+have with a number in front of you, not a variable buried inside one, and a
+booth is the wrong place to have it.
 
 ### The score
 
-Four dimensions, each scored 0 to 100 from an answer they gave, weighted into
-one number: patients who show up (30), load on the front desk (25), how intake
-gets done (25), money collected up front (20).
+Five dimensions, each scored 0 to 100 from an answer they gave, weighted into
+one number: patients who show up (25), load on the front desk (20), how intake
+gets done (20), money collected up front (15), getting found and booked (20).
+
+The last one is the only dimension about growth rather than waste, and the only
+one the volumes cannot tell us anything about, so it is asked directly: two taps
+on 2b for online booking and for asking patients for reviews.
 
 Four bands, four colours, defined once as `TONE` in `src/lib/score.ts` and read
 by the ring, the dimension bars and the email:
@@ -177,7 +190,7 @@ mismatch and server state survives a cleared cache.
 button in the same place, so a bounced finger or a double tap on a laggy screen
 would otherwise land the second hit on the next screen and skip it.
 
-**Nothing is asked that has to be looked up.** Four sliders, no keyboard.
+**Nothing is asked that has to be looked up.** Five sliders, no keyboard.
 Minutes per patient on registration is locked at 14 rather than asked, because
 most people guess it badly and slowly.
 
