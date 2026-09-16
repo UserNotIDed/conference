@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Yosi — booth demo",
+  title: "Yosi booth demo",
   description:
     "Patient intake in under 90 seconds, and what the difference is worth to your practice.",
   robots: { index: false, follow: false },

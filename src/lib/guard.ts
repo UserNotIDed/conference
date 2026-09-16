@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 /**
  * The booth screens hold lead data, so they get a passcode when one is set.
  * Unset means open, which is right for a laptop on a table and wrong for a
- * public Vercel URL — see .env.example.
+ * public Vercel URL. See .env.example.
  */
 export const PASSCODE = process.env.BOOTH_PASSCODE ?? "";
 const COOKIE = "booth_pass";

@@ -20,7 +20,7 @@ export const dynamic = "force-dynamic";
  * The breakdown behind the texted number.
  *
  * This is what gets opened on a laptop two weeks later, so it is a plain
- * server-rendered page with no JavaScript at all — it has to load on an
+ * server-rendered page with no JavaScript at all, because it has to load on an
  * airport connection and it has to survive being forwarded to a CFO. Every
  * assumption is on it, which is the same reason the phone screen shows them:
  * an argument about the inputs is a conversation, a dismissal is not.
@@ -131,7 +131,7 @@ export default async function BreakdownPage({
             The staff-time figure was capped at what {inputs.frontDeskStaff}{" "}
             full-time front desk staff are actually paid for. The raw calculation
             came out higher, which usually means the manual-entry estimate is too
-            high for your setup — worth a conversation.
+            high for your setup, and worth a conversation.
           </p>
         ) : null}
       </section>

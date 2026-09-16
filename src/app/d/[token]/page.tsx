@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
  * The link in the text message.
  *
  * Server-rendered with the session already in hand so the first paint is the
- * first screen — no spinner, no client fetch, nothing for conference wifi to
+ * first screen: no spinner, no client fetch, nothing for conference wifi to
  * lose between the tap and the timer starting.
  */
 export default async function AttendeePage({
@@ -33,7 +33,7 @@ export default async function AttendeePage({
    *
    * Resuming is right for an attendee who locked their phone mid-flow, and
    * wrong for everyone testing, demoing or handing the same phone to a second
-   * person — they open the link and land wherever the last run stopped. This
+   * person, who opens the link and lands wherever the last run stopped. This
    * clears the progress but keeps the row, the phone number and the token, so
    * the link on the printed card and in the SMS keeps working.
    */
@@ -82,7 +82,7 @@ export default async function AttendeePage({
         })
       : found;
 
-  // Opens at screen one every time. ?resume=1 picks up where they left off —
+  // Opens at screen one every time. ?resume=1 picks up where they left off,
   // see initialStage for why that is the exception rather than the rule.
   return <AttendeeFlow session={toClient(session)} resume={Boolean(resume)} />;
 }

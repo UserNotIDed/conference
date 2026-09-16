@@ -1,4 +1,5 @@
 import { randomBytes } from "node:crypto";
+import { EMPTY } from "./display";
 
 /**
  * Session tokens go in an SMS and get read aloud across a loud booth, so the
@@ -28,5 +29,5 @@ export function normalizePhone(raw: string): string {
 
 export function formatPhone(e164: string): string {
   const m = /^\+1(\d{3})(\d{3})(\d{4})$/.exec(e164 || "");
-  return m ? `(${m[1]}) ${m[2]}-${m[3]}` : e164 || "—";
+  return m ? `(${m[1]}) ${m[2]}-${m[3]}` : e164 || EMPTY;
 }

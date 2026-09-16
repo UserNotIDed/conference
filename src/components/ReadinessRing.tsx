@@ -8,13 +8,13 @@ import { TONE, type ScoreTone } from "@/lib/score";
  *
  * On the landing page it is progress: how much of the check is done. On the
  * diagnosis it is the practice health score. Same element either way, because
- * a prospect who later sees the real product should recognise it — and because
+ * a prospect who later sees the real product should recognise it, and because
  * one number in a ring is the fastest thing on the screen to read.
  *
  * Three things make it read as the Yosi one rather than a generic donut: the
  * stroke is thick enough to be a wheel rather than a hairline, the arc has
  * rounded caps so it looks drawn rather than clipped, and the fill is a
- * two-stop gradient of its band's hue. The gradient is not decoration — at 16%
+ * two-stop gradient of its band's hue. The gradient is not decoration: at 16%
  * of the diameter there is enough stroke to carry it, and a flat fill at that
  * weight looks like a placeholder.
  *

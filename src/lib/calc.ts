@@ -3,8 +3,8 @@
  *
  * Two halves that share one set of inputs.
  *
- *   calculate()  — the leak. Four components of annual loss, summed.
- *   roi()        — the return. What share of each component Yosi recovers,
+ *   calculate()  the leak. Four components of annual loss, summed.
+ *   roi()        the return. What share of each component Yosi recovers,
  *                  less what Yosi costs, as a multiple and a payback period.
  *
  * The rule that governs both: every constant is printed on the screen next to
@@ -12,12 +12,12 @@
  * sign it off. A visible assumption gets argued with, and arguing is
  * engagement. An invisible one gets the whole thing dismissed as a sales toy.
  *
- * ── FOR SALES ────────────────────────────────────────────────────────────────
+ * FOR SALES ────────────────────────────────────────────────────────────────
  * Everything marked `status: "placeholder"` is a number I made up to make the
  * screens work. Replace the `value` and set `status: "sourced"` with a real
- * `source`. Nothing else in the app has to change — the formulas, the screens
+ * `source`. Nothing else in the app has to change. The formulas, the screens
  * and the assumptions panel all read from here. See CRITERIA.md.
- * ─────────────────────────────────────────────────────────────────────────────
+ * ────────────────────────────────────────────────────────────────────────────
  */
 
 export type CalcInputs = {
@@ -108,7 +108,7 @@ export const ASSUMPTIONS: Record<string, Constant> = {
     display: "$25",
     status: "sourced",
     source:
-      "Widely cited per-claim rework cost — staff time to identify, correct and resubmit.",
+      "Widely cited per-claim rework cost: staff time to identify, correct and resubmit.",
   },
   workingDays: {
     value: 250,
@@ -122,7 +122,7 @@ export const ASSUMPTIONS: Record<string, Constant> = {
     label: "Paid hours per front desk FTE",
     display: "2,080",
     status: "sourced",
-    source: "Used only to cap the staff-time component — see below.",
+    source: "Used only to cap the staff-time component. See below.",
   },
 };
 
@@ -151,7 +151,7 @@ export const RECOVERY: Record<CalcComponent["key"], Constant> = {
     status: "placeholder",
     source:
       "Share of front desk registration minutes removed when the patient completes intake before arrival and it writes back to the chart. The remainder is exceptions, walk-ins and the patients who will always need help.",
-    internal: "Should be the easiest to evidence — we can measure it.",
+    internal: "Should be the easiest to evidence, because we can measure it.",
   },
   rework: {
     value: 0.5,
@@ -177,7 +177,7 @@ export const RECOVERY: Record<CalcComponent["key"], Constant> = {
  * What Yosi costs. Drives the payback period and the multiple.
  *
  * Modelled as platform fee plus per-intake so the ROI scales honestly with
- * practice size — a flat fee makes the number look absurd for a large practice
+ * practice size. A flat fee makes the number look absurd for a large practice
  * and impossible for a small one.
  */
 export const PRICING = {
@@ -250,7 +250,7 @@ export function calculate(rawInputs: Partial<CalcInputs>): CalcResult {
   const staffRaw =
     (A.minutesPerIntake.value / 60) * visitsPerYear * A.loadedHourlyRate.value;
   // You cannot save more front desk time than the front desk is paid for. The
-  // headcount input exists to enforce that ceiling — without it, a big practice
+  // headcount input exists to enforce that ceiling. Without it, a big practice
   // with a small desk produces a number that a CFO throws out on sight.
   const staffCap =
     inputs.frontDeskStaff * A.paidHoursPerFte.value * A.loadedHourlyRate.value;
@@ -279,7 +279,7 @@ export function calculate(rawInputs: Partial<CalcInputs>): CalcResult {
       amount: staff,
       formula: `${A.minutesPerIntake.display} × ${inputs.patientsPerDay}/day × ${A.workingDays.display} days × ${A.loadedHourlyRate.display}`,
       note: staffCapped
-        ? `Capped at ${inputs.frontDeskStaff} FTE of paid hours — the raw figure exceeded what your desk is paid for.`
+        ? `Capped at ${inputs.frontDeskStaff} FTE of paid hours. The raw figure exceeded what your desk is paid for.`
         : "Hours your desk spends keying in what the patient already wrote down.",
     },
     {
@@ -344,7 +344,7 @@ export function roi(result: CalcResult): RoiResult {
   const recovered = lines.reduce((s, l) => s + l.amount, 0);
 
   const platform = PRICING.baseMonthly.value * 12;
-  // Completed intakes, not booked visits — a no-show does not fill a form.
+  // Completed intakes, not booked visits, because a no-show does not fill a form.
   const intakes = result.visitsPerYear * (1 - result.inputs.noShowRate);
   const perIntake = intakes * PRICING.perIntake.value;
   const cost = platform + perIntake;
@@ -375,7 +375,7 @@ export function roi(result: CalcResult): RoiResult {
  * Role changes what gets read first, not what the number is.
  *
  * Weighting the *total* by who is answering is the fastest way to earn the
- * "sales toy" label the calculator is supposed to avoid — two people at the
+ * "sales toy" label the calculator is supposed to avoid, because two people at the
  * same practice would get two different answers and neither would trust
  * either. So role reorders the components and writes the lead line; the
  * arithmetic is identical for everyone.
@@ -415,7 +415,7 @@ export function orderComponents(
 /**
  * The one line under the headline figure. Built from the actual numbers rather
  * than written in advance, because the role's own component is often not the
- * biggest one — telling an RCM lead that "most of this lands in your AR" while
+ * biggest one. Telling an RCM lead that "most of this lands in your AR" while
  * the screen shows rework as the smallest of four is exactly the kind of
  * overclaim that loses the room.
  */
@@ -431,7 +431,7 @@ export function roleLead(
   const share = Math.round((mine.amount / result.total) * 100);
 
   if (biggest.key === emphasis.owns) {
-    return `${usd(mine.amount)} of it ${emphasis.owner} — the largest of the four.`;
+    return `${usd(mine.amount)} of it ${emphasis.owner}, the largest of the four.`;
   }
   return `${usd(mine.amount)} of it ${emphasis.owner}, about ${share}%. The bigger driver is ${biggest.label.toLowerCase()}.`;
 }
@@ -448,7 +448,7 @@ export function usd(n: number): string {
   return `$${Math.round(n).toLocaleString("en-US")}`;
 }
 
-/** Headline figure — rounded hard, because $184,217 reads as false precision. */
+/** Headline figure, rounded hard: $184,217 reads as false precision. */
 export function usdRounded(n: number): string {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
   const thousands = Math.round(n / 1000);

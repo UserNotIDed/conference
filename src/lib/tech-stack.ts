@@ -5,7 +5,7 @@
  * this show almost everyone is on athenahealth, so asking for the EHR alone
  * buys one answer everybody gives. The stack is where the useful signal is:
  * who else is already in the workflow, and specifically whether an intake
- * vendor is — because that turns the conversation from "do you need this" into
+ * vendor is, because that turns the conversation from "do you need this" into
  * "what is wrong with the one you have".
  *
  * Grid of common choices first, more behind a disclosure, and a search for
@@ -22,7 +22,7 @@ export type ToolKind =
   | "rcm"
   | "manual";
 
-/** Shown up front. athenahealth first — it is the house answer at this show. */
+/** Shown up front. athenahealth first, because it is the house answer at this show. */
 export const COMMON_TOOLS: Tool[] = [
   { name: "athenahealth", kind: "ehr" },
   { name: "eClinicalWorks", kind: "ehr" },
@@ -62,7 +62,7 @@ export const MORE_TOOLS: Tool[] = [
 
 export const ALL_TOOLS: Tool[] = [...COMMON_TOOLS, ...MORE_TOOLS];
 
-export const NONE_OPTION = "None of these — we do it all by hand";
+export const NONE_OPTION = "None of these, we do it all by hand";
 
 /**
  * Anyone already running one of these is on a competitor, and the next
@@ -79,11 +79,11 @@ export function competitorIn(selected: string[]): string | null {
 
 /**
  * Satisfaction, asked only of people already paying someone else. The wording
- * is deliberately blunt — "it's fine" is the answer that actually predicts a
+ * is deliberately blunt, because "it's fine" is the answer that actually predicts a
  * switch, and a five-point scale would bury it.
  */
 export const SATISFACTION = [
-  "Love it — not going anywhere",
+  "Love it, not going anywhere",
   "It's fine",
   "It frustrates us",
   "We're actively looking to replace it",

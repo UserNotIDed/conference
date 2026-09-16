@@ -42,7 +42,7 @@
 
 /*
  * The font is self-hosted-by-CDN rather than bundled: one woff2 request that
- * conference wifi can miss without taking the layout with it — the system
+ * conference wifi can miss without taking the layout with it. The system
  * stack in --font-sans is a deliberate fallback, not an afterthought.
  */
 @font-face {

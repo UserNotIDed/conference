@@ -17,11 +17,11 @@ import { MultiSelectGrid } from "./MultiSelectGrid";
 export const TOTAL_STEPS = 3;
 
 /**
- * Section 2 — what's already in their stack.
+ * Section 2. What's already in their stack.
  *
  * At this show the EHR answer is athenahealth for nearly everyone, so asking
  * for it alone buys a column where every row is the same. The stack is where
- * the signal is — and specifically whether an intake vendor is already in it,
+ * the signal is, and specifically whether an intake vendor is already in it,
  * which changes the conversation from "do you need this" to "what is wrong
  * with the one you have".
  *
@@ -80,7 +80,7 @@ export function ScreenTechStack({
 }
 
 /**
- * Section 2b — only for people already paying a competitor.
+ * Section 2b. Only for people already paying a competitor.
  *
  * The most valuable answer in the whole thing. Someone on paper is a maybe;
  * someone who tells a stranger at a booth that their intake vendor frustrates

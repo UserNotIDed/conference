@@ -23,7 +23,7 @@ export type SectionState = {
  * right.
  *
  * It exists so nobody starts a form without seeing its shape, and so the
- * prospect meets the screen their patients meet — which is the thing being
+ * prospect meets the screen their patients meet, which is the thing being
  * sold.
  */
 export function ScreenLanding({

@@ -2,7 +2,7 @@ import { PRACTICE } from "./demo";
 
 /**
  * Outbound SMS. Real when Twilio credentials are present, logged when they are
- * not, so the whole flow — including the texted leak estimate — still runs on a
+ * not, so the whole flow, including the texted leak estimate, still runs on a
  * laptop with no account attached.
  */
 export async function sendSms(

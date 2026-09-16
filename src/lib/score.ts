@@ -4,7 +4,7 @@
  * Four dimensions, each scored 0–100 from an answer the prospect actually
  * gave, then weighted into one number. It exists because "check the health of
  * your practice" promises a diagnosis, and a dollar figure on its own is a
- * bill, not a diagnosis — a score says where you stand, a dollar figure says
+ * bill, not a diagnosis. A score says where you stand, a dollar figure says
  * what it costs, and the two do different jobs in the same conversation.
  *
  * Same rule as the money model: every weight and every band is printed on the
@@ -19,7 +19,7 @@
  */
 
 import { ASSUMPTIONS, type CalcInputs } from "./calc";
-import { COMPETITOR_TOOLS } from "./tech-stack";
+import { COMPETITOR_TOOLS, NONE_OPTION } from "./tech-stack";
 
 export type ScoreDimension = {
   key: "showRate" | "deskLoad" | "digitalIntake" | "collection";
@@ -50,14 +50,14 @@ export type ScoreBand = {
  *
  * Four rather than three or five because three cannot separate "this is fine"
  * from "this works because people are absorbing it", which is the distinction
- * the whole conversation turns on — and five means two neighbouring colours
+ * the whole conversation turns on, and five means two neighbouring colours
  * nobody can tell apart on a phone in a bright hall.
  *
  * Hex rather than Tailwind classes because the same four colours have to drive
  * an SVG gradient, a progress bar and an HTML email, and an email cannot see a
  * stylesheet. One map, three surfaces, no drift.
  *
- * Each band is a two-stop gradient of its own hue — light into deep, which is
+ * Each band is a two-stop gradient of its own hue: light into deep, which is
  * what gives the ring its weight. The green one is the showiest on purpose:
  * it is the only score anybody is pleased to see.
  */
@@ -91,7 +91,7 @@ export const BANDS = {
    *
    * Recalibrated when minutes-per-patient stopped being a slider and was
    * locked at 14. At that figure the old 30–240 band scored almost every
-   * practice near zero, which is not a diagnosis — it is a broken instrument.
+   * practice near zero, which is not a diagnosis but a broken instrument.
    * 60 is a desk with almost nothing to key; 420 is seven hours of a shift.
    */
   deskMinutes: { best: 60, worst: 420 },
@@ -169,7 +169,9 @@ function band(value: number, best: number, worst: number): number {
 const PAPER = new Set([
   "Paper on a clipboard",
   "Front desk keys it in",
-  "None of these — we do it all by hand",
+  // Imported rather than spelled out again: it is matched by value, so a
+  // reworded chip would silently stop counting as paper.
+  NONE_OPTION,
 ]);
 
 export function intakePosture(
@@ -251,7 +253,7 @@ export function score(ctx: ScoreContext): ScoreResult {
 }
 
 /**
- * Where the most score is available — what the screen and the follow-up email
+ * Where the most score is available, and what the screen and the follow-up email
  * should both lead with.
  *
  * Headroom, `(100 − value) × weight`, not the lowest score and not the smallest

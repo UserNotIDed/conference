@@ -5,13 +5,13 @@ import { answeredSession, mockSession } from "@/lib/mock-session";
 import { AttendeeFlow, type Stage } from "@/components/flow/AttendeeFlow";
 
 /**
- * Every screen in the flow, reachable in one tap — and fully working.
+ * Every screen in the flow, reachable in one tap, and fully working.
  *
  * Reviewing the last screen should not cost a ninety-second run through the
  * first four. Pick one here and it renders on its own.
  *
  * It runs the real AttendeeFlow rather than a parallel copy of it, so every
- * button works and you can click forward from wherever you land — which is
+ * button works and you can click forward from wherever you land, which is
  * also the only way to stop the picker drifting out of date. What is switched
  * off is persistence: writes go to a queue that drops them, so nothing reaches
  * the database and no lead is created.
@@ -154,7 +154,7 @@ export function FlowPreview() {
       <main className="flex-1 bg-canvas p-5 lg:p-10">
         <div className="mx-auto w-full max-w-[430px]">
           <div className="mb-3 flex items-center justify-center gap-3">
-            {/* The entry point, not the current screen — once you start
+            {/* The entry point, not the current screen. Once you start
                 clicking forward the flow moves on and this would otherwise
                 read as a stale label for whatever is on the glass. */}
             <p className="text-[12px] font-medium text-ink-mute">

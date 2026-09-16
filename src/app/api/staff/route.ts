@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
  *
  * Nobody at a booth can tell a three-second poll from a socket, and a poll
  * cannot get itself into a state where it is silently disconnected for the rest
- * of the show — which is the failure mode that actually loses the demo.
+ * of the show, which is the failure mode that actually loses the demo.
  */
 export async function GET() {
   const denied = await guardApi();

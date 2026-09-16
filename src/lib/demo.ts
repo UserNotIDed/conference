@@ -1,3 +1,5 @@
+import { EMPTY } from "./display";
+
 /**
  * The demo tenant. Everything here is synthetic: the practice does not exist,
  * the patients are invented, phone numbers use the 555-01xx reserved range and
@@ -22,7 +24,7 @@ export type Persona = {
 /**
  * Attendees role-play a patient. Rotating the roster rather than making
  * everyone Maria is what makes /staff read like an actual front desk queue
- * instead of twenty copies of one row — which is the whole point of that
+ * instead of twenty copies of one row, which is the whole point of that
  * screen. Maria stays first so the scripted walkthrough matches the mockup.
  */
 export const PERSONAS: Persona[] = [
@@ -39,7 +41,7 @@ export const PERSONAS: Persona[] = [
     dob: "07/02/1991",
     email: "d.okonkwo@example.com",
     provider: "Dr. Priya Raghunathan, DO",
-    reason: "Follow-up — lab review",
+    reason: "Follow-up, lab review",
     appointment: "Today, 11:30 AM",
   },
   {
@@ -47,7 +49,7 @@ export const PERSONAS: Persona[] = [
     dob: "11/23/1979",
     email: "s.lindqvist@example.com",
     provider: "Dr. Amara Osei, MD",
-    reason: "Prenatal — 24 weeks",
+    reason: "Prenatal, 24 weeks",
     appointment: "Today, 11:45 AM",
   },
   {
@@ -80,10 +82,10 @@ export function personaFor(index: number): Persona {
   return PERSONAS[index % PERSONAS.length];
 }
 
-/** The fixed eligibility response. Same every time — it is a demo, not a check. */
+/** The fixed eligibility response. Same every time: it is a demo, not a check. */
 export const VERIFY_RESULT = {
   payer: "Aetna",
-  plan: "Aetna Choice POS II — PPO",
+  plan: "Aetna Choice POS II PPO",
   memberId: "W2740119863",
   group: "0847221",
   status: "Active",
@@ -122,5 +124,5 @@ export const ROLES = [
 export type RoleId = (typeof ROLES)[number]["id"];
 
 export function roleLabel(id: string | null | undefined): string {
-  return ROLES.find((r) => r.id === id)?.label ?? "—";
+  return ROLES.find((r) => r.id === id)?.label ?? EMPTY;
 }

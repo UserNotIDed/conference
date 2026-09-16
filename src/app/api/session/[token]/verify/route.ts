@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 type Ctx = { params: Promise<{ token: string }> };
 
-/** Kick off the faked eligibility check. Safe to call twice — the first start wins. */
+/** Kick off the faked eligibility check. Safe to call twice: the first start wins. */
 export async function POST(_req: Request, { params }: Ctx) {
   const { token } = await params;
   const found = await prisma.session.findUnique({ where: { token } });
@@ -21,7 +21,7 @@ export async function POST(_req: Request, { params }: Ctx) {
       data: { verifyStartedAt: new Date(), verifyDurationMs: verificationDuration() },
     });
     await ehrAppend(session, [
-      `Eligibility 270 sent to ${VERIFY_RESULT.payer} — awaiting 271`,
+      `Eligibility 270 sent to ${VERIFY_RESULT.payer}, awaiting 271`,
     ]);
     session = await prisma.session.findUniqueOrThrow({ where: { id: session.id } });
   }

@@ -11,14 +11,15 @@ import {
   submitUrl,
   type PropertyDef,
 } from "@/lib/hubspot";
+import { EMPTY } from "@/lib/display";
 
 /**
  * /admin, as HubSpot sees it.
  *
  * Two questions this answers and the session table cannot. First: what has to
- * exist in HubSpot before the show — the property spec, with the internal names
+ * exist in HubSpot before the show: the property spec, with the internal names
  * that are the actual contract. Second: for any given lead, what exactly gets
- * POSTed — not a rendering of our own row shape, but the payload itself, built
+ * POSTed. Not a rendering of our own row shape, but the payload itself, built
  * by the same function the submit uses.
  *
  * That second part matters more than it sounds. Every integration like this
@@ -65,7 +66,7 @@ export function HubSpotView({ rows }: { rows: Row[] }) {
         </p>
         <p className="mt-1.5 text-[13px] leading-[1.6] text-ink-sub">
           The microsite POSTs server-side to the HubSpot Forms API. No SDK, no
-          OAuth, no private app token — the endpoint is public by design and the
+          OAuth, no private app token: the endpoint is public by design and the
           form GUID is the credential. HubSpot dedupes on email, so one person
           submitting twice updates one contact. A submission can start a
           workflow, which is how the follow-up email goes out without us sending
@@ -74,13 +75,13 @@ export function HubSpotView({ rows }: { rows: Row[] }) {
         <dl className="mt-3 space-y-2">
           <Wire label="Portal" value={PORTAL_ID} />
           <Wire
-            label="Form 1 — lead captured"
+            label="Form 1, lead captured"
             value={FORMS.lead || "HUBSPOT_FORM_LEAD not set"}
             note="Fires when section 1 is answered. The lead, even if they walk off."
             missing={!FORMS.lead}
           />
           <Wire
-            label="Form 2 — diagnosis"
+            label="Form 2, diagnosis"
             value={FORMS.diagnosis || "HUBSPOT_FORM_DIAGNOSIS not set"}
             note="Fires when the score and the money land. This is the one the email workflow listens to."
             missing={!FORMS.diagnosis}
@@ -102,7 +103,7 @@ export function HubSpotView({ rows }: { rows: Row[] }) {
             <p className="mt-1.5 text-[13px] text-ink-sub">
               {toCreate.length} to add on the Contact object, plus{" "}
               {PROPERTIES.length - toCreate.length} that already exist. The
-              internal name is the contract — renaming one in HubSpot breaks the
+              internal name is the contract, and renaming one in HubSpot breaks the
               submit silently.
             </p>
           </div>
@@ -203,7 +204,7 @@ export function HubSpotView({ rows }: { rows: Row[] }) {
                   >
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[14px] font-bold text-ink">
-                        {props.email ?? "—"}
+                        {props.email ?? EMPTY}
                       </span>
                       <span className="mt-0.5 block truncate text-[12px] text-ink-mute">
                         {props.company ?? "no practice"} ·{" "}
@@ -256,7 +257,7 @@ export function HubSpotView({ rows }: { rows: Row[] }) {
                                   : "text-ink"
                               }`}
                             >
-                              {props[p.name] ?? "— not sent"}
+                              {props[p.name] ?? "not sent"}
                             </dd>
                           </div>
                         ))}

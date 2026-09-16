@@ -145,7 +145,7 @@ export class SyncQueue {
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-      // Only drop what we actually sent — anything queued mid-flight survives.
+      // Only drop what we actually sent. Anything queued mid-flight survives.
       for (const p of batch) {
         if (this.patches.get(p.key)?.queuedAt === p.queuedAt)
           this.patches.delete(p.key);
@@ -183,7 +183,7 @@ export class SyncQueue {
         new Blob([payload], { type: "application/json" }),
       );
     } catch {
-      /* best effort — the normal queue will retry when the tab comes back */
+      /* best effort; the normal queue will retry when the tab comes back */
     }
   }
 }
@@ -191,8 +191,8 @@ export class SyncQueue {
 /**
  * A queue that accepts writes and does nothing with them.
  *
- * The preview surface runs the real flow — the real components, the real stage
- * machine — against a session that does not exist. It has to be able to hand
+ * The preview surface runs the real flow, with the real components and the
+ * real stage machine, against a session that does not exist. It has to hand
  * patches somewhere, and they must never reach the server or localStorage.
  */
 class NullQueue {

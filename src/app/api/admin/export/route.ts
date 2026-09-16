@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
  * this straight onto the Contact object and the columns land on the properties
  * they were already going to land on.
  *
- * Sessions with no email are skipped — HubSpot dedupes on email, and a row
+ * Sessions with no email are skipped, because HubSpot dedupes on email and a row
  * without one imports as a new contact every time.
  */
 export async function GET() {

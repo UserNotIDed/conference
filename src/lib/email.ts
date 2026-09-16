@@ -3,8 +3,8 @@
  *
  * Two renders from one template:
  *
- *   mode "preview"  — real values, for looking at. `/email` shows this.
- *   mode "hubspot"  — the same HTML with {{ contact.booth_* }} personalization
+ *   mode "preview"  real values, for looking at. `/email` shows this.
+ *   mode "hubspot"  the same HTML with {{ contact.booth_* }} personalization
  *                     tokens in place of the values, to paste into a HubSpot
  *                     marketing email.
  *
@@ -30,7 +30,7 @@ import {
 } from "./calc";
 import { TONE, biggestGap, score, toneFor, type ScoreResult } from "./score";
 import type { CalcInputs } from "./calc";
-import { BOOKING_URL } from "./prospect-content";
+import { BOOKING_URL } from "./booking";
 
 const INK = "#0f172a";
 const SUB = "#475569";
@@ -184,8 +184,8 @@ function leakRow(label: string, amount: string, formula: string): string {
 export function subjectLine(mode: EmailMode, health: ScoreResult): string {
   const gap = biggestGap(health);
   return mode === "hubspot"
-    ? "Your practice scored {{ contact.booth_health_score }} — here's the arithmetic"
-    : `Your practice scored ${health.total} — here's the arithmetic`;
+    ? "Your practice scored {{ contact.booth_health_score }}. Here's the arithmetic"
+    : `Your practice scored ${health.total}. Here's the arithmetic`;
   // gap is deliberately not in the subject: it reads as an accusation before
   // they have seen the number it came from. It leads the body instead.
   void gap;
@@ -245,9 +245,9 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
     )
     .join("");
 
-  // In the token version the bars cannot move — HubSpot has no arithmetic —
-  // so the dimension detail comes through as tokens and the bars are dropped
-  // rather than shown at a length that is a lie.
+  // In the token version the bars cannot move, because HubSpot has no
+  // arithmetic. So the dimension detail comes through as tokens and the bars
+  // are dropped rather than shown at a length that is a lie.
   const dimensionBlock =
     mode === "hubspot"
       ? `<tr><td style="padding:14px 16px;background:${CANVAS};border-radius:10px;font:500 13px/1.5 ${FONT};color:${SUB};">
@@ -395,8 +395,8 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
               ${netReturn} a year back, net of what we cost
             </div>
             <div style="font:500 13.5px/1.5 ${FONT};color:${SUB};padding-top:8px;">
-              At your volume, after our fees. The recovery rates behind it are ours, not yours —
-              they are listed below and they are the right thing to push on.
+              At your volume, after our fees. The recovery rates behind it are ours,
+              not yours. They are listed below and they are the right thing to push on.
             </div>
           </td>
         </tr>
@@ -448,7 +448,7 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
     <td style="padding:22px 28px 26px 28px;">
       <div style="border-top:1px solid ${HAIRLINE};padding-top:16px;font:500 12px/1.6 ${FONT};color:${MUTE};">
         You answered these questions at the Yosi booth. The figures are an estimate built from
-        four answers and the assumptions above — not an audit of your books.
+        four answers and the assumptions above, not an audit of your books.
         <br>
         {{ unsubscribe_link }}
       </div>

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 /**
- * The tinted callout from the Yosi hub — an (i) in a soft panel.
+ * The tinted callout from the Yosi hub: an (i) in a soft panel.
  *
  * Used here to carry the product point next to the thing it describes: the
  * prospect is doing a patient's intake, and each screen has a sentence about

@@ -10,14 +10,14 @@ export const dynamic = "force-dynamic";
  *
  * The QR encodes an `sms:` URI, not a URL. Phones route sms: to the messaging
  * app the same way they route tel: to the dialer, so scanning it opens a
- * pre-addressed thread with the keyword already typed — and the attendee still
+ * pre-addressed thread with the keyword already typed, and the attendee still
  * has to press send, which is exactly right, because that tap is the consent.
  *
  * `?&body=` is not a typo. iOS historically wanted `&body=`, Android wanted
  * `?body=`, and `?&body=` is the form both parse. Keep the body short and plain:
  * punctuation, emoji and line breaks get dropped or mangled by some Android
  * skins. Scan the printed version on an iPhone and two Android handsets before
- * the file goes anywhere near a printer — some devices drop the body entirely
+ * the file goes anywhere near a printer, because some devices drop the body entirely
  * and open a blank thread, which is survivable but changes the copy you need.
  */
 export default async function BoothPage() {
@@ -65,7 +65,7 @@ export default async function BoothPage() {
       </div>
 
       <p className="mt-8 text-[12px] leading-[1.6] text-ink-mute">
-        Everything in this demo is synthetic — the practice, the patient, the
+        Everything in this demo is synthetic: the practice, the patient, the
         coverage. Nothing you enter is a real medical record.
       </p>
 

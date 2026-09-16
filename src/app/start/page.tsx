@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
  *
  * The "hand the phone to the next person" path, and the fastest way to see the
  * flow from the top. It creates a new row rather than resetting an existing
- * one, so the previous person's lead is never destroyed — that is the whole
+ * one, so the previous person's lead is never destroyed. That is the whole
  * difference between this and ?restart=1, which is for testing a link you own.
  *
  * The phone number is a placeholder in the 555-01xx reserved range: the demo

@@ -25,7 +25,7 @@ export type Stage =
  * The practice health check.
  *
  * Three sections and a two-screen diagnosis. The person holding the phone is
- * the prospect answering about their own practice — there is no patient
+ * the prospect answering about their own practice. There is no patient
  * roleplay and nothing here is simulated, so every answer is a lead field and
  * every screen is either a question or the payoff for having answered it.
  *
@@ -47,8 +47,8 @@ export function AttendeeFlow({
   resume?: boolean;
   /**
    * Runs the real flow against a session that does not exist: writes go to a
-   * queue that drops them. Everything else — the components, the stage
-   * machine, the arithmetic — is the same code the attendee gets, so the
+   * queue that drops them. Everything else, the components, the stage
+   * machine and the arithmetic, is the same code the attendee gets, so the
    * preview cannot drift from the thing it is previewing.
    */
   preview?: boolean;
@@ -91,8 +91,8 @@ export function AttendeeFlow({
   const [sync, setSync] = useState({ pending: 0, failing: false });
 
   // Two CTAs sit in the same place on consecutive screens, so a fast
-  // double-tap — a bounced finger, or a laggy screen someone taps twice —
-  // lands the second hit on the next screen's button and silently skips it.
+  // double-tap, a bounced finger or a laggy screen someone taps twice, lands
+  // the second hit on the next screen's button and silently skips it.
   // Ignore anything inside 400ms of the last advance; no human fills in a
   // screen that fast.
   const lastAdvance = useRef(0);
@@ -161,7 +161,7 @@ export function AttendeeFlow({
         />
       ) : null}
 
-      {/* 1 — who they are. Every field is a lead field. */}
+      {/* 1. Who they are. Every field is a lead field. */}
       {stage === "contact" ? (
         <ScreenContact
           session={view}
@@ -177,7 +177,7 @@ export function AttendeeFlow({
         />
       ) : null}
 
-      {/* 2 — the stack, with the incumbent follow-up when there is one. */}
+      {/* 2. The stack, with the incumbent follow-up when there is one. */}
       {stage === "stack" ? (
         <ScreenTechStack
           session={view}
@@ -201,7 +201,7 @@ export function AttendeeFlow({
         />
       ) : null}
 
-      {/* 3 — the five numbers. */}
+      {/* 3. The four numbers. */}
       {stage === "numbers" ? (
         <ScreenNumbers
           session={view}
@@ -250,7 +250,7 @@ export function AttendeeFlow({
  * something is wrong is the honest version.
  */
 function SyncBadge({ pending, failing }: { pending: number; failing: boolean }) {
-  // Armed by a timer, but shown only while the queue is still actually stuck —
+  // Armed by a timer, but shown only while the queue is still actually stuck:
   // deriving the second half means recovery hides the badge on the next render
   // with no state to unwind.
   const [armed, setArmed] = useState(false);
@@ -264,7 +264,7 @@ function SyncBadge({ pending, failing }: { pending: number; failing: boolean }) 
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+84px)] z-50 flex justify-center px-5">
       <span className="rounded-full bg-ink/90 px-3.5 py-2 text-[12px] font-semibold text-white shadow-lg">
-        Saving — weak signal, we&apos;ll keep trying
+        Saving. Weak signal, we&apos;ll keep trying
       </span>
     </div>
   );
@@ -276,7 +276,7 @@ function SyncBadge({ pending, failing }: { pending: number; failing: boolean }) 
  * Always at the beginning, unless the link explicitly asks to resume.
  *
  * Resuming from saved state was the default and it was wrong. The whole run is
- * about ninety seconds, so a reload losing your place costs nothing — but
+ * about ninety seconds, so a reload losing your place costs nothing, but
  * resuming means anyone opening the same link twice lands halfway through,
  * which makes the demo impossible to rehearse, impossible to show twice, and
  * baffling when a second person picks up the phone.

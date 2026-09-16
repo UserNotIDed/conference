@@ -1,11 +1,11 @@
-# Practice health check — criteria to validate
+# Practice health check: criteria to validate
 
-*Generated from the code by `npm run criteria`. Do not edit by hand — edit
+*Generated from the code by `npm run criteria`. Do not edit by hand. Edit
 `src/lib/calc.ts` and `src/lib/score.ts` and regenerate, or this sheet and the
 app will disagree.*
 
 Everything marked **⚠️ Ours** is a number we made up so the screens would work.
-It is on the attendee's phone, under "What are we assuming?", tagged as ours —
+It is on the attendee's phone, under "What are we assuming?", tagged as ours,
 so it is arguable in public, which is the point. It still has to be right.
 
 ---
@@ -13,7 +13,7 @@ so it is arguable in public, which is the point. It still has to be right.
 ## 1 · The questions we ask
 
 Four sliders, section 3. Nothing else is asked, and nothing is looked up.
-Minutes per patient on registration is **not** asked — it is locked at
+Minutes per patient on registration is **not** asked. It is locked at
 `14 min` and printed in the assumptions.
 
 | Input | Range | Used by |
@@ -23,15 +23,15 @@ Minutes per patient on registration is **not** asked — it is locked at
 | Front desk headcount | 1–12 | Leak (cap), score |
 | Patient balance collected up front | 0–100% | Leak, score |
 
-Plus, from section 2: what they run today, and — if that includes an intake
-vendor — whether it is working. That pair is the only input to one quarter of
+Plus, from section 2: what they run today and, if that includes an intake
+vendor, whether it is working. That pair is the only input to one quarter of
 the score.
 
 ---
 
 ## 2 · The dollar model
 
-### The leak — four components, summed
+### The leak: four components, summed
 
 ```
 missed     = patients/day × clinic days × no-show rate × net revenue per visit
@@ -54,11 +54,11 @@ produces a figure a CFO throws out on sight.
 recovered = Σ (each leak component × its recovery rate)
 cost      = platform fee × 12  +  completed intakes × per-intake price
 net       = recovered − cost
-multiple  = recovered ÷ cost          (gross, not net — the screen says so)
+multiple  = recovered ÷ cost          (gross, not net; the screen says so)
 payback   = cost ÷ (recovered ÷ 12)   months
 ```
 
-Completed intakes, not booked visits — a patient who no-shows does not fill in
+Completed intakes, not booked visits, because a patient who no-shows does not fill in
 a form, so we do not bill for one.
 
 ### Constants in the leak
@@ -68,14 +68,14 @@ What we add to their answers to turn them into money.
 | Constant | Value | Status | Owner | What it needs |
 | --- | --- | --- | --- | --- |
 | **Net revenue per completed visit** | `$145` | ⚠️ **Ours** | Marketing | Carries the largest component of the leak. Marketing to confirm the blended figure before the show. |
-| **Loaded front desk hourly cost** | `$26/hr` | Sourced | — | Signed off. |
+| **Loaded front desk hourly cost** | `$26/hr` | Sourced | already sourced | Signed off. |
 | **Patient responsibility per visit** | `$32` | ⚠️ **Ours** | RCM | Replace with the average off our own book of customers. |
 | **Uncollected balance never recovered** | `40%` | ⚠️ **Ours** | RCM | Invented. Needs a real write-off rate. |
-| **Front desk minutes per patient on registration** | `14 min` | ⚠️ **Ours** | — | Locked at 14 by Logan rather than asked for. It drives both the staff component and a quarter of the score, so it is the highest-leverage constant in the model after the recovery rates. |
+| **Front desk minutes per patient on registration** | `14 min` | ⚠️ **Ours** | already sourced | Locked at 14 by Logan rather than asked for. It drives both the staff component and a quarter of the score, so it is the highest-leverage constant in the model after the recovery rates. |
 | **Claims reworked for registration errors** | `5%` | ⚠️ **Ours** | RCM | Needs a citation. Smallest component, so the least urgent of the four. |
-| **Cost to rework one claim** | `$25` | Sourced | — | Signed off. |
-| **Clinic days per year** | `250` | Sourced | — | Signed off. |
-| **Paid hours per front desk FTE** | `2,080` | Sourced | — | Signed off. |
+| **Cost to rework one claim** | `$25` | Sourced | already sourced | Signed off. |
+| **Clinic days per year** | `250` | Sourced | already sourced | Signed off. |
+| **Paid hours per front desk FTE** | `2,080` | Sourced | already sourced | Signed off. |
 
 ### Recovery rates
 
@@ -84,7 +84,7 @@ The share of each component we claim to recover. **These are the numbers a CFO w
 | Constant | Value | Status | Owner | What it needs |
 | --- | --- | --- | --- | --- |
 | **No-shows recovered** | `35%` | ⚠️ **Ours** | Customer success | The single most aggressive number in the model and the first one a CFO will attack. Needs before/after data from real customers. |
-| **Manual entry removed** | `60%` | ⚠️ **Ours** | Customer success | Should be the easiest to evidence — we can measure it. |
+| **Manual entry removed** | `60%` | ⚠️ **Ours** | Customer success | Should be the easiest to evidence, because we can measure it. |
 | **Registration rework avoided** | `50%` | ⚠️ **Ours** | Customer success | Needs a customer denial-rate before/after. |
 | **Patient balance recovered** | `50%` | ⚠️ **Ours** | Customer success | Needs a customer collection-rate before/after. |
 
@@ -133,7 +133,7 @@ easiest sale we have, but the incumbent is still doing part of the job.
 
 Four bands, four colours. Four rather than three because three cannot separate
 "this is fine" from "this works because people are absorbing it", which is the
-distinction the whole conversation turns on — and five means two neighbouring
+distinction the whole conversation turns on, and five means two neighbouring
 colours nobody can tell apart on a phone in a bright hall. The same four drive
 the ring, the dimension bars and the follow-up email.
 
@@ -152,7 +152,7 @@ A practice seeing **45 patients a day**, **14% no-show**, **3 on the front desk*
 **50%** of patient balance collected up front,
 already running athenahealth and an intake vendor they are unhappy with.
 
-**Practice health score: 47 — At risk**
+**Practice health score: 47, At risk**
 
 | Dimension | Score | Weight | Contribution |
 | --- | --- | --- | --- |
@@ -178,14 +178,14 @@ already running athenahealth and an intake vendor they are unhappy with.
 
 ## 5 · What we need back
 
-1. **The four recovery rates.** Highest priority — they are the entire ROI half
+1. **The four recovery rates.** Highest priority: they are the entire ROI half
    and none of them is evidenced. No-shows first; it is the largest and the
    least defensible.
 2. **Net revenue per completed visit.** Carries the largest single component of
    the leak.
 3. **Patient responsibility per visit** and the **write-off rate**.
 4. **Price.** Whatever the ROI should be divided by.
-5. **The weights and bands in section 3.** Argue with them — they were set to
+5. **The weights and bands in section 3.** Argue with them, because they were set to
    produce sensible-looking scores, which is not the same as being right.
 
 Anything you change, change it in `src/lib/calc.ts` or `src/lib/score.ts` and

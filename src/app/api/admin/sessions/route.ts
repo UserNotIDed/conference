@@ -20,7 +20,7 @@ export async function GET() {
 }
 
 /**
- * Manual session creation — the "something went sideways" path.
+ * Manual session creation: the "something went sideways" path.
  *
  * If Twilio is down, the number is rate limited, or someone will not text a
  * stranger's booth, a rep types a phone number here (or none at all) and hands

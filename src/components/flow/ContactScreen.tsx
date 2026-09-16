@@ -8,7 +8,7 @@ import { FLOW } from "@/lib/flow-content";
 import type { ClientSession } from "@/lib/session";
 
 /**
- * Section 1 — who they are.
+ * Section 1. Who they are.
  *
  * Every field on this screen is a lead field, and the screen is first rather
  * than last because the charger is the reason they stopped walking. Asking at
@@ -90,7 +90,7 @@ export function ScreenContact({
 
   /**
    * The button stays enabled whether or not the form is filled. A disabled CTA
-   * with no explanation is a dead end — you tap it, nothing happens, and
+   * with no explanation is a dead end: you tap it, nothing happens, and
    * nothing on screen says why. Tapping names what is missing and jumps to it.
    */
   const errors: Record<string, string | null> = {

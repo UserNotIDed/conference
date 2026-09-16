@@ -37,7 +37,7 @@ export function benchmark(rows: Row[]): Benchmark {
     patientsPerDay: median(perDay),
     noShowRate: median(withCalc.map((r) => r.calcInputs!.noShowRate!)),
     frontDeskStaff: median(staff),
-    // The ratio is the actual benchmark line — "you are running 18 patients per
+    // The ratio is the actual benchmark line: "you are running 18 patients per
     // person at the desk; the median here is 14" is a sentence someone repeats
     // to their boss. The two raw numbers on their own are not.
     patientsPerStaff: median(

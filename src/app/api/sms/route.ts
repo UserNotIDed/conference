@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 /**
  * Twilio inbound webhook.
  *
- * One session per phone number. Texting again does not start a second session —
+ * One session per phone number. Texting again does not start a second session.
  * it returns the same link, so someone who lost the message gets back to
  * exactly where they were rather than starting over on a 90-second clock.
  *
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   const from = normalizePhone(String(form.get("From") ?? ""));
   const keyword = String(form.get("Body") ?? "").trim().slice(0, 60);
 
-  if (!from) return twiml("We couldn't read your number — please try again.");
+  if (!from) return twiml("We couldn't read your number. Please try again.");
 
   const existing = await prisma.session.findUnique({ where: { phone: from } });
   const session =
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
 
 /** Twilio can be pointed here with GET while you are wiring it up. */
 export async function GET() {
-  return new Response("Yosi booth SMS webhook — POST only (Twilio).", {
+  return new Response("Yosi booth SMS webhook. POST only (Twilio).", {
     headers: { "Content-Type": "text/plain" },
   });
 }

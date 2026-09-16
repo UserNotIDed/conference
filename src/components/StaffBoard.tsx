@@ -5,6 +5,7 @@ import type { Row } from "@/lib/rows";
 import { formatPhone } from "@/lib/ids";
 import { PRACTICE } from "@/lib/demo";
 import { Check, Spinner } from "@/components/ui";
+import { EMPTY } from "@/lib/display";
 
 type Payload = { arrived: Row[]; inProgress: Row[]; now: string };
 
@@ -13,7 +14,7 @@ type Payload = { arrived: Row[]; inProgress: Row[]; now: string };
  *
  * Polled every two seconds rather than socketed. Nobody standing at a booth can
  * tell the difference, and a poll cannot end up silently disconnected for the
- * back half of the show — which is the failure that actually costs you the
+ * back half of the show, which is the failure that actually costs you the
  * demo. A failed poll keeps the last good board on screen and says so quietly;
  * the worst possible behaviour here is a blank screen behind a rep mid-sentence.
  */
@@ -86,7 +87,7 @@ export function StaffBoard() {
 
       {stale ? (
         <p className="mt-4 rounded-[12px] border border-amber-line bg-amber-bg px-4 py-2.5 text-[13px] font-semibold text-amber-dk">
-          Lost the connection — showing the last good board and still trying.
+          Lost the connection. Showing the last good board and still trying.
         </p>
       ) : null}
 
@@ -177,7 +178,7 @@ function ArrivalCard({
             Intake
           </p>
           <p className="text-[26px] font-extrabold leading-none tabular-nums text-ink">
-            {row.elapsedMs !== null ? `${Math.round(row.elapsedMs / 1000)}s` : "—"}
+            {row.elapsedMs !== null ? `${Math.round(row.elapsedMs / 1000)}s` : EMPTY}
           </p>
         </div>
       </div>
@@ -281,7 +282,7 @@ function Stat({
       </p>
       <p className="text-[24px] font-extrabold leading-none tabular-nums tracking-[-0.02em] text-ink">
         {value}
-        {suffix && value !== "—" ? (
+        {suffix && value !== EMPTY ? (
           <span className="text-[15px] font-bold text-ink-sub">{suffix}</span>
         ) : null}
       </p>
@@ -305,7 +306,7 @@ function medianSeconds(rows: Row[]): string {
     .map((r) => r.elapsedMs)
     .filter((v): v is number => typeof v === "number" && v > 0)
     .sort((a, b) => a - b);
-  if (values.length === 0) return "—";
+  if (values.length === 0) return EMPTY;
   const mid = Math.floor(values.length / 2);
   const ms =
     values.length % 2 ? values[mid] : (values[mid - 1] + values[mid]) / 2;

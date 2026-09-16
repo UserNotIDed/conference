@@ -8,7 +8,7 @@ import { INPUT_DEFAULTS, type CalcInputs } from "@/lib/calc";
 import type { ClientSession } from "@/lib/session";
 
 /**
- * Section 3 — the five numbers.
+ * Section 3. The four numbers.
  *
  * Sliders rather than fields: one-handed, no keyboard, and nothing to get
  * wrong. Typing "12%" into a phone in a loud room is how you lose someone at

@@ -7,6 +7,7 @@ import { pct, usd, usdRounded } from "@/lib/calc";
 import { benchmark, benchmarkByRole } from "@/lib/benchmark";
 import { ProspectCard } from "@/components/ProspectCard";
 import { HubSpotView } from "@/components/HubSpotView";
+import { EMPTY } from "@/lib/display";
 
 /**
  * The screen you open when something has gone sideways.
@@ -17,7 +18,7 @@ import { HubSpotView } from "@/components/HubSpotView";
  * rep who is holding a phone in their other hand.
  */
 function fmt(n: number | null, dp = 0): string {
-  return n === null ? "—" : n.toFixed(dp);
+  return n === null ? EMPTY : n.toFixed(dp);
 }
 
 function Bench({ label, value }: { label: string; value: string }) {
@@ -157,13 +158,13 @@ export function AdminTable({ origin }: { origin: string }) {
         </div>
         <p className="mt-1.5 text-[13px] text-ink-sub">
           This is the report the opt-in promises. It is only worth sending once
-          the sample is big enough to mean something — aim for 40 or so.
+          the sample is big enough to mean something. Aim for 40 or so.
         </p>
         <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">
           <Bench label="Patients / day" value={fmt(overall.patientsPerDay)} />
           <Bench
             label="No-show"
-            value={overall.noShowRate === null ? "—" : pct(overall.noShowRate)}
+            value={overall.noShowRate === null ? EMPTY : pct(overall.noShowRate)}
           />
           <Bench label="Front desk FTE" value={fmt(overall.frontDeskStaff)} />
           <Bench
@@ -175,7 +176,7 @@ export function AdminTable({ origin }: { origin: string }) {
             // Rounded: $246,285 as a *median across practices* is false
             // precision, and false precision is what gets a benchmark argued
             // with on the wrong grounds.
-            value={overall.leak === null ? "—" : usdRounded(overall.leak)}
+            value={overall.leak === null ? EMPTY : usdRounded(overall.leak)}
           />
         </div>
         <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5">
@@ -197,7 +198,7 @@ export function AdminTable({ origin }: { origin: string }) {
         </p>
         <p className="mt-1.5 text-[13px] text-ink-sub">
           For when the text does not arrive, or someone will not scan a stranger&apos;s
-          QR code. Leave the number blank and you get a placeholder — the demo
+          QR code. Leave the number blank and you get a placeholder. The demo
           still runs, you just cannot text them the result afterwards.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
@@ -295,17 +296,17 @@ export function AdminTable({ origin }: { origin: string }) {
                       )}
                     </td>
                     <td className="px-3 py-2.5 text-[13px] text-ink-sub">
-                      {r.capturePractice || "—"}
+                      {r.capturePractice || EMPTY}
                     </td>
                     <td className="px-3 py-2.5 text-[13px] text-ink-sub">{r.roleLabel}</td>
                     <td className="px-3 py-2.5 text-[13px] text-ink-sub">
-                      {r.ehrSystem || "—"}
+                      {r.ehrSystem || EMPTY}
                     </td>
                     <td className="px-3 py-2.5 text-[13px] font-bold tabular-nums text-ink">
-                      {r.elapsedMs !== null ? `${(r.elapsedMs / 1000).toFixed(0)}s` : "—"}
+                      {r.elapsedMs !== null ? `${(r.elapsedMs / 1000).toFixed(0)}s` : EMPTY}
                     </td>
                     <td className="px-3 py-2.5 text-[13px] font-semibold tabular-nums text-ink">
-                      {r.calcTotal ? usd(r.calcTotal) : "—"}
+                      {r.calcTotal ? usd(r.calcTotal) : EMPTY}
                       {r.calcSmsAt ? (
                         <span className="ml-1.5 text-[11px] text-ink-mute">texted</span>
                       ) : null}
@@ -318,7 +319,7 @@ export function AdminTable({ origin }: { origin: string }) {
                       ) : r.capturedAt ? (
                         <span className="font-semibold text-amber-dk">retarget</span>
                       ) : (
-                        <span className="text-ink-mute">—</span>
+                        <span className="text-ink-mute">{EMPTY}</span>
                       )}
                     </td>
                     <td className="px-3 py-2.5 text-[12px] tabular-nums text-ink-mute">

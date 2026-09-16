@@ -4,7 +4,7 @@ import { parseJson } from "@/lib/session";
 import { PRACTICE } from "@/lib/demo";
 import { usdRounded, pct } from "@/lib/calc";
 import { baseUrl, sendSms } from "@/lib/sms";
-import { BOOKING_URL } from "@/lib/prospect-content";
+import { BOOKING_URL } from "@/lib/booking";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
  * Texts the leak estimate to the same number that started the demo.
  *
  * Deliberately not part of the retrying sync queue: a retried PATCH is
- * harmless, a retried SMS is two texts. calcSmsAt is the guard — the second
+ * harmless, a retried SMS is two texts. calcSmsAt is the guard: the second
  * call is a no-op that reports success, so a double-tap on a laggy screen does
  * not send twice either.
  */
@@ -37,7 +37,7 @@ export async function POST(
 
   const practice = session.capturePractice || session.practiceName || "Your practice";
   const body = [
-    `${practice} — here's your intake leak estimate.`,
+    `${practice}: here's your intake leak estimate.`,
     ``,
     `Estimated annual leak: ${usdRounded(result.total)}`,
     `${inputs.patientsPerDay} patients/day · ${pct(inputs.noShowRate ?? 0)} no-show · ${inputs.frontDeskStaff} front desk`,
@@ -47,10 +47,10 @@ export async function POST(
     ``,
     // The booking link goes out with the number rather than waiting for a
     // follow-up nobody sends. Anyone who has still not opened it is the
-    // retargeting list — see bookingClickedAt.
+    // retargeting list. See bookingClickedAt.
     `Want it on your own forms? ${BOOKING_URL}`,
     ``,
-    `— ${PRACTICE.short} demo, Yosi`,
+    `${PRACTICE.short} demo, Yosi`,
   ].join("\n");
 
   const { sent, detail } = await sendSms(session.phone, body);

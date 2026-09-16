@@ -1,12 +1,12 @@
 /**
  * The HubSpot contact mapping. One file, three jobs.
  *
- *   1. PROPERTIES is the spec — create these on the Contact object in HubSpot,
+ *   1. PROPERTIES is the spec. Create these on the Contact object in HubSpot,
  *      exactly these internal names. /admin renders it as a checklist.
  *   2. contactProperties() builds the payload we POST. /admin shows the real
  *      payload per lead, so what you see there is what HubSpot gets.
  *   3. The CSV export uses the same internal names, so a failed submit is
- *      recoverable by importing the file — same columns either way.
+ *      recoverable by importing the file, with the same columns either way.
  *
  * Keeping all three in one place is the point. The usual way this goes wrong
  * is a property renamed in HubSpot, a payload key that still says the old
@@ -17,7 +17,7 @@
  *
  *   POST https://api.hsforms.com/submissions/v3/integration/submit/{portal}/{guid}
  *
- * No SDK, no OAuth, no private app token — the endpoint is public by design and
+ * No SDK, no OAuth, no private app token: the endpoint is public by design and
  * the form GUID is the credential. HubSpot dedupes on email, so the same person
  * submitting twice updates one contact rather than making two. A submission can
  * kick off a workflow, which is how the email goes out without us sending mail.
@@ -33,13 +33,14 @@ import { ASSUMPTIONS, calculate, clampInputs, roi } from "./calc";
 import { score } from "./score";
 import { ROLES } from "./demo";
 import { SATISFACTION } from "./tech-stack";
+import { EMPTY } from "./display";
 
 export const PORTAL_ID = process.env.HUBSPOT_PORTAL_ID ?? "45713988";
 
 /**
  * Two forms, not one, so the email that carries the diagnosis cannot fire
  * before there is a diagnosis to carry. `lead` submits the moment section 1 is
- * answered — that is the lead captured even if they walk off. `diagnosis`
+ * answered, which is the lead captured even if they walk off. `diagnosis`
  * submits when the score and the money land, and is the one the email workflow
  * listens to.
  */
@@ -60,7 +61,7 @@ export type PropertyType =
   | "datetime";
 
 export type PropertyDef = {
-  /** The internal name. This is the contract — never rename it in HubSpot. */
+  /** The internal name. This is the contract, so never rename it in HubSpot. */
   name: string;
   label: string;
   type: PropertyType;
@@ -69,7 +70,7 @@ export type PropertyDef = {
   options?: readonly string[];
   /** Why it is worth a column. Shown in /admin. */
   note: string;
-  /** Already exists on every HubSpot portal — do not create it. */
+  /** Already exists on every HubSpot portal, so do not create it. */
   standard?: boolean;
 };
 
@@ -122,14 +123,14 @@ export const PROPERTIES: PropertyDef[] = [
   // --- Ours. Create these. -------------------------------------------------
   {
     name: "booth_event",
-    label: "Booth — event",
+    label: "Booth: event",
     type: "string",
     form: "lead",
     note: "Which show. Set from an env var so the same build serves the next one.",
   },
   {
     name: "booth_role",
-    label: "Booth — seat at the practice",
+    label: "Booth: seat at the practice",
     type: "enumeration",
     form: "lead",
     options: [...ROLES.map((r) => r.label), "Something else"],
@@ -137,35 +138,35 @@ export const PROPERTIES: PropertyDef[] = [
   },
   {
     name: "booth_role_other",
-    label: "Booth — seat, free text",
+    label: "Booth: seat, free text",
     type: "string",
     form: "lead",
     note: "Only when they picked Something else. Worth reading after the show.",
   },
   {
     name: "booth_tech_stack",
-    label: "Booth — tech stack",
+    label: "Booth: tech stack",
     type: "string",
     form: "diagnosis",
-    note: "Everything they selected, semicolon separated. Keep as text — a multi-select needs every option defined up front and the list grows.",
+    note: "Everything they selected, semicolon separated. Keep as text, because a multi-select needs every option defined up front and the list grows.",
   },
   {
     name: "booth_ehr",
-    label: "Booth — EHR",
+    label: "Booth: EHR",
     type: "string",
     form: "diagnosis",
     note: "Pulled out of the stack so it can be a filter on its own.",
   },
   {
     name: "booth_incumbent",
-    label: "Booth — intake vendor in place",
+    label: "Booth: intake vendor in place",
     type: "string",
     form: "diagnosis",
     note: "Who we would be displacing. Empty means greenfield.",
   },
   {
     name: "booth_incumbent_satisfaction",
-    label: "Booth — how the incumbent is working out",
+    label: "Booth: how the incumbent is working out",
     type: "enumeration",
     form: "diagnosis",
     options: SATISFACTION,
@@ -173,42 +174,42 @@ export const PROPERTIES: PropertyDef[] = [
   },
   {
     name: "booth_patients_per_day",
-    label: "Booth — patients per day",
+    label: "Booth: patients per day",
     type: "number",
     form: "diagnosis",
     note: "Sizes the account as well as the leak.",
   },
   {
     name: "booth_no_show_rate",
-    label: "Booth — no-show rate (%)",
+    label: "Booth: no-show rate (%)",
     type: "number",
     form: "diagnosis",
     note: "Stored as a whole number, so 14 not 0.14. HubSpot has no percent type.",
   },
   {
     name: "booth_front_desk_fte",
-    label: "Booth — front desk headcount",
+    label: "Booth: front desk headcount",
     type: "number",
     form: "diagnosis",
     note: "Caps the staff-time component.",
   },
   {
     name: "booth_collected_up_front",
-    label: "Booth — patient balance collected up front (%)",
+    label: "Booth: patient balance collected up front (%)",
     type: "number",
     form: "diagnosis",
     note: "Whole number. Drives the write-off component and a fifth of the score.",
   },
   {
     name: "booth_health_score",
-    label: "Booth — practice health score",
+    label: "Booth: practice health score",
     type: "number",
     form: "diagnosis",
     note: "0–100. The one number to sort the whole list by.",
   },
   {
     name: "booth_health_band",
-    label: "Booth — practice health band",
+    label: "Booth: practice health band",
     type: "enumeration",
     form: "diagnosis",
     options: ["Healthy", "Holding", "Under strain", "At risk"],
@@ -216,63 +217,63 @@ export const PROPERTIES: PropertyDef[] = [
   },
   {
     name: "booth_biggest_gap",
-    label: "Booth — most to gain",
+    label: "Booth: most to gain",
     type: "string",
     form: "diagnosis",
     note: "The dimension with the most score available. The email's subject line.",
   },
   {
     name: "booth_annual_leak",
-    label: "Booth — estimated annual leak ($)",
+    label: "Booth: estimated annual leak ($)",
     type: "number",
     form: "diagnosis",
     note: "What we told them. Put it in the email and bring it to the call.",
   },
   {
     name: "booth_leak_missed",
-    label: "Booth — leak: missed visit revenue ($)",
+    label: "Booth: leak: missed visit revenue ($)",
     type: "number",
     form: "diagnosis",
     note: "The four components stored separately so the follow-up email can show the breakdown without us computing anything at send time.",
   },
   {
     name: "booth_leak_staff",
-    label: "Booth — leak: front desk time ($)",
+    label: "Booth: leak: front desk time ($)",
     type: "number",
     form: "diagnosis",
     note: "Also the best single field to segment on: a big number here is an operations conversation.",
   },
   {
     name: "booth_leak_rework",
-    label: "Booth — leak: claim rework ($)",
+    label: "Booth: leak: claim rework ($)",
     type: "number",
     form: "diagnosis",
     note: "",
   },
   {
     name: "booth_leak_collection",
-    label: "Booth — leak: balances written off ($)",
+    label: "Booth: leak: balances written off ($)",
     type: "number",
     form: "diagnosis",
     note: "",
   },
   {
     name: "booth_annual_return",
-    label: "Booth — estimated net return ($)",
+    label: "Booth: estimated net return ($)",
     type: "number",
     form: "diagnosis",
     note: "Recovered less what we cost, at their volume.",
   },
   {
     name: "booth_benchmark_optin",
-    label: "Booth — wants the benchmark",
+    label: "Booth: wants the benchmark",
     type: "bool",
     form: "diagnosis",
     note: "Pre-ticked, so a false here is a deliberate untick. Treat it as one.",
   },
   {
     name: "booth_booking_clicked",
-    label: "Booth — opened the scheduler",
+    label: "Booth: opened the scheduler",
     type: "bool",
     form: "diagnosis",
     note: "False plus a finished diagnosis is the retarget list. That is the list that matters.",
@@ -291,7 +292,7 @@ function splitName(full: string | null): [string, string] {
 /**
  * One session, as HubSpot will store it.
  *
- * Returns strings throughout — the Forms API takes `{name, value}` pairs and
+ * Returns strings throughout, because the Forms API takes `{name, value}` pairs and
  * coerces on its side, and sending a JavaScript number here is how a 0 becomes
  * an empty cell. Keys are omitted rather than sent empty when we genuinely have
  * no answer, so a later submission cannot blank a field the earlier one filled.
@@ -322,7 +323,7 @@ export function contactProperties(
     put("state", row.captureState);
     put("zip", row.captureZip);
     put("booth_event", BOOTH_EVENT);
-    put("booth_role", row.roleLabel === "—" ? null : row.roleLabel);
+    put("booth_role", row.roleLabel === EMPTY ? null : row.roleLabel);
     put("booth_role_other", row.roleOther);
   }
 

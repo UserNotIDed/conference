@@ -1,5 +1,5 @@
 /**
- * Generates CRITERIA.md — the one-page sheet sales and marketing mark up.
+ * Generates CRITERIA.md, the one-page sheet sales and marketing mark up.
  *
  * Written by a script rather than by hand for one reason: a validation
  * document that drifts from the code is worse than none, because someone signs
@@ -37,15 +37,18 @@ type Row = {
   internal?: string;
 };
 
+/** Nothing to chase: the constant is already sourced. */
+const NONE = "already sourced";
+
 const OWNER = {
   avgVisitRevenue: "Marketing",
-  loadedHourlyRate: "—",
+  loadedHourlyRate: NONE,
   patientResponsibility: "RCM",
   writeOffRate: "RCM",
   reworkRate: "RCM",
-  costToRework: "—",
-  workingDays: "—",
-  paidHoursPerFte: "—",
+  costToRework: NONE,
+  workingDays: NONE,
+  paidHoursPerFte: NONE,
   missed: "Customer success",
   staff: "Customer success",
   rework: "Customer success",
@@ -64,7 +67,7 @@ function table(title: string, rows: Record<string, Row>, blurb: string): string 
     "| --- | --- | --- | --- | --- |",
   ];
   for (const [key, r] of Object.entries(rows)) {
-    const owner = OWNER[key as keyof typeof OWNER] ?? "—";
+    const owner = OWNER[key as keyof typeof OWNER] ?? NONE;
     const need =
       r.status === "placeholder"
         ? (r.internal ?? "Needs a source.")
@@ -99,7 +102,7 @@ function worked(): string {
     "**50%** of patient balance collected up front,",
     "already running athenahealth and an intake vendor they are unhappy with.",
     "",
-    `**Practice health score: ${s.total} — ${s.band.label}**`,
+    `**Practice health score: ${s.total}, ${s.band.label}**`,
     "",
     "| Dimension | Score | Weight | Contribution |",
     "| --- | --- | --- | --- |",
@@ -121,14 +124,14 @@ function worked(): string {
   return lines.join("\n");
 }
 
-const doc = `# Practice health check — criteria to validate
+const doc = `# Practice health check: criteria to validate
 
-*Generated from the code by \`npm run criteria\`. Do not edit by hand — edit
+*Generated from the code by \`npm run criteria\`. Do not edit by hand. Edit
 \`src/lib/calc.ts\` and \`src/lib/score.ts\` and regenerate, or this sheet and the
 app will disagree.*
 
 Everything marked **⚠️ Ours** is a number we made up so the screens would work.
-It is on the attendee's phone, under "What are we assuming?", tagged as ours —
+It is on the attendee's phone, under "What are we assuming?", tagged as ours,
 so it is arguable in public, which is the point. It still has to be right.
 
 ---
@@ -136,7 +139,7 @@ so it is arguable in public, which is the point. It still has to be right.
 ## 1 · The questions we ask
 
 Four sliders, section 3. Nothing else is asked, and nothing is looked up.
-Minutes per patient on registration is **not** asked — it is locked at
+Minutes per patient on registration is **not** asked. It is locked at
 \`${ASSUMPTIONS.minutesPerIntake.display}\` and printed in the assumptions.
 
 | Input | Range | Used by |
@@ -146,15 +149,15 @@ Minutes per patient on registration is **not** asked — it is locked at
 | Front desk headcount | 1–12 | Leak (cap), score |
 | Patient balance collected up front | 0–100% | Leak, score |
 
-Plus, from section 2: what they run today, and — if that includes an intake
-vendor — whether it is working. That pair is the only input to one quarter of
+Plus, from section 2: what they run today and, if that includes an intake
+vendor, whether it is working. That pair is the only input to one quarter of
 the score.
 
 ---
 
 ## 2 · The dollar model
 
-### The leak — four components, summed
+### The leak: four components, summed
 
 \`\`\`
 missed     = patients/day × clinic days × no-show rate × net revenue per visit
@@ -177,11 +180,11 @@ produces a figure a CFO throws out on sight.
 recovered = Σ (each leak component × its recovery rate)
 cost      = platform fee × 12  +  completed intakes × per-intake price
 net       = recovered − cost
-multiple  = recovered ÷ cost          (gross, not net — the screen says so)
+multiple  = recovered ÷ cost          (gross, not net; the screen says so)
 payback   = cost ÷ (recovered ÷ 12)   months
 \`\`\`
 
-Completed intakes, not booked visits — a patient who no-shows does not fill in
+Completed intakes, not booked visits, because a patient who no-shows does not fill in
 a form, so we do not bill for one.
 
 ${table("Constants in the leak", ASSUMPTIONS as unknown as Record<string, Row>, "What we add to their answers to turn them into money.")}
@@ -221,7 +224,7 @@ easiest sale we have, but the incumbent is still doing part of the job.
 
 Four bands, four colours. Four rather than three because three cannot separate
 "this is fine" from "this works because people are absorbing it", which is the
-distinction the whole conversation turns on — and five means two neighbouring
+distinction the whole conversation turns on, and five means two neighbouring
 colours nobody can tell apart on a phone in a bright hall. The same four drive
 the ring, the dimension bars and the follow-up email.
 
@@ -243,14 +246,14 @@ ${worked()}
 
 ## 5 · What we need back
 
-1. **The four recovery rates.** Highest priority — they are the entire ROI half
+1. **The four recovery rates.** Highest priority: they are the entire ROI half
    and none of them is evidenced. No-shows first; it is the largest and the
    least defensible.
 2. **Net revenue per completed visit.** Carries the largest single component of
    the leak.
 3. **Patient responsibility per visit** and the **write-off rate**.
 4. **Price.** Whatever the ROI should be divided by.
-5. **The weights and bands in section 3.** Argue with them — they were set to
+5. **The weights and bands in section 3.** Argue with them, because they were set to
    produce sensible-looking scores, which is not the same as being right.
 
 Anything you change, change it in \`src/lib/calc.ts\` or \`src/lib/score.ts\` and

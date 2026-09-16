@@ -7,8 +7,8 @@ import { join } from "node:path";
  * invocations in production.
  *
  * The libSQL adapter is what lets a single DATABASE_URL cover both cases:
- *   file:./prisma/dev.db   — local, zero setup
- *   libsql://…             — Turso, which is what survives on Vercel
+ *   file:./prisma/dev.db   local, zero setup
+ *   libsql://…             Turso, which is what survives on Vercel
  * A `file:` URL deployed to Vercel technically "works" and silently loses every
  * session between requests, so we shout about it at boot instead.
  */
@@ -35,7 +35,7 @@ if (
 ) {
   throw new Error(
     "DATABASE_URL is a local file but this is running on Vercel, where the " +
-      "filesystem is per-invocation — the staff screen would never see a " +
+      "filesystem is per-invocation, so the staff screen would never see a " +
       "submission. Point DATABASE_URL at a libsql:// database (Turso) or set " +
       "ALLOW_EPHEMERAL_DB=1 if you genuinely want a throwaway.",
   );

@@ -6,7 +6,7 @@
  * The frame: the person holding the phone is the prospect, not a patient.
  * They are running a check on their own practice and the payoff is a score and
  * a number. There is no patient roleplay and nothing here is simulated, so the
- * product callouts (`alert`) have one job — say what Yosi does about the thing
+ * product callouts (`alert`) have one job: say what Yosi does about the thing
  * they just told us, in one sentence, with no invented statistics.
  */
 
@@ -26,11 +26,11 @@ export const FLOW = {
     footnote: "Finish it and we'll send you a charger.",
     sectionsLabel: "What we'll ask",
     alert:
-      "Nothing clinical and nothing about your patients — this is about how the front of the visit runs. You'll get a score, the arithmetic behind it, and what fixing it is worth.",
+      "Nothing clinical and nothing about your patients. This is about how the front of the visit runs. You'll get a score, the arithmetic behind it, and what fixing it is worth.",
   },
 
   // -------------------------------------------------------------------------
-  // 1 — Who they are. Every field is a lead field.
+  // 1. Who they are. Every field is a lead field.
   // -------------------------------------------------------------------------
   contact: {
     kicker: "1 · About you",
@@ -40,7 +40,7 @@ export const FLOW = {
     fixIt: "Fill in the highlighted fields to continue.",
     footnote: "One follow-up email. Unsubscribe any time.",
     alert:
-      "We'll email you the full breakdown — the score, every assumption behind it, and what each one is worth in your numbers.",
+      "We'll email you the full breakdown: the score, every assumption behind it, and what each one is worth in your numbers.",
     roleLabel: "What's your seat at the practice",
     roleOther: "Something else",
     roleOtherPlaceholder: "Tell us in a few words",
@@ -59,7 +59,7 @@ export const FLOW = {
       email: "name@practice.com",
       practice: "Lakeview Women's Health",
       street: "88 Congress Ave",
-      unit: "Suite 400 — optional",
+      unit: "Suite 400, optional",
       city: "Austin",
       state: "TX",
       zip: "78701",
@@ -67,7 +67,7 @@ export const FLOW = {
   },
 
   // -------------------------------------------------------------------------
-  // 2 — The stack. Who else is already in the workflow.
+  // 2. The stack. Who else is already in the workflow.
   // -------------------------------------------------------------------------
   stack: {
     alert:
@@ -75,7 +75,7 @@ export const FLOW = {
   },
 
   // -------------------------------------------------------------------------
-  // 3 — The numbers. Four sliders, no keyboard.
+  // 3. The numbers. Four sliders, no keyboard.
   // -------------------------------------------------------------------------
   numbers: {
     kicker: "3 · Your numbers",
@@ -111,7 +111,7 @@ export const FLOW = {
     hideDisclosure: "Hide the scoring",
     weakestLabel: "Most to gain: {label}.",
     disclosureBody:
-      "Four measures, weighted into one number. Two come straight from what you just told us, two are worked out from your volumes. No industry data is mixed in — this is your answers, arranged.",
+      "Four measures, weighted into one number. Two come straight from what you just told us, two are worked out from your volumes. No industry data is mixed in. This is your answers, arranged.",
   },
 
   // -------------------------------------------------------------------------
@@ -130,7 +130,7 @@ export const FLOW = {
     showWork: "What are we assuming?",
     hideWork: "Hide the assumptions",
     assumptionsIntro:
-      "Some of these are yours and some are ours. Ours are marked, and they are the right thing to argue with — tell us what your number is and we'll rerun it.",
+      "Some of these are yours and some are ours. Ours are marked, and they are the right thing to argue with. Tell us what your number is and we'll rerun it.",
     placeholderTag: "Ours",
     sourcedTag: "Sourced",
     benchmarkTitle: "How does that compare?",

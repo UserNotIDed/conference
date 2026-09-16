@@ -7,7 +7,7 @@ export default function NotFound() {
         That link has expired.
       </h1>
       <p className="mt-2 text-[14px] font-medium leading-[1.5] text-ink-sub">
-        Text the booth number again and you&apos;ll get a fresh one — it takes a
+        Text the booth number again and you&apos;ll get a fresh one. It takes a
         second, and anything you already filled in is still on file.
       </p>
       <Link

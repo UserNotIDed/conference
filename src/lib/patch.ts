@@ -56,7 +56,7 @@ export async function applyPatches(
 
       case "started":
         // The clock starts on the first render of the first intake screen, and
-        // never restarts — a reload mid-flow keeps the original start.
+        // never restarts, and a reload mid-flow keeps the original start.
         if (!s.startedAt) {
           data.startedAt = new Date();
           const clientMs = num(body.clientMs);
@@ -103,7 +103,7 @@ export async function applyPatches(
 
       case "questionnaire":
         // Answers are stored as given. Nothing here is scored, and nothing here
-        // is a clinical instrument — it is the shape of the intake, not a
+        // is a clinical instrument. It is the shape of the intake, not a
         // diagnosis, and the demo never pretends otherwise.
         data.questionnaire = JSON.stringify(
           typeof body.answers === "object" && body.answers !== null
@@ -120,7 +120,7 @@ export async function applyPatches(
         break;
 
       case "insurance":
-        // The photograph itself never leaves the phone — what is recorded is
+        // The photograph itself never leaves the phone. What is recorded is
         // the read: the same four fields a front desk would key in by hand.
         data.insurance = JSON.stringify({
           captured: Boolean(body.captured),
@@ -159,7 +159,7 @@ export async function applyPatches(
         break;
 
       case "calc": {
-        // Recomputed server-side. The client sends inputs, never the answer —
+        // Recomputed server-side. The client sends inputs, never the answer,
         // the number ends up in an SMS and on a shareable page, so it has to be
         // the one this codebase stands behind.
         const result = calculate({
@@ -182,7 +182,7 @@ export async function applyPatches(
       case "stack": {
         const tools = arr(body.tools);
         data.techStack = JSON.stringify(tools);
-        // The EHR is pulled out of the stack rather than asked for separately —
+        // The EHR is pulled out of the stack rather than asked for separately,
         // the benchmark and the CSV both want a single column for it.
         const ehr = tools.find((t) =>
           EHR_NAMES.has(t),
@@ -278,11 +278,11 @@ export async function applyPatches(
     const persona = personaFor(s.personaIndex);
     const identity = parseJson<{ legalName?: string }>(s.identity, {});
     await ehrAppend(s, [
-      `Intake received for ${identity.legalName || persona.legalName} — ${PRACTICE.name}`,
+      `Intake received for ${identity.legalName || persona.legalName} at ${PRACTICE.name}`,
       `Demographics and contact reconciled to chart`,
       `Consent on file · signature captured`,
       `Coverage: ${VERIFY_RESULT.payer} ${VERIFY_RESULT.plan} · ${VERIFY_RESULT.status}`,
-      `Chart updated — patient ready for rooming`,
+      `Chart updated, patient ready for rooming`,
     ]);
     s = await prisma.session.findUniqueOrThrow({ where: { id: s.id } });
   }

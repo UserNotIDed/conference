@@ -13,7 +13,7 @@ import {
  * The follow-up email, side by side with the thing you paste into HubSpot.
  *
  * Two controls only: who it is for, and which render. Everything else moves by
- * changing calc.ts or score.ts, the same as the flow — the email is not a
+ * changing calc.ts or score.ts, the same as the flow. The email is not a
  * separate set of numbers and must never become one.
  */
 
@@ -51,8 +51,8 @@ export function EmailPreview() {
           The follow-up email
         </h1>
         <p className="mt-2 text-[12.5px] leading-[1.5] text-ink-sub">
-          HubSpot sends this, not us — a workflow on the{" "}
-          <em>Booth — diagnosis</em> form submission. Nothing here is computed at
+          HubSpot sends this, not us: a workflow on the{" "}
+          <em>Booth: diagnosis</em> form submission. Nothing here is computed at
           send time; every figure is a contact property we wrote when they
           finished.
         </p>
@@ -80,7 +80,7 @@ export function EmailPreview() {
           <p className="mt-2 text-[11.5px] leading-[1.45] text-ink-mute">
             {mode === "preview"
               ? "What the recipient sees. Use this to argue about the copy."
-              : "What you paste into HubSpot. Every value is a {{ contact.booth_* }} token, and the score bars are dropped — HubSpot cannot do arithmetic, and a bar at the wrong length is a lie."}
+              : "What you paste into HubSpot. Every value is a {{ contact.booth_* }} token, and the score bars are dropped, because HubSpot cannot do arithmetic and a bar at the wrong length is a lie."}
           </p>
         </section>
 

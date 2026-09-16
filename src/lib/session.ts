@@ -14,7 +14,7 @@ export function parseJson<T>(raw: string | null, fallback: T): T {
 export type EhrEntry = { at: string; line: string };
 
 /**
- * Faked EHR writeback. It logs a line and stamps a time — that is the entire
+ * Faked EHR writeback. It logs a line and stamps a time. That is the entire
  * integration, and the point is that it looks like work is happening on the
  * staff screen rather than that anything is written anywhere.
  */
@@ -71,7 +71,7 @@ export async function settleVerification(s: Session): Promise<Session> {
     data: { verifiedAt, verifyResult: JSON.stringify(VERIFY_RESULT) },
   });
   await ehrAppend(updated, [
-    `Eligibility 270/271 response received — ${VERIFY_RESULT.payer} ${VERIFY_RESULT.status}`,
+    `Eligibility 270/271 response received: ${VERIFY_RESULT.payer} ${VERIFY_RESULT.status}`,
     `Coverage written to chart · member ${VERIFY_RESULT.memberId} · ${VERIFY_RESULT.copay}`,
   ]);
   return prisma.session.findUniqueOrThrow({ where: { id: s.id } });

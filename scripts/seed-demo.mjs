@@ -59,7 +59,7 @@ async function seedOne(i) {
         captured: true,
         provider: "Aetna",
         memberId: "W2740119863",
-        planType: "Choice POS II — PPO",
+        planType: "Choice POS II PPO",
         groupNumber: "0847221",
       },
     },
@@ -68,7 +68,7 @@ async function seedOne(i) {
       body: {
         medications: ["Levothyroxine · 75 mcg · Daily", "Prenatal vitamin · Daily"],
         conditions: pick([["Hypothyroidism"], ["Endometriosis"], []]),
-        allergies: pick([["Penicillin — rash"], ["No known allergies"]]),
+        allergies: pick([["Penicillin, rash"], ["No known allergies"]]),
         confirmed: true,
       },
     },
@@ -88,11 +88,11 @@ async function seedOne(i) {
           cycle: pick(["Regular, no change", "Irregular", "Heavier than usual"]),
           pregnancy: pick(["No", "Not sure", "Currently pregnant"]),
           contraception: pick(["None", "Oral contraceptive", "IUD"]),
-          obstetric: pick(["No", "Yes — one", "Yes — two or more"]),
+          obstetric: pick(["No", "Yes, one", "Yes, two or more"]),
           screening: pick([
             ["All up to date"],
-            ["Pap / cervical screening — over 3 years"],
-            ["Mammogram — over 1 year", "STI screening — over 1 year"],
+            ["Pap / cervical screening, over 3 years"],
+            ["Mammogram, over 1 year", "STI screening, over 1 year"],
           ]),
           concerns: pick(["", "", "Question about switching birth control."]),
         },
@@ -137,11 +137,11 @@ async function seedOne(i) {
     ]);
   }
 
-  console.log(`seeded ${token} — ${(elapsedMs / 1000).toFixed(0)}s intake`);
+  console.log(`seeded ${token}: ${(elapsedMs / 1000).toFixed(0)}s intake`);
 }
 
 for (let i = 0; i < count; i++) {
   await seedOne(i);
   await sleep(600);
 }
-console.log(`\ndone — open ${base}/staff`);
+console.log(`\ndone, open ${base}/staff`);

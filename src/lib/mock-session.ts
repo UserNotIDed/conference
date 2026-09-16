@@ -31,7 +31,7 @@ export function mockSession(over: Partial<ClientSession> = {}): ClientSession {
         "Iron (ferrous sulfate) · 325 mg · Daily",
       ],
       conditions: ["Hypothyroidism", "Iron-deficiency anemia"],
-      allergies: ["Penicillin — rash"],
+      allergies: ["Penicillin, rash"],
     },
     questionnaire: {},
     consent: {},
@@ -75,8 +75,8 @@ export function mockSession(over: Partial<ClientSession> = {}): ClientSession {
 /**
  * A session that has already answered everything.
  *
- * The diagnosis screens read prior answers — the stack sets a quarter of the
- * score, the volumes set all of the money — so previewing them against a blank
+ * The diagnosis screens read prior answers. The stack sets a quarter of the
+ * score and the volumes set all of the money, so previewing them against a blank
  * session shows an unscored practice, which is not a screen that exists. The
  * landing page has the opposite problem: handed a filled session it opens
  * reading "2 of 3 done", which is not the screen an attendee meets either. So
@@ -85,7 +85,7 @@ export function mockSession(over: Partial<ClientSession> = {}): ClientSession {
 export function answeredSession(over: Partial<ClientSession> = {}): ClientSession {
   return mockSession({
     role: "frontdesk",
-    // athena plus an incumbent they are unhappy with — the segment worth
+    // athena plus an incumbent they are unhappy with: the segment worth
     // showing, and the only one that exercises the 2b screen.
     techStack: ["athenahealth", "Phreesia"],
     ehrSystem: "athenahealth",

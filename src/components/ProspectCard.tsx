@@ -3,13 +3,14 @@
 import type { Row } from "@/lib/rows";
 import { formatPhone } from "@/lib/ids";
 import { pct, usd } from "@/lib/calc";
+import { EMPTY } from "@/lib/display";
 
 /**
  * One prospect, whole, on one screen.
  *
  * The table is for scanning; this is for the moment someone says "pull up the
  * woman from Cedar Park." It answers, in order: who are they, what do they run,
- * what are their numbers, and what did they actually do in the demo — the last
+ * what are their numbers, and what did they actually do in the demo. The last
  * one being the part a rep can open a call with two weeks later.
  */
 export function ProspectCard({ row, origin }: { row: Row; origin: string }) {
@@ -21,19 +22,19 @@ export function ProspectCard({ row, origin }: { row: Row; origin: string }) {
         <section>
           <H>Who</H>
           <p className="mt-2 text-[17px] font-extrabold tracking-[-0.01em] text-ink">
-            {row.captureName || "— no name given"}
+            {row.captureName || "No name given"}
           </p>
           <p className="text-[13px] font-medium text-ink-sub">
-            {row.capturePractice || "— no practice given"}
+            {row.capturePractice || "No practice given"}
           </p>
           <dl className="mt-3 space-y-1.5">
             <F k="Role" v={row.roleLabel} />
-            <F k="Email" v={row.captureEmail ?? "—"} />
+            <F k="Email" v={row.captureEmail ?? EMPTY} />
             <F k="Mobile" v={formatPhone(row.phone)} />
-            <F k="Ships to" v={row.captureAddress ?? "—"} />
+            <F k="Ships to" v={row.captureAddress ?? EMPTY} />
             <F
               k="Booking"
-              v={row.bookedSlot ?? (row.bookedAt ? "Opened, no slot" : "Not booked — retarget")}
+              v={row.bookedSlot ?? (row.bookedAt ? "Opened, no slot" : "Not booked, retarget")}
               strong={!row.bookedSlot}
             />
             <F
@@ -48,8 +49,8 @@ export function ProspectCard({ row, origin }: { row: Row; origin: string }) {
           <H>What they run</H>
           {qualified ? (
             <dl className="mt-2 space-y-1.5">
-              <F k="EHR / PM" v={row.ehrSystem ?? "—"} />
-              <F k="Stack" v={row.techStack.join(", ") || "—"} />
+              <F k="EHR / PM" v={row.ehrSystem ?? EMPTY} />
+              <F k="Stack" v={row.techStack.join(", ") || EMPTY} />
               {row.competitorTool ? (
                 <F
                   k={row.competitorTool}
@@ -78,12 +79,12 @@ export function ProspectCard({ row, origin }: { row: Row; origin: string }) {
                         (row.calcInputs.patientsPerDay ?? 0) /
                         row.calcInputs.frontDeskStaff
                       ).toFixed(1)
-                    : "—"
+                    : EMPTY
                 }
               />
               <F
                 k="Annual leak"
-                v={row.calcTotal ? usd(row.calcTotal) : "—"}
+                v={row.calcTotal ? usd(row.calcTotal) : EMPTY}
                 strong
               />
               <F

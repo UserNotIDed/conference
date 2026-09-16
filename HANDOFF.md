@@ -1,4 +1,4 @@
-# Booth demo — state of play
+# Booth demo: state of play
 
 Read this first in a new session. It is the current build, the decisions behind
 it, and what is still open. `README.md` has the deeper detail.
@@ -12,7 +12,7 @@ Port 4000 is pinned in both `package.json` and `.claude/launch.json`
 ## What this is
 
 A conference booth demo for USWHA, framed as **"check the health of your
-practice"**. The prospect answers about their own practice — there is no patient
+practice"**. The prospect answers about their own practice. There is no patient
 roleplay and nothing is simulated. Every answer is a lead field. It ends with a
 practice health score, an annual leak figure, an ROI, and a booking CTA.
 
@@ -25,24 +25,24 @@ Health-Passport repo and nothing here depends on it.
 
 | | Screen | Captures |
 |---|---|---|
-| — | Landing | What it is, what it takes, the charger. |
+| | Landing | What it is, what it takes, the charger. |
 | 1 | About you | Role chips, name, email, practice, address |
 | 2 | Your setup | Their stack; EHR and any incumbent derived from it |
 | 2b | Incumbent satisfaction | Only if they already pay an intake vendor |
 | 3 | Your numbers | Four sliders: patients/day, no-show, headcount, collected up front |
-| — | Practice health score | Ring, band, four weighted dimensions, the scoring |
-| — | Leak and ROI | Four leak components, what we recover, what we cost |
-| — | Book a demo | Their figure in the headline → yosi.health, click recorded |
+| | Practice health score | Ring, band, four weighted dimensions, the scoring |
+| | Leak and ROI | Four leak components, what we recover, what we cost |
+| | Book a demo | Their figure in the headline → yosi.health, click recorded |
 
-## Decisions that are settled — do not re-litigate without asking
+## Decisions that are settled. Do not re-litigate without asking
 
 - **There is no patient roleplay, and nothing is simulated.** The PIN, the card
   scan, the eligibility check and the copay screen were all removed: they were a
   patient's experience demonstrated to a buyer, which needed explaining at a
-  booth. The patient-side screens are not recoverable from this repo — the
+  booth. The patient-side screens are not recoverable from this repo. The
   canonical patient-facing design is the `yosi/` prototype in the
   Health-Passport repo.
-- **Four health bands, four colours, one definition.** `TONE` in `score.ts` —
+- **Four health bands, four colours, one definition.** `TONE` in `score.ts`:
   red under 50, orange to 64, blue to 79, green from 80. Hex rather than
   Tailwind classes because the same four have to drive an SVG gradient, a
   progress bar and an HTML email, and an email cannot see a stylesheet. The
@@ -58,14 +58,14 @@ Health-Passport repo and nothing here depends on it.
   `Constant.internal` is for `CRITERIA.md`. "NEEDS MARKETING SIGN-OFF" once made
   it onto the buyer's screen.
 - **Nothing is asked that has to be looked up.** Four sliders, no keyboard.
-  Minutes per patient on registration is locked at 14 rather than asked — most
+  Minutes per patient on registration is locked at 14 rather than asked, because most
   people guess it badly and slowly, and a slider nobody can answer confidently
   costs more time than the precision buys. It is still printed as an
   assumption, tagged as ours.
 - **HubSpot is the database.** `src/lib/hubspot.ts` is the single mapping: the
   property spec, the payload builder and the CSV columns all come from it, so a
   renamed property cannot half-break the integration.
-- **The email is sent by HubSpot, not by us.** `/email` renders it two ways —
+- **The email is sent by HubSpot, not by us.** `/email` renders it two ways:
   real values to argue with, and `{{ contact.booth_* }}` tokens to paste in.
   Any figure the email shows has to exist as a property in `hubspot.ts`.
 - **Links always start at screen one.** `?resume=1` opts into resuming.
@@ -104,7 +104,7 @@ Health-Passport repo and nothing here depends on it.
 5. **The domain the QR points at.** Vercel gives you
    `something.vercel.app` free; a CNAME onto `check.yosi.health` (or similar)
    takes ten minutes and is what should be on the printed QR.
-4. **Deployment.** Local SQLite works; Vercel needs Turso — see `.env.example`.
+4. **Deployment.** Local SQLite works; Vercel needs Turso. See `.env.example`.
    A `file:` URL on Vercel silently loses every session.
 5. **Twilio.** Unset means outbound texts are logged, not sent. The inbound
    webhook is `/api/sms`.

@@ -6,7 +6,7 @@ import { Alert } from "@/components/Alert";
 import { ReadinessRing } from "@/components/ReadinessRing";
 import { YosiLogo } from "@/components/YosiLogo";
 import { FLOW, fill } from "@/lib/flow-content";
-import { BOOKING_URL } from "@/lib/prospect-content";
+import { BOOKING_URL } from "@/lib/booking";
 import {
   allConstants,
   calculate,
@@ -27,6 +27,7 @@ import {
 } from "@/lib/score";
 import type { ClientSession } from "@/lib/session";
 import { useCountUp } from "./CountUp";
+import { EMPTY } from "@/lib/display";
 
 /* -------------------------------------------------------------------------
  * The diagnosis, in two screens.
@@ -151,7 +152,7 @@ function DimensionRow({
   /** The one with the most score available. */
   flagged: boolean;
 }) {
-  // Same four breakpoints as the ring and the follow-up email — they all read
+  // Same four breakpoints as the ring and the follow-up email. They all read
   // score.ts rather than each keeping their own idea of what 64 looks like.
   const colours = TONE[toneFor(d.value)];
   return (
@@ -222,7 +223,7 @@ export function ScreenMoney({
   // the question they are already asking. Opting out is one tap.
   const [optIn, setOptIn] = useState(session.capture.optIn ?? true);
 
-  // A default nobody taps is still a choice, and it has to reach the record —
+  // A default nobody taps is still a choice, and it has to reach the record,
   // otherwise every pre-ticked box reads as "declined" in the export. Written
   // once on mount, and only when they have not already answered.
   useEffect(() => {
@@ -412,7 +413,7 @@ export function ScreenMoney({
 }
 
 function payback(months: number): string {
-  if (!Number.isFinite(months)) return "—";
+  if (!Number.isFinite(months)) return EMPTY;
   if (months < 1) return "under a month";
   if (months < 1.5) return "about a month";
   return `${Math.round(months)} months`;
@@ -429,7 +430,7 @@ export function ScreenThanks({
   /**
    * Passed in rather than read off the session: the page was server-rendered
    * before the calculator ran, so the snapshot has no result and the headline
-   * would fall back to the generic line — losing the one number that makes
+   * would fall back to the generic line, losing the one number that makes
    * this screen a close rather than a thank-you.
    */
   leakTotal: number | null;
