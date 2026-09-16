@@ -23,7 +23,7 @@ export const FLOW = {
     scoreLabel: "Sections done",
     startCta: "Start the check",
     resumeCta: "Pick up where you left off",
-    footnote: "Finish it and we'll send you a charger.",
+    footnote: "Nothing to install, and nothing to sit through.",
     sectionsLabel: "What we'll ask",
     alert:
       "Nothing clinical and nothing about your patients. This is about how the front of the visit runs. You'll get a score, the arithmetic behind it, and what fixing it is worth.",
@@ -48,7 +48,7 @@ export const FLOW = {
       name: "Your name",
       email: "Work email",
       practice: "Practice name",
-      street: "Street address",
+      street: "Street address, optional",
       unit: "Apt, suite, floor",
       city: "City",
       state: "State",
@@ -101,9 +101,10 @@ export const FLOW = {
   // -------------------------------------------------------------------------
   score: {
     kicker: "Practice health score",
-    // {practice} is theirs when we have it.
-    titleNamed: "{practice} scores {score}",
-    title: "Your practice scores {score}",
+    // {practice} is theirs when we have it. The figure is appended and
+    // coloured by the component, so it is not in the string.
+    titleNamed: "{practice} scores",
+    title: "Your practice scores",
     weightsLabel: "What it's made of",
     weightNote: "Each scored 0–100, then weighted. The weights are on screen.",
     cta: "What's it costing?",
@@ -151,7 +152,7 @@ export const FLOW = {
       "Give us thirty minutes and we'll show you the same arithmetic running on your forms, in your EHR, with your own volumes in it.",
     cta: "Book a demo",
     opened: "Opened in a new tab. Pick any time that works.",
-    footnote: "Your breakdown is on its way by email, and so is the charger.",
+    footnote: "Your breakdown is on its way by email.",
     alert:
       "We'll bring the score and the figure you just worked out, so there's no discovery call to sit through twice.",
   },

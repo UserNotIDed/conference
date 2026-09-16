@@ -54,7 +54,7 @@ export function ProspectCard({ row, origin }: { row: Row; origin: string }) {
               {row.competitorTool ? (
                 <F
                   k={row.competitorTool}
-                  v={row.competitorSatisfaction ?? "no answer"}
+                  v={row.intakeSatisfaction ?? "no answer"}
                   strong
                 />
               ) : null}

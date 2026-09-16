@@ -11,7 +11,7 @@ the only credential involved.
 
 ## What you are building
 
-1. **22 contact properties** so the answers have somewhere to land.
+1. **23 contact properties** so the answers have somewhere to land.
 2. **Two forms.** One fires when they tell us who they are, one when the score
    lands. Two rather than one so the follow-up email cannot go out before there
    is a result in it.
@@ -39,7 +39,8 @@ all in one group (create it, call it *Booth*) so they are easy to find later.
 | `booth_tech_stack` | Booth: tech stack | Single-line text | diagnosis |  |
 | `booth_ehr` | Booth: EHR | Single-line text | diagnosis |  |
 | `booth_incumbent` | Booth: intake vendor in place | Single-line text | diagnosis |  |
-| `booth_incumbent_satisfaction` | Booth: how the incumbent is working out | Dropdown select | diagnosis | `Love it, not going anywhere`<br>`It's fine`<br>`It frustrates us`<br>`We're actively looking to replace it` |
+| `booth_intake_satisfaction` | Booth: how intake is working out | Dropdown select | diagnosis | `Works well, we would keep it`<br>`It's fine`<br>`It frustrates us`<br>`We're actively looking to change it` |
+| `booth_pain_points` | Booth: what costs them time | Single-line text | diagnosis |  |
 | `booth_patients_per_day` | Booth: patients per day | Number | diagnosis |  |
 | `booth_no_show_rate` | Booth: no-show rate (%) | Number | diagnosis |  |
 | `booth_front_desk_fte` | Booth: front desk headcount | Number | diagnosis |  |
@@ -94,7 +95,7 @@ put the phone down and walk off. That is the whole reason it is separate.
 
 ### Form 2: "Booth: diagnosis"
 
-Add these fields: `booth_tech_stack`, `booth_ehr`, `booth_incumbent`, `booth_incumbent_satisfaction`, `booth_patients_per_day`, `booth_no_show_rate`, `booth_front_desk_fte`, `booth_collected_up_front`, `booth_health_score`, `booth_health_band`, `booth_biggest_gap`, `booth_annual_leak`, `booth_leak_missed`, `booth_leak_staff`, `booth_leak_rework`, `booth_leak_collection`, `booth_annual_return`, `booth_benchmark_optin`, `booth_booking_clicked`, plus `email`, which every submission needs as the dedupe key.
+Add these fields: `booth_tech_stack`, `booth_ehr`, `booth_incumbent`, `booth_intake_satisfaction`, `booth_pain_points`, `booth_patients_per_day`, `booth_no_show_rate`, `booth_front_desk_fte`, `booth_collected_up_front`, `booth_health_score`, `booth_health_band`, `booth_biggest_gap`, `booth_annual_leak`, `booth_leak_missed`, `booth_leak_staff`, `booth_leak_rework`, `booth_leak_collection`, `booth_annual_return`, `booth_benchmark_optin`, `booth_booking_clicked`, plus `email`, which every submission needs as the dedupe key.
 
 Fires when the score and the money land. This is the one the email listens to.
 

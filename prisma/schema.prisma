@@ -86,7 +86,10 @@ model Session {
   techStack              String? // ["athenahealth", "Phreesia", …]
   ehrSystem              String? // derived from techStack, kept for the benchmark
   competitorTool         String? // the intake vendor they already pay, if any
-  competitorSatisfaction String?
+  // How whatever they run today is working out. Asked of everyone, not just
+  // people with a vendor, so the column name no longer says "competitor".
+  intakeSatisfaction     String?
+  painPoints             String? // ["Re-keying it into the chart", ...]
   qualifiedAt            DateTime?
 
   // Lead capture.

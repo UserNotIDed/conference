@@ -19,7 +19,7 @@
  */
 
 import { ASSUMPTIONS, type CalcInputs } from "./calc";
-import { COMPETITOR_TOOLS, NONE_OPTION } from "./tech-stack";
+import { intakeMode } from "./tech-stack";
 
 export type ScoreDimension = {
   key: "showRate" | "deskLoad" | "digitalIntake" | "collection";
@@ -99,14 +99,30 @@ export const BANDS = {
   collected: { best: 0.95, worst: 0.2 },
 } as const;
 
-/** How intake is done today, scored straight. Placeholders. */
+/** How intake is done today, before satisfaction is taken off. Placeholders. */
 export const INTAKE_POSTURE = {
-  vendorHappy: { value: 85, label: "Digital intake vendor in place" },
-  vendorUnhappy: { value: 55, label: "Intake vendor in place, not working" },
+  vendor: { value: 85, label: "Digital intake vendor in place" },
   portal: { value: 50, label: "EHR patient portal only" },
   paper: { value: 15, label: "Paper, clipboard or keyed by the desk" },
   unknown: { value: 30, label: "Nothing digital in the workflow" },
 } as const;
+
+/**
+ * What an unhappy answer takes off the posture. Placeholders.
+ *
+ * Downward only, and this is the part worth arguing about. A tool that
+ * frustrates the people using it is doing less of the job than one that does
+ * not, so dissatisfaction costs points. But a practice that is happy on paper
+ * is still losing the same hours, so being pleased with it earns nothing. A
+ * score that could be talked upwards by liking your clipboard would deserve
+ * everything a CFO said about it.
+ */
+export const SATISFACTION_PENALTY: Record<string, number> = {
+  "Works well, we would keep it": 0,
+  "It's fine": -5,
+  "It frustrates us": -15,
+  "We're actively looking to change it": -25,
+};
 
 export const SCORE_BANDS: ScoreBand[] = [
   {
@@ -155,7 +171,8 @@ export type ScoreResult = {
 export type ScoreContext = {
   inputs: CalcInputs;
   techStack: string[];
-  competitorSatisfaction?: string | null;
+  /** Their answer to "how is that working out", whatever "that" is. */
+  intakeSatisfaction?: string | null;
 };
 
 /** 100 at `best`, 0 at `worst`, linear between. Works in either direction. */
@@ -166,28 +183,17 @@ function band(value: number, best: number, worst: number): number {
   return Math.round(Math.max(0, Math.min(1, 1 - t)) * 100);
 }
 
-const PAPER = new Set([
-  "Paper on a clipboard",
-  "Front desk keys it in",
-  // Imported rather than spelled out again: it is matched by value, so a
-  // reworded chip would silently stop counting as paper.
-  NONE_OPTION,
-]);
-
 export function intakePosture(
   techStack: string[],
-  competitorSatisfaction?: string | null,
-): (typeof INTAKE_POSTURE)[keyof typeof INTAKE_POSTURE] {
-  const hasVendor = techStack.some((t) => COMPETITOR_TOOLS.has(t));
-  if (hasVendor) {
-    const sour =
-      competitorSatisfaction &&
-      /frustrat|replace/i.test(competitorSatisfaction);
-    return sour ? INTAKE_POSTURE.vendorUnhappy : INTAKE_POSTURE.vendorHappy;
-  }
-  if (techStack.some((t) => PAPER.has(t))) return INTAKE_POSTURE.paper;
-  if (techStack.some((t) => /portal/i.test(t))) return INTAKE_POSTURE.portal;
-  return INTAKE_POSTURE.unknown;
+  satisfaction?: string | null,
+): { value: number; label: string } {
+  const base = INTAKE_POSTURE[intakeMode(techStack)];
+  const penalty = satisfaction ? (SATISFACTION_PENALTY[satisfaction] ?? 0) : 0;
+  const value = Math.max(0, Math.min(100, base.value + penalty));
+  return {
+    value,
+    label: penalty < 0 ? `${base.label}, and not working well` : base.label,
+  };
 }
 
 export function score(ctx: ScoreContext): ScoreResult {
@@ -196,7 +202,7 @@ export function score(ctx: ScoreContext): ScoreResult {
   const deskMinutes =
     (inputs.patientsPerDay * ASSUMPTIONS.minutesPerIntake.value) /
     inputs.frontDeskStaff;
-  const posture = intakePosture(ctx.techStack, ctx.competitorSatisfaction);
+  const posture = intakePosture(ctx.techStack, ctx.intakeSatisfaction);
 
   const dimensions: ScoreDimension[] = [
     {

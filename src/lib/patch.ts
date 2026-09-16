@@ -194,9 +194,11 @@ export async function applyPatches(
         break;
       }
 
-      case "competitor": {
-        const sat = str(body.satisfaction);
-        if (sat) data.competitorSatisfaction = sat;
+      case "intakeCheck": {
+        // Written even when empty: skipping is an answer, and a null here has
+        // to be distinguishable from never having reached the screen.
+        data.intakeSatisfaction = str(body.satisfaction) ?? null;
+        data.painPoints = JSON.stringify(arr(body.painPoints));
         break;
       }
 

@@ -39,6 +39,12 @@ export function StandaloneNotice({ screen }: { screen: string }) {
           Jump to any screen
         </Link>
         <Link
+          href="/booth"
+          className="inline-flex min-h-[48px] items-center rounded-[14px] border border-hairline bg-white px-5 text-[14px] font-bold text-ink"
+        >
+          The booth signage
+        </Link>
+        <Link
           href="/email"
           className="inline-flex min-h-[48px] items-center rounded-[14px] border border-hairline bg-white px-5 text-[14px] font-bold text-ink"
         >

@@ -29,10 +29,10 @@ Health-Passport repo and nothing here depends on it.
 
 | | Screen | Captures |
 |---|---|---|
-| | Landing | What it is, what it takes, the charger. |
+| | Landing | What it is, what it takes, what they get. |
 | 1 | About you | Role chips, name, email, practice, address |
 | 2 | Your setup | Their stack; EHR and any incumbent derived from it |
-| 2b | Incumbent satisfaction | Only if they already pay an intake vendor |
+| 2b | How it's working out | Everyone. Satisfaction with whatever they run, plus what costs them time |
 | 3 | Your numbers | Four sliders: patients/day, no-show, headcount, collected up front |
 | | Practice health score | Ring, band, four weighted dimensions, the scoring |
 | | Leak and ROI | Four leak components, what we recover, what we cost |

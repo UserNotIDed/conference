@@ -114,7 +114,7 @@ export const PROPERTIES: PropertyDef[] = [
     type: "string",
     form: "lead",
     standard: true,
-    note: "Street and unit joined. Where the charger goes.",
+    note: "Street and unit joined. Optional, so expect it empty on most.",
   },
   { name: "city", label: "City", type: "string", form: "lead", standard: true, note: "" },
   { name: "state", label: "State", type: "string", form: "lead", standard: true, note: "" },
@@ -165,12 +165,19 @@ export const PROPERTIES: PropertyDef[] = [
     note: "Who we would be displacing. Empty means greenfield.",
   },
   {
-    name: "booth_incumbent_satisfaction",
-    label: "Booth: how the incumbent is working out",
+    name: "booth_intake_satisfaction",
+    label: "Booth: how intake is working out",
     type: "enumeration",
     form: "diagnosis",
     options: SATISFACTION,
-    note: "The hottest segment in the export: actively replacing. Build a list on this alone.",
+    note: "Asked of everyone, about whatever they run today. The hottest segment in the export is \"actively looking to change it\". Build a list on this alone.",
+  },
+  {
+    name: "booth_pain_points",
+    label: "Booth: what costs them time",
+    type: "string",
+    form: "diagnosis",
+    note: "Their own words for what breaks, semicolon separated. Does not move the score; it is the opening line for the call.",
   },
   {
     name: "booth_patients_per_day",
@@ -331,7 +338,8 @@ export function contactProperties(
     put("booth_tech_stack", row.techStack.join("; ") || null);
     put("booth_ehr", row.ehrSystem);
     put("booth_incumbent", row.competitorTool);
-    put("booth_incumbent_satisfaction", row.competitorSatisfaction);
+    put("booth_intake_satisfaction", row.intakeSatisfaction);
+    put("booth_pain_points", row.painPoints.join("; ") || null);
 
     if (row.calcInputs) {
       const inputs = clampInputs(row.calcInputs);
@@ -340,7 +348,7 @@ export function contactProperties(
       const health = score({
         inputs,
         techStack: row.techStack,
-        competitorSatisfaction: row.competitorSatisfaction,
+        intakeSatisfaction: row.intakeSatisfaction,
       });
       put("booth_patients_per_day", inputs.patientsPerDay);
       put("booth_no_show_rate", Math.round(inputs.noShowRate * 100));
@@ -372,7 +380,7 @@ function biggestGapLabel(row: Row): string | null {
   const health = score({
     inputs: clampInputs(row.calcInputs),
     techStack: row.techStack,
-    competitorSatisfaction: row.competitorSatisfaction,
+    intakeSatisfaction: row.intakeSatisfaction,
   });
   return [...health.dimensions].sort(
     (a, b) => (100 - b.value) * b.weight - (100 - a.value) * a.weight,

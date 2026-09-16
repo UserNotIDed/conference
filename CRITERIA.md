@@ -23,9 +23,11 @@ Minutes per patient on registration is **not** asked. It is locked at
 | Front desk headcount | 1–12 | Leak (cap), score |
 | Patient balance collected up front | 0–100% | Leak, score |
 
-Plus, from section 2: what they run today and, if that includes an intake
-vendor, whether it is working. That pair is the only input to one quarter of
-the score.
+Plus, from section 2: what they run today. And from 2b, asked of everyone:
+how that is working out, and what actually costs them time. The first pair is
+the only input to one quarter of the score. What costs them time is deliberately
+**not** scored, because no-shows and collections are already dimensions and
+counting a complaint about them again would score the same problem twice.
 
 ---
 
@@ -117,17 +119,31 @@ Between the two ends, straight line. Registration minutes per person per day is
 
 ### How intake gets done, scored
 
+Base, from what they selected in section 2:
+
 | What they told us | Score |
 | --- | --- |
 | Digital intake vendor in place | 85 |
-| Intake vendor in place, not working | 55 |
 | EHR patient portal only | 50 |
 | Paper, clipboard or keyed by the desk | 15 |
 | Nothing digital in the workflow | 30 |
 
-An intake vendor they are unhappy with scores below one that works, and above
-paper. That is deliberate: they have already bought the category, which is the
-easiest sale we have, but the incumbent is still doing part of the job.
+Then section 2b asks how that is working out, of everyone rather than only of
+people with a vendor, and an unhappy answer comes off the base:
+
+| Their answer | Adjustment |
+| --- | --- |
+| Works well, we would keep it | none |
+| It's fine | -5 |
+| It frustrates us | -15 |
+| We're actively looking to change it | -25 |
+
+Downward only, and this is the part worth arguing about. A tool that frustrates
+the people using it is doing less of the job than one that does not, so
+dissatisfaction costs points. But a practice that is happy on paper is losing
+the same hours either way, so being pleased with it earns nothing. A score that
+could be talked upwards by liking your clipboard would deserve everything a CFO
+said about it.
 
 ### Bands
 
@@ -152,13 +168,13 @@ A practice seeing **45 patients a day**, **14% no-show**, **3 on the front desk*
 **50%** of patient balance collected up front,
 already running athenahealth and an intake vendor they are unhappy with.
 
-**Practice health score: 47, At risk**
+**Practice health score: 51, Under strain**
 
 | Dimension | Score | Weight | Contribution |
 | --- | --- | --- | --- |
 | Patients who show up | 35 | 30% | 10.5 |
 | Load on the front desk | 58 | 25% | 14.5 |
-| How intake gets done | 55 | 25% | 13.8 |
+| How intake gets done | 70 | 25% | 17.5 |
 | Money collected up front | 40 | 20% | 8.0 |
 
 **Annual leak: $372,608**

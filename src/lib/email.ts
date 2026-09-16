@@ -63,7 +63,7 @@ export const EMAIL_PRESETS: EmailPreset[] = [
       collectedRate: 0.5,
     },
     techStack: ["athenahealth", "Phreesia"],
-    competitorSatisfaction: "It frustrates us",
+    intakeSatisfaction: "It frustrates us",
   },
   {
     id: "paper",
@@ -110,7 +110,7 @@ export type EmailData = {
   practice: string;
   inputs: CalcInputs;
   techStack: string[];
-  competitorSatisfaction?: string | null;
+  intakeSatisfaction?: string | null;
 };
 
 /** A value that is real in preview and a HubSpot token in the paste version. */
@@ -207,7 +207,7 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
   const health = score({
     inputs: data.inputs,
     techStack: data.techStack,
-    competitorSatisfaction: data.competitorSatisfaction,
+    intakeSatisfaction: data.intakeSatisfaction,
   });
   const gap = biggestGap(health);
   // Straight off the shared palette, so the email and the phone agree.

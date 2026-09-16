@@ -22,6 +22,7 @@ import {
 import {
   BANDS,
   INTAKE_POSTURE,
+  SATISFACTION_PENALTY,
   SCORE_BANDS,
   TONE,
   WEIGHTS,
@@ -94,7 +95,7 @@ function worked(): string {
   const s = score({
     inputs: EXAMPLE,
     techStack: ["athenahealth", "Phreesia"],
-    competitorSatisfaction: "It frustrates us",
+    intakeSatisfaction: "It frustrates us",
   });
 
   const lines = [
@@ -149,9 +150,11 @@ Minutes per patient on registration is **not** asked. It is locked at
 | Front desk headcount | 1–12 | Leak (cap), score |
 | Patient balance collected up front | 0–100% | Leak, score |
 
-Plus, from section 2: what they run today and, if that includes an intake
-vendor, whether it is working. That pair is the only input to one quarter of
-the score.
+Plus, from section 2: what they run today. And from 2b, asked of everyone:
+how that is working out, and what actually costs them time. The first pair is
+the only input to one quarter of the score. What costs them time is deliberately
+**not** scored, because no-shows and collections are already dimensions and
+counting a complaint about them again would score the same problem twice.
 
 ---
 
@@ -210,15 +213,29 @@ Between the two ends, straight line. Registration minutes per person per day is
 
 ### How intake gets done, scored
 
+Base, from what they selected in section 2:
+
 | What they told us | Score |
 | --- | --- |
 ${Object.values(INTAKE_POSTURE)
   .map((p) => `| ${p.label} | ${p.value} |`)
   .join("\n")}
 
-An intake vendor they are unhappy with scores below one that works, and above
-paper. That is deliberate: they have already bought the category, which is the
-easiest sale we have, but the incumbent is still doing part of the job.
+Then section 2b asks how that is working out, of everyone rather than only of
+people with a vendor, and an unhappy answer comes off the base:
+
+| Their answer | Adjustment |
+| --- | --- |
+${Object.entries(SATISFACTION_PENALTY)
+  .map(([k, v]) => `| ${k} | ${v === 0 ? "none" : v} |`)
+  .join("\n")}
+
+Downward only, and this is the part worth arguing about. A tool that frustrates
+the people using it is doing less of the job than one that does not, so
+dissatisfaction costs points. But a practice that is happy on paper is losing
+the same hours either way, so being pleased with it earns nothing. A score that
+could be talked upwards by liking your clipboard would deserve everything a CFO
+said about it.
 
 ### Bands
 

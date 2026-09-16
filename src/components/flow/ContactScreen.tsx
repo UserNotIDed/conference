@@ -11,9 +11,12 @@ import type { ClientSession } from "@/lib/session";
  * Section 1. Who they are.
  *
  * Every field on this screen is a lead field, and the screen is first rather
- * than last because the charger is the reason they stopped walking. Asking at
- * the end means the people who drift off cost us the record as well as the
- * conversation.
+ * than last because the people who drift off halfway should still cost us the
+ * conversation and not the record.
+ *
+ * The postal address is optional. It was required when a charger was going to
+ * it; with no giveaway to ship, four required fields for a follow-up that
+ * arrives by email is friction that buys nothing.
  *
  * The role chips are folded in rather than given a screen of their own: it is
  * one tap, it tags the lead, and it decides which component gets read first on
@@ -98,12 +101,14 @@ export function ScreenContact({
     email: /\S+@\S+\.\S+/.test(email.trim())
       ? null
       : "A work email we can actually reach you at.",
-    street: street.trim().length > 3 ? null : "Street address.",
-    city: city.trim().length > 1 ? null : "City.",
-    state: /^[A-Za-z]{2}$/.test(state.trim()) ? null : "Two letters.",
-    zip: /^\d{5}(-\d{4})?$/.test(zip.trim()) ? null : "Five digits.",
+    // The address is optional, so it is only wrong when it is half filled in.
+    // A partial address cannot be posted to and is worse than none.
+    state:
+      !state.trim() || /^[A-Za-z]{2}$/.test(state.trim()) ? null : "Two letters.",
+    zip:
+      !zip.trim() || /^\d{5}(-\d{4})?$/.test(zip.trim()) ? null : "Five digits.",
   };
-  const order = ["name", "email", "street", "city", "state", "zip"] as const;
+  const order = ["name", "email", "state", "zip"] as const;
   const firstError = order.find((k) => errors[k]);
 
   const submit = () => {
@@ -123,14 +128,9 @@ export function ScreenContact({
       return;
     }
     setAttempted(true);
-    const target = {
-      name: nameRef,
-      email: emailRef,
-      street: streetRef,
-      city: cityRef,
-      state: stateRef,
-      zip: zipRef,
-    }[firstError];
+    const target = { name: nameRef, email: emailRef, state: stateRef, zip: zipRef }[
+      firstError
+    ];
     target.current?.focus();
     target.current?.scrollIntoView({ block: "center", behavior: "smooth" });
   };
@@ -241,7 +241,6 @@ export function ScreenContact({
             aria-invalid={bad("street")}
             className={fieldClass(bad("street"))}
           />
-          <FieldError show={attempted}>{errors.street}</FieldError>
         </label>
 
         <label className="block">
@@ -299,9 +298,9 @@ export function ScreenContact({
             />
           </label>
         </div>
-        {attempted && (errors.city || errors.state || errors.zip) ? (
+        {attempted && (errors.state || errors.zip) ? (
           <p className="-mt-2 text-[12.5px] font-semibold text-red">
-            City, state and ZIP so it can actually be posted.
+            Either fill the address in properly or leave it empty.
           </p>
         ) : null}
       </div>

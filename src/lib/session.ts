@@ -119,7 +119,8 @@ export function toClient(s: Session) {
     techStack: parseJson<string[]>(s.techStack, []),
     ehrSystem: s.ehrSystem,
     competitorTool: s.competitorTool,
-    competitorSatisfaction: s.competitorSatisfaction,
+    intakeSatisfaction: s.intakeSatisfaction,
+    painPoints: parseJson<string[]>(s.painPoints, []),
     capture: {
       name: s.captureName,
       title: s.captureTitle,

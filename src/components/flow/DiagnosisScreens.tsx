@@ -52,9 +52,9 @@ export function ScreenScore({
       score({
         inputs,
         techStack: session.techStack,
-        competitorSatisfaction: session.competitorSatisfaction,
+        intakeSatisfaction: session.intakeSatisfaction,
       }),
-    [inputs, session.techStack, session.competitorSatisfaction],
+    [inputs, session.techStack, session.intakeSatisfaction],
   );
   const shown = useCountUp(result.total, 900);
   const [open, setOpen] = useState(false);
@@ -80,8 +80,16 @@ export function ScreenScore({
             <h1 className="text-[21px] font-extrabold leading-[1.15] tracking-[-0.02em] text-ink">
               {fill(practice ? FLOW.score.titleNamed : FLOW.score.title, {
                 practice: practice ?? "",
-                score: result.total,
-              })}
+              })}{" "}
+              {/* The same figure as the wheel, so the same colour as the wheel.
+                  Two readings of one number in two colours reads as two
+                  numbers. */}
+              <span
+                className="tabular-nums"
+                style={{ color: TONE[result.band.tone].solid }}
+              >
+                {result.total}
+              </span>
             </h1>
             <p className="mt-2 text-[13.5px] font-medium leading-[1.45] text-ink-sub">
               {result.band.blurb}

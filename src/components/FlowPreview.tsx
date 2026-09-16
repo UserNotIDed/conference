@@ -38,7 +38,7 @@ const SCREENS: Entry[] = [
     id: "contact",
     label: "1 · About you",
     group: "ask",
-    note: "Role chips, contact details, charger address.",
+    note: "Role chips, contact details, optional address.",
   },
   {
     id: "stack",
@@ -47,11 +47,11 @@ const SCREENS: Entry[] = [
     note: "Common tools, then search. Feeds a quarter of the score.",
   },
   {
-    id: "competitor",
+    id: "intakeCheck",
     answered: true,
-    label: "2b · How's it working out",
+    label: "2b · How it's working out",
     group: "ask",
-    note: "Only if they already pay an intake vendor.",
+    note: "Everyone gets it. The subject is whatever they run.",
   },
   {
     id: "numbers",

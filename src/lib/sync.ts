@@ -33,7 +33,7 @@ export type PatchKey =
   | "finished"
   | "calc"
   | "stack"
-  | "competitor"
+  | "intakeCheck"
   | "capture"
   | "benchmark"
   | "booked";

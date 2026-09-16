@@ -32,7 +32,7 @@ which of them are sourced and which are still ours to defend.
 | `/admin` | HubSpot field mapping, per-lead payloads, CSV export, benchmark |
 | `/start` | Mints a fresh session and opens it |
 | `/r/[token]` | The breakdown, as a page with no JavaScript |
-| `/` | Booth signage |
+| `/booth` | Booth signage, with a sample score and the QR |
 | `/staff` | A front desk mirror. Parked; see below. |
 | `/api/sms` | Twilio inbound webhook. Superseded by the QR-direct plan. |
 
@@ -43,9 +43,9 @@ which of them are sourced and which are still ours to defend.
 | | Screen | Captures |
 |---|---|---|
 | | Landing | What it is, what it takes, what they get |
-| 1 | About you | Role chips, name, work email, practice, address |
+| 1 | About you | Role chips, name, work email, practice. Address optional. |
 | 2 | Your setup | Their stack. EHR and any incumbent are derived from it. |
-| 2b | How it's working out | Only if they already pay an intake vendor |
+| 2b | How it's working out | Satisfaction with whatever they run, plus what costs them time |
 | 3 | Your numbers | Four sliders: patients/day, no-show, headcount, collected up front |
 | | Practice health score | Ring, band, four weighted dimensions, the scoring |
 | | Leak and ROI | Four leak components, what we recover, what we cost |

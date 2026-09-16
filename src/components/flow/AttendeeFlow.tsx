@@ -6,16 +6,16 @@ import { getQueue, type PatchKey } from "@/lib/sync";
 import { ScreenLanding } from "./LandingScreen";
 import { ScreenContact } from "./ContactScreen";
 import { ScreenNumbers } from "./NumbersScreen";
-import { ScreenCompetitor, ScreenTechStack } from "./StackScreens";
+import { ScreenIntakeCheck, ScreenTechStack } from "./StackScreens";
 import { ScreenMoney, ScreenScore, ScreenThanks } from "./DiagnosisScreens";
-import { competitorIn } from "@/lib/tech-stack";
+import { competitorIn, intakeSubject } from "@/lib/tech-stack";
 import { calculate, clampInputs, type CalcInputs } from "@/lib/calc";
 
 export type Stage =
   | "landing"
   | "contact"
   | "stack"
-  | "competitor"
+  | "intakeCheck"
   | "numbers"
   | "score"
   | "money"
@@ -70,8 +70,9 @@ export function AttendeeFlow({
     session.competitorTool,
   );
   const [satisfaction, setSatisfaction] = useState<string | null>(
-    session.competitorSatisfaction,
+    session.intakeSatisfaction,
   );
+  const [painPoints, setPainPoints] = useState<string[]>(session.painPoints ?? []);
   /**
    * What they typed on the contact screen, held locally.
    *
@@ -109,10 +110,11 @@ export function AttendeeFlow({
       role,
       techStack,
       competitorTool: competitor,
-      competitorSatisfaction: satisfaction,
+      intakeSatisfaction: satisfaction,
+      painPoints,
       capture: { ...session.capture, ...contact },
     }),
-    [session, role, contact, techStack, competitor, satisfaction],
+    [session, role, contact, techStack, competitor, satisfaction, painPoints],
   );
 
   useEffect(() => {
@@ -140,7 +142,7 @@ export function AttendeeFlow({
               id: "contact",
               icon: "person" as const,
               label: "About you",
-              note: "Who you are, and where the charger goes.",
+              note: "Name, work email, practice.",
               done: Boolean(view.capture.capturedAt || view.capture.name),
             },
             {
@@ -185,20 +187,23 @@ export function AttendeeFlow({
           session={view}
           onNext={(tools) => {
             setTechStack(tools);
-            const rival = competitorIn(tools);
-            setCompetitor(rival);
-            if (!rival) setSatisfaction(null);
-            advance(rival ? "competitor" : "numbers", "stack", { tools });
+            setCompetitor(competitorIn(tools));
+            // Everybody gets 2b now: the subject is their vendor, their paper,
+            // or their portal, but the question is the same.
+            advance("intakeCheck", "stack", { tools });
           }}
         />
       ) : null}
 
-      {stage === "competitor" && competitor ? (
-        <ScreenCompetitor
-          tool={competitor}
-          onNext={(value) => {
-            setSatisfaction(value);
-            advance("numbers", "competitor", { satisfaction: value });
+      {stage === "intakeCheck" ? (
+        <ScreenIntakeCheck
+          subject={intakeSubject(techStack)}
+          satisfaction={satisfaction}
+          painPoints={painPoints}
+          onNext={(answer) => {
+            setSatisfaction(answer.satisfaction);
+            setPainPoints(answer.painPoints);
+            advance("numbers", "intakeCheck", { ...answer });
           }}
         />
       ) : null}
