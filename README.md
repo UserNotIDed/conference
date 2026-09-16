@@ -12,6 +12,11 @@ There is no patient roleplay and nothing in the flow is simulated.
     open http://localhost:4000/email     # the follow-up, real values or HubSpot tokens
     open http://localhost:4000/admin     # the HubSpot field mapping and every lead
     npm run criteria                     # regenerate CRITERIA.md from the code
+    npm run hubspot                      # regenerate HUBSPOT-SETUP.md
+
+Live for the sales walkthrough: **https://yosi-booth.vercel.app**, running with
+`BOOTH_STANDALONE=1`. No database, nothing saved, no secrets. `HUBSPOT-SETUP.md`
+is the runbook for turning the posting on.
 
 Every figure in here is an estimate built from four answers and a set of
 assumptions that are printed on the prospect's own screen. `CRITERIA.md` lists
@@ -194,8 +199,9 @@ stack, so a dropped font request costs nothing but the typeface.
 
 ## Known limits
 
-- The Forms API submit itself is not wired yet. `formPayload()` builds the body;
-  the POST is waiting on real form GUIDs to test against.
+- The Forms API submit itself is not wired yet. `formPayload()` builds the body
+  and `/admin` shows it; the POST is waiting on real form GUIDs to test against.
+  Until then, removing `BOOTH_STANDALONE` gets you the database, not HubSpot.
 - Prisma and SQLite are still in the repo. The HubSpot-only rearchitecture
   removes them, but until it lands, local dev uses a file database and Vercel
   would need Turso. See `.env.example`.

@@ -6,6 +6,10 @@ it, and what is still open. `README.md` has the deeper detail.
     npm run dev              # http://localhost:4000  (pinned)
     open http://localhost:4000/preview   # every screen, one tap, nothing saved
 
+Live for the sales walkthrough: **https://yosi-booth.vercel.app**
+It runs with `BOOTH_STANDALONE=1`, so there is no database and nothing is
+saved. `HUBSPOT-SETUP.md` is the runbook for turning the posting on.
+
 Port 4000 is pinned in both `package.json` and `.claude/launch.json`
 (`autoPort: false`) so the URL never moves.
 
@@ -79,6 +83,8 @@ Health-Passport repo and nothing here depends on it.
 | `src/lib/calc.ts` | The leak and the ROI. Constants, formulas, recovery rates, price. |
 | `src/lib/score.ts` | The practice health score: weights, bands, posture. |
 | `scripts/criteria.ts` | Generates `CRITERIA.md` from those two. `npm run criteria`. |
+| `scripts/hubspot-setup.ts` | Generates `HUBSPOT-SETUP.md`. `npm run hubspot`. |
+| `src/lib/mode.ts` | `BOOTH_STANDALONE`: the flow with no database behind it. |
 | `src/lib/tech-stack.ts` | Tool list, competitor set, satisfaction options |
 | `src/components/flow/AttendeeFlow.tsx` | Stage machine |
 | `src/components/FlowPreview.tsx` | The `/preview` picker |
