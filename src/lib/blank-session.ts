@@ -2,13 +2,13 @@ import type { ClientSession } from "./session";
 import { PRACTICE, VERIFY_RESULT, personaFor } from "./demo";
 
 /**
- * A fully-populated session for the preview surface.
+ * An empty session: the shape every screen reads, with nothing answered.
  *
- * Every screen in the flow reads from a ClientSession, so previewing one in
- * isolation means handing it a plausible session rather than making the viewer
- * walk the flow to build one up. Nothing here touches the database.
+ * Used by the preview picker and by the standalone deployment, where there is
+ * no database to read one from. Nothing here touches Prisma, which is what
+ * lets the flow render on a host with no database at all.
  */
-export function mockSession(over: Partial<ClientSession> = {}): ClientSession {
+export function blankSession(over: Partial<ClientSession> = {}): ClientSession {
   return {
     token: "d3k9",
     phone: "+12145550148",
@@ -83,7 +83,7 @@ export function mockSession(over: Partial<ClientSession> = {}): ClientSession {
  * the picker uses whichever of the two the screen actually needs.
  */
 export function answeredSession(over: Partial<ClientSession> = {}): ClientSession {
-  return mockSession({
+  return blankSession({
     role: "frontdesk",
     // athena plus an incumbent they are unhappy with: the segment worth
     // showing, and the only one that exercises the 2b screen.
@@ -98,7 +98,7 @@ export function answeredSession(over: Partial<ClientSession> = {}): ClientSessio
       collectedRate: 0.5,
     },
     capture: {
-      ...mockSession().capture,
+      ...blankSession().capture,
       name: "Dana Whitfield",
       email: "dana@lakeviewwh.com",
       practice: "Lakeview Women's Health",

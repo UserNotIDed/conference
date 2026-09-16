@@ -2,6 +2,8 @@ import { headers } from "next/headers";
 import { isUnlocked } from "@/lib/guard";
 import { Passcode } from "@/components/Passcode";
 import { AdminTable } from "@/components/AdminTable";
+import { STANDALONE } from "@/lib/mode";
+import { StandaloneNotice } from "@/components/StandaloneNotice";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +13,7 @@ export default async function AdminPage({
   searchParams: Promise<{ bad?: string }>;
 }) {
   const { bad } = await searchParams;
+  if (STANDALONE) return <StandaloneNotice screen="The lead list" />;
   if (!(await isUnlocked())) return <Passcode next="/admin" bad={Boolean(bad)} />;
 
   // The links copied out of here get texted and typed, so they need the real

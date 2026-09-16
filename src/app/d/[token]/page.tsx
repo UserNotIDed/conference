@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { toClient } from "@/lib/session";
 import { AttendeeFlow } from "@/components/flow/AttendeeFlow";
+import { STANDALONE } from "@/lib/mode";
+import { blankSession } from "@/lib/blank-session";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +24,13 @@ export default async function AttendeePage({
 }) {
   const { token } = await params;
   const { practice, restart, resume } = await searchParams;
+
+  // Any link shape works when there is no database to look the token up in, so
+  // a URL someone bookmarked or pasted into Slack still opens the flow rather
+  // than a 404 nobody can explain at a booth.
+  if (STANDALONE) {
+    return <AttendeeFlow session={blankSession()} ephemeral />;
+  }
 
   const found = await prisma.session.findUnique({
     where: { token: token.toLowerCase() },

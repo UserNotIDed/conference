@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
+import { STANDALONE } from "@/lib/mode";
 import { newToken } from "@/lib/ids";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +22,9 @@ export default async function StartPage({
   searchParams: Promise<{ practice?: string }>;
 }) {
   const { practice } = await searchParams;
+
+  // Nothing to mint. The root already starts a fresh run.
+  if (STANDALONE) redirect("/");
 
   const session = await prisma.session.create({
     data: {

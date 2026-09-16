@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaLibSQL } from "@prisma/adapter-libsql";
 import { join } from "node:path";
+import { STANDALONE } from "./mode";
 
 /**
  * One Prisma client, cached across hot reloads in dev and across warm lambda
@@ -31,6 +32,7 @@ const url = resolveUrl(process.env.DATABASE_URL ?? "file:./dev.db");
 if (
   process.env.VERCEL &&
   url.startsWith("file:") &&
+  !STANDALONE &&
   process.env.ALLOW_EPHEMERAL_DB !== "1"
 ) {
   throw new Error(

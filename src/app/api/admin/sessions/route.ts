@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { guardApi } from "@/lib/guard";
+import { STANDALONE, STANDALONE_NOTICE } from "@/lib/mode";
 import { newToken, normalizePhone } from "@/lib/ids";
 import { toRow } from "@/lib/rows";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  if (STANDALONE) return Response.json({ error: STANDALONE_NOTICE }, { status: 503 });
   const denied = await guardApi();
   if (denied) return denied;
   const sessions = await prisma.session.findMany({
@@ -27,6 +29,7 @@ export async function GET() {
  * over the link. Same flow, same records, same CSV.
  */
 export async function POST(req: Request) {
+  if (STANDALONE) return Response.json({ error: STANDALONE_NOTICE }, { status: 503 });
   const denied = await guardApi();
   if (denied) return denied;
 
@@ -61,6 +64,7 @@ export async function POST(req: Request) {
 
 /** Rep pre-fill of the practice name on an existing session. */
 export async function PATCH(req: Request) {
+  if (STANDALONE) return Response.json({ error: STANDALONE_NOTICE }, { status: 503 });
   const denied = await guardApi();
   if (denied) return denied;
   const body = await req.json().catch(() => ({}));

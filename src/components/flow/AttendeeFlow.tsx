@@ -39,25 +39,27 @@ export type Stage =
 export function AttendeeFlow({
   session,
   resume = false,
-  preview = false,
+  ephemeral = false,
   startAt,
 }: {
   session: ClientSession;
   /** Pick up where the saved state left off instead of starting at screen one. */
   resume?: boolean;
   /**
-   * Runs the real flow against a session that does not exist: writes go to a
-   * queue that drops them. Everything else, the components, the stage
-   * machine and the arithmetic, is the same code the attendee gets, so the
-   * preview cannot drift from the thing it is previewing.
+   * Run against a session that does not exist: writes go to a queue that drops
+   * them and nothing reaches a database. Everything else, the components, the
+   * stage machine and the arithmetic, is the same code the attendee gets, so
+   * what you see cannot drift from what ships.
+   *
+   * Used by /preview and by the standalone deployment.
    */
-  preview?: boolean;
+  ephemeral?: boolean;
   /** Jump straight to one screen. Preview only. */
   startAt?: Stage;
 }) {
   const queue = useMemo(
-    () => getQueue(session.token, !preview),
-    [session.token, preview],
+    () => getQueue(session.token, !ephemeral),
+    [session.token, ephemeral],
   );
   const [stage, setStage] = useState<Stage>(
     () => startAt ?? initialStage(session, resume),

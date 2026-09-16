@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { guardApi } from "@/lib/guard";
+import { STANDALONE, STANDALONE_NOTICE } from "@/lib/mode";
 import { toCsv } from "@/lib/csv";
 import { toRow } from "@/lib/rows";
 import { CSV_HEADERS, csvRow } from "@/lib/hubspot";
@@ -19,6 +20,7 @@ export const dynamic = "force-dynamic";
  * without one imports as a new contact every time.
  */
 export async function GET() {
+  if (STANDALONE) return Response.json({ error: STANDALONE_NOTICE }, { status: 503 });
   const denied = await guardApi();
   if (denied) return denied;
 

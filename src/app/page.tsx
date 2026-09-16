@@ -1,5 +1,8 @@
 import Link from "next/link";
 import QRCode from "qrcode";
+import { STANDALONE } from "@/lib/mode";
+import { blankSession } from "@/lib/blank-session";
+import { AttendeeFlow } from "@/components/flow/AttendeeFlow";
 import { PRACTICE } from "@/lib/demo";
 import { formatPhone } from "@/lib/ids";
 
@@ -21,6 +24,15 @@ export const dynamic = "force-dynamic";
  * and open a blank thread, which is survivable but changes the copy you need.
  */
 export default async function BoothPage() {
+  /**
+   * On the standalone deployment the root *is* the microsite. That is also
+   * where the QR-direct plan lands it, so this is not a detour: scanning the
+   * code should open the first screen, not a page about scanning a code.
+   */
+  if (STANDALONE) {
+    return <AttendeeFlow session={blankSession()} ephemeral />;
+  }
+
   const number = process.env.BOOTH_SMS_NUMBER ?? PRACTICE.phone;
   // One keyword per show and event attribution comes for free.
   const keyword = process.env.BOOTH_KEYWORD ?? "DEMO";

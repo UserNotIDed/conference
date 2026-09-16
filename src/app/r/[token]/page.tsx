@@ -13,6 +13,8 @@ import {
   usdRounded,
 } from "@/lib/calc";
 import { PRACTICE, roleLabel } from "@/lib/demo";
+import { STANDALONE } from "@/lib/mode";
+import { StandaloneNotice } from "@/components/StandaloneNotice";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +33,7 @@ export default async function BreakdownPage({
   params: Promise<{ token: string }>;
 }) {
   const { token } = await params;
+  if (STANDALONE) return <StandaloneNotice screen="The saved breakdown" />;
   const session = await prisma.session.findUnique({
     where: { token: token.toLowerCase() },
   });

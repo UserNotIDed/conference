@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { answeredSession, mockSession } from "@/lib/mock-session";
+import { answeredSession, blankSession } from "@/lib/blank-session";
 import { AttendeeFlow, type Stage } from "@/components/flow/AttendeeFlow";
 
 /**
@@ -87,7 +87,7 @@ export function FlowPreview() {
   // Bumped to remount the flow, so "Restart" replays the screen you are on.
   const [nonce, setNonce] = useState(0);
   const current = SCREENS.find((s) => s.id === id) ?? SCREENS[0];
-  const session = current.answered ? answeredSession() : mockSession();
+  const session = current.answered ? answeredSession() : blankSession();
 
   return (
     <div className="min-h-dvh lg:flex">
@@ -173,7 +173,7 @@ export function FlowPreview() {
             {/* Remounted on every selection so entrance animations, the code
                 autofill and any internal step state replay from the top. */}
             <div key={`${id}-${nonce}`} className="min-h-[760px]">
-              <AttendeeFlow session={session} preview startAt={id} />
+              <AttendeeFlow session={session} ephemeral startAt={id} />
             </div>
           </div>
         </div>
