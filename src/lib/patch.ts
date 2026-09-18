@@ -1,6 +1,6 @@
 import type { Prisma, Session } from "@prisma/client";
 import { prisma } from "./db";
-import { calculate } from "./calc";
+import { calculate, type CalcInputs } from "./calc";
 import { ehrAppend, parseJson } from "./session";
 import { PRACTICE, VERIFY_RESULT, personaFor } from "./demo";
 import { ALL_TOOLS, COMPETITOR_TOOLS } from "./tech-stack";
@@ -159,15 +159,23 @@ export async function applyPatches(
         break;
 
       case "calc": {
-        // Recomputed server-side. The client sends inputs, never the answer,
-        // the number ends up in an SMS and on a shareable page, so it has to be
-        // the one this codebase stands behind.
-        const result = calculate({
+        // Recomputed server-side. The client sends inputs, never the answer:
+        // the number ends up in an email and on a shareable page, so it has to
+        // be the one this codebase stands behind.
+        //
+        // Every field of CalcInputs is listed, and the type makes sure of it.
+        // This used to be a hand-written subset, and twice a new slider was
+        // added at the front end and silently saved as its default here,
+        // because clampInputs fills a missing field rather than complaining.
+        const raw: Record<keyof CalcInputs, number | undefined> = {
           patientsPerDay: num(body.patientsPerDay),
           noShowRate: num(body.noShowRate),
           frontDeskStaff: num(body.frontDeskStaff),
           collectedRate: num(body.collectedRate),
-        });
+          newPatientsPerMonth: num(body.newPatientsPerMonth),
+          providers: num(body.providers),
+        };
+        const result = calculate(raw);
         data.calcInputs = JSON.stringify(result.inputs);
         data.calcResult = JSON.stringify({
           total: result.total,

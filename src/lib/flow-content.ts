@@ -79,13 +79,14 @@ export const FLOW = {
   // -------------------------------------------------------------------------
   numbers: {
     kicker: "3 · Your numbers",
-    title: "Five you'll know off the top of your head",
+    title: "Six you'll know off the top of your head",
     subtitle:
       "Nothing here needs looking up. If you're not sure, your best guess is close enough to put a figure on.",
     cta: "Score my practice",
     alert:
       "Rough is fine. Everything here is yours, and every figure we add to it is printed next to the answer.",
     labels: {
+      providers: "Providers in the practice",
       patientsPerDay: "Patients per day",
       noShowRate: "No-show rate",
       frontDeskStaff: "Front desk headcount",
@@ -93,6 +94,7 @@ export const FLOW = {
       newPatientsPerMonth: "New patients a month",
     },
     hints: {
+      providers: "Anyone who carries their own schedule, including NPs and PAs.",
       collectedRate: "Copay and balance taken before they leave.",
       newPatientsPerMonth: "Somebody who has never been seen at your practice.",
     },

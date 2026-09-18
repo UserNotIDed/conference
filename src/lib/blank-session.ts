@@ -103,6 +103,7 @@ export function answeredSession(over: Partial<ClientSession> = {}): ClientSessio
       frontDeskStaff: 3,
       collectedRate: 0.5,
       newPatientsPerMonth: 35,
+      providers: 5,
     },
     capture: {
       ...blankSession().capture,

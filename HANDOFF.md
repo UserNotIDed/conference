@@ -33,7 +33,7 @@ Health-Passport repo and nothing here depends on it.
 | 1 | About you | Role chips, name, email, practice, address |
 | 2 | Your setup | Their stack; EHR and any incumbent derived from it |
 | 2b | How it's working out | Satisfaction, what costs them time, online booking and reviews |
-| 3 | Your numbers | Five sliders: patients/day, no-show, headcount, collected up front, new patients/month |
+| 3 | Your numbers | Six sliders: providers, patients/day, no-show, front desk headcount, collected up front, new patients/month |
 | | Practice health score | Ring, band, four weighted dimensions, the scoring |
 | | What Yosi puts back | The claim, the leak it comes out of, the working folded away |
 | | Book a demo | Their figure in the headline → yosi.health, click recorded |
@@ -56,6 +56,11 @@ Health-Passport repo and nothing here depends on it.
   Saying the ratio ourselves is stronger than being caught at it, and the leak
   earns its place as the denominator: without it the recovery figure is an
   unanchored vendor claim.
+- **No rate card in this repository. It is public.** Yosi bills per provider
+  per month and the sheets we work from are negotiated per group, not list.
+  The flow captures provider count, which is what sizes a deal, and puts no
+  price anywhere near the screen. If a payback figure is ever wanted, the rate
+  belongs in an environment variable on the deployment.
 - **No-shows are costed but never claimed from.** They are out of the leak and
   out of the recovery entirely, which took the capture ratio from about a third
   to around 70% and left every remaining line benchmarked. They appear on their
@@ -73,7 +78,7 @@ Health-Passport repo and nothing here depends on it.
 - **Internal notes never render.** `Constant.source` is what the buyer reads;
   `Constant.internal` is for `CRITERIA.md`. "NEEDS MARKETING SIGN-OFF" once made
   it onto the buyer's screen.
-- **Nothing is asked that has to be looked up.** Five sliders, no keyboard.
+- **Nothing is asked that has to be looked up.** Six sliders, no keyboard.
   Minutes per patient on registration is locked at 14 rather than asked, because most
   people guess it badly and slowly, and a slider nobody can answer confidently
   costs more time than the precision buys. It is still printed as an

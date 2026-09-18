@@ -31,6 +31,16 @@ export type CalcInputs = {
   collectedRate: number;
   /** New patients a month. Drives the growth half, not the leak. */
   newPatientsPerMonth: number;
+  /**
+   * Providers in the practice.
+   *
+   * Nothing in the arithmetic uses it. It is here because Yosi bills per
+   * provider per month, which makes it the one answer that sizes the deal, and
+   * because the data team's benchmarks are all expressed per provider per day,
+   * so it is what lets their table be checked against a real practice. It
+   * reaches HubSpot and stops there.
+   */
+  providers: number;
 };
 
 type Constant = {
@@ -279,6 +289,7 @@ export const INPUT_DEFAULTS: CalcInputs = {
   frontDeskStaff: 3,
   collectedRate: 0.6,
   newPatientsPerMonth: 30,
+  providers: 4,
 };
 
 export function clampInputs(raw: Partial<CalcInputs>): CalcInputs {
@@ -296,6 +307,7 @@ export function clampInputs(raw: Partial<CalcInputs>): CalcInputs {
     newPatientsPerMonth: Math.round(
       n(raw.newPatientsPerMonth, 0, 400, d.newPatientsPerMonth),
     ),
+    providers: Math.round(n(raw.providers, 1, 200, d.providers)),
   };
 }
 

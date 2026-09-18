@@ -46,7 +46,7 @@ which of them are sourced and which are still ours to defend.
 | 1 | About you | Role chips, name, work email, practice. Address optional. |
 | 2 | Your setup | Their stack. EHR and any incumbent are derived from it. |
 | 2b | How it's working out | Satisfaction, what costs them time, online booking and reviews |
-| 3 | Your numbers | Five sliders: patients/day, no-show, headcount, collected up front, new patients/month |
+| 3 | Your numbers | Six sliders: providers, patients/day, no-show, front desk headcount, collected up front, new patients/month |
 | | Practice health score | Ring, band, four weighted dimensions, the scoring |
 | | What Yosi puts back | The claim, the leak it comes out of, the working folded away |
 | | Book a demo | Their own figure in the headline, then out to yosi.health |
@@ -204,7 +204,7 @@ mismatch and server state survives a cleared cache.
 button in the same place, so a bounced finger or a double tap on a laggy screen
 would otherwise land the second hit on the next screen and skip it.
 
-**Nothing is asked that has to be looked up.** Five sliders, no keyboard.
+**Nothing is asked that has to be looked up.** Six sliders, no keyboard.
 Minutes per patient on registration is locked at 14 rather than asked, because
 most people guess it badly and slowly.
 

@@ -180,6 +180,13 @@ export const PROPERTIES: PropertyDef[] = [
     note: "Their own words for what breaks, semicolon separated. Does not move the score; it is the opening line for the call.",
   },
   {
+    name: "booth_providers",
+    label: "Booth: providers in the practice",
+    type: "number",
+    form: "diagnosis",
+    note: "We bill per provider per month, so this is the field that sizes the deal. Sort the export by it before anybody starts calling.",
+  },
+  {
     name: "booth_patients_per_day",
     label: "Booth: patients per day",
     type: "number",
@@ -391,6 +398,7 @@ export function contactProperties(
         onlineBooking: row.onlineBooking,
         asksForReviews: row.asksForReviews,
       });
+      put("booth_providers", inputs.providers);
       put("booth_patients_per_day", inputs.patientsPerDay);
       put("booth_no_show_rate", Math.round(inputs.noShowRate * 100));
       put("booth_front_desk_fte", inputs.frontDeskStaff);

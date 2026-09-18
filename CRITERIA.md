@@ -72,6 +72,7 @@ Minutes per patient on registration is **not** asked. It is locked at
 
 | Input | Range | Used by |
 | --- | --- | --- |
+| Providers in the practice | 1-40 | Nothing in the arithmetic. Deal sizing only. |
 | Patients per day | 5–150 | Leak, score |
 | No-show rate | 0–30% | Leak, score |
 | Front desk headcount | 1–12 | Leak (cap), score |
@@ -118,8 +119,19 @@ per-FTE benchmark does not. Capping one with the other stops a high-volume
 practice from claiming more hours back than its desk actually works, which is
 the first thing anyone checks.
 
-**Nothing is netted off for what Yosi costs.** Price is a conversation to have
-with a number in front of you, not a variable buried inside one.
+**Nothing is netted off for what Yosi costs**, and nothing should be. Price is
+a conversation to have with a number in front of you, not a variable buried
+inside one, and a booth is the wrong place to have it.
+
+We do capture **providers in the practice**, because Yosi bills per provider
+per month and that is the one answer that sizes a deal. It goes to HubSpot as
+`booth_providers` and is used for nothing else. Sort the export by it before
+anybody starts calling.
+
+> **No rate card belongs in this repository.** It is public, and the sheets we
+> work from are negotiated per group rather than list. If we ever want a
+> payback figure, the rate goes in an environment variable on the deployment
+> and never into git. Nothing in the app reads one today.
 
 ### Shown but never claimed from
 
