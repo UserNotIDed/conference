@@ -221,6 +221,14 @@ function DimensionRow({
 /**
  * The money, as an executive summary with the working folded away.
  *
+ * It leads with what Yosi puts back rather than with the leak, which is a
+ * reversal and a deliberate one. The leak is dominated by no-shows, roughly
+ * three quarters of it, and no-shows are the component we claim least of. So
+ * leading with the leak meant leading with a number of which we recover about
+ * a third, and anyone who did that division found it out for themselves.
+ * Better to say it first: here is what we put back, here is the whole problem
+ * it comes out of, and here is why the two differ.
+ *
  * It used to be every figure at once: five leak components, five recovery
  * lines, the gaps and the assumptions, all open. Perhaps two thousand pixels
  * of arithmetic with the headline at the top of it, which is the wrong shape
@@ -255,7 +263,7 @@ export function ScreenMoney({
   );
   const ordered = orderComponents(result, session.role);
   const lead = roleLead(result, session.role);
-  const shown = useCountUp(result.total, 1000);
+  const shown = useCountUp(back.total, 1000);
   // Pre-checked: they have just been shown a number, and "how do I compare" is
   // the question they are already asking. Opting out is one tap.
   const [optIn, setOptIn] = useState(session.capture.optIn ?? true);
@@ -276,27 +284,21 @@ export function ScreenMoney({
   return (
     <Screen footer={<Button onClick={onNext}>{M.cta}</Button>}>
       <div className="animate-fade-up pt-6">
-        {/* ---- The lede. Nothing above it, nothing beside it. ---- */}
+        {/* ---- The lede: what we put back, not what is wrong. ---- */}
         <CapLabel>{M.kicker}</CapLabel>
         <p className="mt-1.5 text-[48px] font-extrabold leading-none tracking-[-0.035em] text-ink tabular-nums">
           {usdRounded(shown)}
         </p>
-        {lead ? (
-          <p className="mt-2.5 text-[14px] font-medium leading-[1.45] text-ink-sub">
-            {lead}
-          </p>
-        ) : null}
+        <p className="mt-2.5 text-[14px] font-medium leading-[1.45] text-ink-sub">
+          {fill(M.headlineSub, { leak: usdRounded(result.total) })}
+        </p>
 
-        {/* ---- The two numbers that answer "so what". ---- */}
+        {/* ---- The whole problem, and the time. ---- */}
         {/* items-stretch so a two-line label on one tile does not drop its
             number below the other one's. */}
         <div className="mt-5 grid grid-cols-2 items-stretch gap-2.5">
-          <Stat
-            label={M.summaryRecovered}
-            value={usdRounded(back.total)}
-            tone="teal"
-          />
-          <Stat label={M.summaryHours} value={hours} />
+          <Stat label={M.summaryLeak} value={usdRounded(result.total)} />
+          <Stat label={M.summaryHours} value={hours} tone="teal" />
         </div>
 
         <p className="mt-3 text-[12.5px] font-medium leading-[1.5] text-ink-mute">
@@ -305,29 +307,6 @@ export function ScreenMoney({
 
         {/* ---- Everything that justifies it, closed. ---- */}
         <div className="mt-6 space-y-2">
-          <Disclosure
-            title={M.detailLeak}
-            summary={fill(M.detailLeakSummary, { n: ordered.length })}
-          >
-            <div className="space-y-2.5 pt-1">
-              {ordered.map((c) => (
-                <div key={c.key}>
-                  <div className="flex items-baseline justify-between gap-3">
-                    <span className="text-[13.5px] font-semibold text-ink">
-                      {c.label}
-                    </span>
-                    <span className="shrink-0 text-[14px] font-extrabold tabular-nums text-ink">
-                      {usd(c.amount)}
-                    </span>
-                  </div>
-                  <p className="mt-0.5 text-[11.5px] font-medium leading-[1.4] text-ink-mute">
-                    {c.formula}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </Disclosure>
-
           <Disclosure
             title={fill(M.detailRecovery, { amount: usdRounded(back.total) })}
             summary={M.detailRecoverySummary}
@@ -349,6 +328,34 @@ export function ScreenMoney({
               <p className="border-t border-hairline pt-2 text-[12px] leading-[1.5] text-ink-mute">
                 {M.recoverySub}
               </p>
+            </div>
+          </Disclosure>
+
+          <Disclosure
+            title={fill(M.detailLeak, { amount: usdRounded(result.total) })}
+            summary={fill(M.detailLeakSummary, { n: ordered.length })}
+          >
+            <div className="space-y-2.5 pt-1">
+              {lead ? (
+                <p className="pb-1 text-[12.5px] font-medium leading-[1.5] text-ink-sub">
+                  {lead}
+                </p>
+              ) : null}
+              {ordered.map((c) => (
+                <div key={c.key}>
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className="text-[13.5px] font-semibold text-ink">
+                      {c.label}
+                    </span>
+                    <span className="shrink-0 text-[14px] font-extrabold tabular-nums text-ink">
+                      {usd(c.amount)}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-[11.5px] font-medium leading-[1.4] text-ink-mute">
+                    {c.formula}
+                  </p>
+                </div>
+              ))}
             </div>
           </Disclosure>
 
@@ -535,7 +542,7 @@ function Disclosure({
 
 export function ScreenThanks({
   session,
-  leakTotal,
+  recovered,
   onBooked,
 }: {
   session: ClientSession;
@@ -545,7 +552,7 @@ export function ScreenThanks({
    * would fall back to the generic line, losing the one number that makes
    * this screen a close rather than a thank-you.
    */
-  leakTotal: number | null;
+  recovered: number | null;
   onBooked: () => void;
 }) {
   const [opened, setOpened] = useState(Boolean(session.capture.bookedAt));
@@ -554,8 +561,8 @@ export function ScreenThanks({
     <Screen
       kicker={FLOW.booking.kicker}
       title={
-        leakTotal
-          ? fill(FLOW.booking.title, { leak: usdRounded(leakTotal) })
+        recovered
+          ? fill(FLOW.booking.title, { amount: usdRounded(recovered) })
           : FLOW.booking.titleNoLeak
       }
       subtitle={FLOW.booking.subtitle}

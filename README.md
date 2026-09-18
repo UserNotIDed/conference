@@ -48,7 +48,7 @@ which of them are sourced and which are still ours to defend.
 | 2b | How it's working out | Satisfaction, what costs them time, online booking and reviews |
 | 3 | Your numbers | Five sliders: patients/day, no-show, headcount, collected up front, new patients/month |
 | | Practice health score | Ring, band, four weighted dimensions, the scoring |
-| | Leak and ROI | Four leak components, what we recover, what we cost |
+| | What Yosi puts back | The claim, the leak it comes out of, the working folded away |
 | | Book a demo | Their own figure in the headline, then out to yosi.health |
 
 Copy lives in `src/lib/flow-content.ts`, in screen order, so it can be rewritten

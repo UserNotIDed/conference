@@ -245,7 +245,10 @@ already running athenahealth and an intake vendor they are unhappy with.
 | Patient balances written off | $45,976 | 10,217 visits × $30 × 50% uncollected × 30% |
 | Claim rework from registration errors | $5,517 | 10,217 claims × 8% denied × 27% from registration × $25 |
 
-**Recoverable: $196,659.** A share of each component above.
+**What Yosi puts back: $196,659**, which is what the screen leads with.
+That is 34% of the leak. The gap is almost entirely
+no-shows: they are the biggest component and the one we claim least of, so
+leading with the leak meant leading with a figure anyone could divide down.
 **Front desk hours freed: 1,872 a year.**
 Reported as hours. There is deliberately no dollar figure on them.
 

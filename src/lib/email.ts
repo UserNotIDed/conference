@@ -421,41 +421,38 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
     </td>
   </tr>
 
-  <!-- The leak -->
-  <tr>
-    <td style="padding:26px 28px 0 28px;">
-      <div style="font:700 11px/1 ${FONT};letter-spacing:0.06em;text-transform:uppercase;color:${MUTE};">
-        Estimated annual leak
-      </div>
-      <div style="font:800 40px/1 ${FONT};color:${INK};letter-spacing:-0.03em;padding-top:6px;">
-        ${leakTotal}
-      </div>
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:14px;">
-        ${leakLines}
-      </table>
-    </td>
-  </tr>
-
-  <!-- The return -->
+  <!-- What we put back. Leads, same as the screen. -->
   <tr>
     <td style="padding:22px 28px 0 28px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${TEAL_BG};border:1px solid #cffafe;border-radius:14px;">
         <tr>
           <td style="padding:18px 18px;">
             <div style="font:700 11px/1 ${FONT};letter-spacing:0.06em;text-transform:uppercase;color:${MUTE};">
-              What you would get back
+              What Yosi puts back
             </div>
-            <div style="font:800 24px/1.2 ${FONT};color:${INK};letter-spacing:-0.025em;padding-top:6px;">
-              ${recovered} a year, recovered
+            <div style="font:800 28px/1.15 ${FONT};color:${INK};letter-spacing:-0.03em;padding-top:6px;">
+              ${recovered} a year
             </div>
             <div style="font:500 13.5px/1.5 ${FONT};color:${SUB};padding-top:8px;">
-              A share of each figure above, not all of it. The shares are ours rather
-              than yours, they are listed at the bottom, and they are the right thing
-              to push back on.
+              Out of the ${leakTotal} a year intake costs you in total. We do not claim
+              to fix all of it. The share we take off each line is listed at the bottom,
+              and those shares are the right thing to push back on.
             </div>
             ${growthBlock}
           </td>
         </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- Where it comes out of. Context, not the lede. -->
+  <tr>
+    <td style="padding:26px 28px 0 28px;">
+      <div style="font:700 11px/1 ${FONT};letter-spacing:0.06em;text-transform:uppercase;color:${MUTE};">
+        Where the ${leakTotal} comes from
+      </div>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:14px;">
+        ${leakLines}
       </table>
     </td>
   </tr>

@@ -35,7 +35,7 @@ Health-Passport repo and nothing here depends on it.
 | 2b | How it's working out | Satisfaction, what costs them time, online booking and reviews |
 | 3 | Your numbers | Five sliders: patients/day, no-show, headcount, collected up front, new patients/month |
 | | Practice health score | Ring, band, four weighted dimensions, the scoring |
-| | Leak and ROI | Four leak components, what we recover, what we cost |
+| | What Yosi puts back | The claim, the leak it comes out of, the working folded away |
 | | Book a demo | Their figure in the headline → yosi.health, click recorded |
 
 ## Decisions that are settled. Do not re-litigate without asking
@@ -52,6 +52,12 @@ Health-Passport repo and nothing here depends on it.
   progress bar and an HTML email, and an email cannot see a stylesheet. The
   ring, the dimension bars and the email all read it; they used to each keep
   their own thresholds and had already drifted.
+- **The money screen leads with what Yosi puts back, not with the leak.** The
+  leak is roughly three quarters no-shows, and no-shows are the component we
+  claim least of, so leading with it meant leading with a number of which we
+  recover about a third. Anyone who did that division found it out for
+  themselves. We say it first instead: here is what we put back, here is the
+  whole problem it comes out of, here is why they differ.
 - **Score and money do different jobs, on different screens.** The score answers
   "where do I stand", which is what the landing page promised. The money answers
   "so what", which is what books a meeting. On one screen the reader picks

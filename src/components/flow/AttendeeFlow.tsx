@@ -9,7 +9,7 @@ import { ScreenNumbers } from "./NumbersScreen";
 import { ScreenIntakeCheck, ScreenTechStack } from "./StackScreens";
 import { ScreenMoney, ScreenScore, ScreenThanks } from "./DiagnosisScreens";
 import { competitorIn, intakeSubject } from "@/lib/tech-stack";
-import { calculate, clampInputs, type CalcInputs } from "@/lib/calc";
+import { calculate, clampInputs, recovery, type CalcInputs } from "@/lib/calc";
 
 export type Stage =
   | "landing"
@@ -259,7 +259,9 @@ export function AttendeeFlow({
       {stage === "booking" ? (
         <ScreenThanks
           session={view}
-          leakTotal={calcInputs ? calculate(calcInputs).total : null}
+          recovered={
+            calcInputs ? recovery(calculate(calcInputs)).total : null
+          }
           onBooked={() => queue.push("booked", {})}
         />
       ) : null}

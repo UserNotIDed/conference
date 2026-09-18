@@ -121,13 +121,17 @@ export const FLOW = {
   // The money. Leak first, then what fixing it returns.
   // -------------------------------------------------------------------------
   money: {
-    kicker: "Estimated annual leak",
-    summaryRecovered: "You'd get back",
+    kicker: "What Yosi puts back",
+    // {leak} is their whole figure. Naming it ourselves, in the same breath,
+    // is the difference between context and something they catch us at.
+    headlineSub:
+      "A year, at your volume. Intake costs you {leak} a year in total; we do not claim to fix all of it, and both numbers are broken down below.",
+    summaryLeak: "Costing you today",
     summaryHours: "Desk hours back a year",
-    detailLeak: "Where it comes from",
-    detailLeakSummary: "{n} components, with the arithmetic",
     detailRecovery: "How we get to {amount}",
-    detailRecoverySummary: "What share of each one we remove",
+    detailRecoverySummary: "Component by component, and what share of each",
+    detailLeak: "Where the {amount} comes from",
+    detailLeakSummary: "{n} components, with the arithmetic",
     gapsSummary: "{n} you could fix without us",
     showWorkSummary: "Every figure we added to your answers",
     recoverySub:
@@ -159,8 +163,10 @@ export const FLOW = {
   // -------------------------------------------------------------------------
   booking: {
     kicker: "Last thing",
-    // {leak} is their own figure.
-    title: "That's {leak} a year",
+    // {amount} is what we put back, the same figure the screen before it led
+    // with. Closing on a different number than the one they just read is how
+    // you make someone wonder which of the two was the real one.
+    title: "That's {amount} a year back",
     titleNoLeak: "Worth half an hour of your time",
     subtitle:
       "Give us thirty minutes and we'll show you the same arithmetic running on your forms, in your EHR, with your own volumes in it.",
