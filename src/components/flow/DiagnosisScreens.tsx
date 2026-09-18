@@ -359,7 +359,9 @@ export function ScreenMoney({
                     <p className="mt-1.5 text-[12px] leading-[1.45] text-ink-sub">
                       {l.key === "reviews"
                         ? M.growthNoteReviews
-                        : M.growthNoteBooking}
+                        : l.key === "capacity"
+                          ? M.growthNoteCapacity
+                          : M.growthNoteBooking}
                     </p>
                   </div>
                 ))}

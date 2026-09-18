@@ -129,14 +129,6 @@ export default async function BreakdownPage({
             </div>
           ))}
         </div>
-        {result.staffCapped ? (
-          <p className="mt-4 rounded-[14px] border border-amber-line bg-amber-bg p-4 text-[13px] leading-[1.55] text-amber-dk">
-            The staff-time figure was capped at what {inputs.frontDeskStaff}{" "}
-            full-time front desk staff are actually paid for. The raw calculation
-            came out higher, which usually means the manual-entry estimate is too
-            high for your setup, and worth a conversation.
-          </p>
-        ) : null}
       </section>
 
       <footer className="mt-12 border-t border-hairline pt-6">

@@ -172,8 +172,6 @@ export async function applyPatches(
         data.calcResult = JSON.stringify({
           total: result.total,
           components: result.components,
-          staffCapped: result.staffCapped,
-          staffShareOfPayroll: result.staffShareOfPayroll,
         });
         if (!s.calcAt) data.calcAt = new Date();
         break;

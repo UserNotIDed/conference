@@ -125,7 +125,7 @@ export const FLOW = {
     recoveryKicker: "What you'd get back",
     recoveryHeadline: "{amount} a year, recovered",
     recoverySub:
-      "A share of each of the four above, not all of it. The share is ours to defend and it is printed below.",
+      "A share of each figure above, not all of it. Most of the shares come from published benchmarks; the two that are ours are marked as ours below.",
     growthKicker: "And what you're not winning yet",
     growthHeadline: "{amount} a year in patients you never see",
     growthSub:
@@ -136,6 +136,8 @@ export const FLOW = {
       "A survey after every visit puts your happy patients on Google, which is what moves where you rank when somebody searches nearby.",
     growthNoteBooking:
       "People who find you and then have to phone during office hours are the ones you never hear from.",
+    growthNoteCapacity:
+      "A ceiling rather than a promise: it assumes the desk hours you get back turn into appointments somebody has room to see. Worth arguing about, and the biggest single figure on this screen.",
     cta: "Book a demo",
     skip: "Email it to me instead",
     showWork: "What are we assuming?",

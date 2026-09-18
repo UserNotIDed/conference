@@ -229,7 +229,7 @@ export function score(ctx: ScoreContext): ScoreResult {
   const { inputs } = ctx;
 
   const deskMinutes =
-    (inputs.patientsPerDay * ASSUMPTIONS.minutesPerIntake.value) /
+    (inputs.patientsPerDay * ASSUMPTIONS.minutesPerIntakeToday.value) /
     inputs.frontDeskStaff;
   const posture = intakePosture(ctx.techStack, ctx.intakeSatisfaction);
   const reputation = reputationPosture(ctx.onlineBooking, ctx.asksForReviews);
@@ -251,7 +251,7 @@ export function score(ctx: ScoreContext): ScoreResult {
       value: band(deskMinutes, BANDS.deskMinutes.best, BANDS.deskMinutes.worst),
       detail: `${Math.round(deskMinutes)} min per person per day on registration`,
       basis: `100 at ${BANDS.deskMinutes.best} min, 0 at ${BANDS.deskMinutes.worst} min`,
-      note: `Patients/day × ${ASSUMPTIONS.minutesPerIntake.display} each ÷ headcount. This is the one we cut first.`,
+      note: `Patients/day × ${ASSUMPTIONS.minutesPerIntakeToday.display} each ÷ headcount. This is the one we cut first.`,
     },
     {
       key: "digitalIntake",

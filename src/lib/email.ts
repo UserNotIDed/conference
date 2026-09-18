@@ -234,7 +234,7 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
   const upsideAmount = tok(mode, "booth_annual_growth", usdRounded(upside.total));
 
   const byKey = Object.fromEntries(money.components.map((c) => [c.key, c]));
-  const leakLines = (["missed", "staff", "collection", "rework"] as const)
+  const leakLines = (["missed", "staff", "admin", "collection", "denials"] as const)
     .map((k) =>
       leakRow(
         byKey[k].label,
@@ -314,21 +314,26 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
               <div style="font:500 13.5px/1.5 ${FONT};color:${SUB};padding-top:8px;">
                 Different money from the figure above. That one is leaking out of
                 something you already do; this is demand that never reaches you.
-                ${upside.lines.map((l) => l.label).join(" and ").toLowerCase()}, at your volume.
+                ${upside.lines.map((l) => l.label).join(", ").toLowerCase()}, at your
+                volume. The capacity line is a ceiling rather than a promise.
               </div>
             </div>`;
 
   const assumptions = [
     ASSUMPTIONS.avgVisitRevenue,
-    ASSUMPTIONS.minutesPerIntake,
-    ASSUMPTIONS.loadedHourlyRate,
+    ASSUMPTIONS.minutesPerIntakeToday,
+    ASSUMPTIONS.minutesSaved,
+    ASSUMPTIONS.frontDeskHourlyRate,
+    ASSUMPTIONS.adminCostPerIntake,
+    ASSUMPTIONS.denialRate,
+    ASSUMPTIONS.frontEndDenialShare,
+    ASSUMPTIONS.costToRework,
     ASSUMPTIONS.patientResponsibility,
     ASSUMPTIONS.writeOffRate,
-    ASSUMPTIONS.reworkRate,
-    ASSUMPTIONS.costToRework,
     RECOVERY.missed,
     RECOVERY.staff,
-    RECOVERY.rework,
+    RECOVERY.denials,
+    RECOVERY.admin,
     RECOVERY.collection,
     GROWTH.visitsPerNewPatient,
     GROWTH.reviewUplift,

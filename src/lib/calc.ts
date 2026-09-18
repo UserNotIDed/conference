@@ -1,11 +1,14 @@
 /**
- * The money model: what intake is leaking, and what fixing it returns.
+ * The money model: what intake is leaking, and what fixing it is worth.
  *
- * Two halves that share one set of inputs.
+ *   calculate()  the leak. Five components of annual loss, summed.
+ *   recovery()   the share of each one we claim to remove.
+ *   growth()     money that never arrives at all, kept separate on purpose.
  *
- *   calculate()  the leak. Four components of annual loss, summed.
- *   roi()        the return. What share of each component Yosi recovers,
- *                  less what Yosi costs, as a multiple and a payback period.
+ * Most of the constants now come from the data team's benchmark workbook
+ * (September 2026), which cites MGMA, BLS, HFMA and NIH-indexed studies. Those
+ * carry `status: "sourced"` and name the source key from the Sources tab.
+ * Everything still marked `placeholder` is ours and is listed in CRITERIA.md.
  *
  * The rule that governs both: every constant is printed on the screen next to
  * the number it produced, and every constant is tagged with who still has to
@@ -38,33 +41,125 @@ type Constant = {
   /** Shown to the prospect, on their phone, next to the number. */
   source: string;
   /**
-   * Never rendered. What has to happen before this number is defensible, for
-   * CRITERIA.md and for whoever picks this up after the show. Kept out of
-   * `source` because "NEEDS MARKETING SIGN-OFF" on a buyer's screen is not the
-   * kind of transparency anyone was asking for.
+   * Never rendered. What still has to happen before this number is defensible,
+   * for CRITERIA.md and for whoever picks this up after the show.
    */
   internal?: string;
 };
 
-/** Inputs to the leak. What a practice loses. */
+/**
+ * The data team's specialty table, verbatim.
+ *
+ * Only Women's Health is used: this is a women's health show and a specialty
+ * picker would be a screen nobody needs. The rest of the table is here because
+ * the work was done and because taking this to a different show should be a
+ * one-line change rather than a research project.
+ */
+export const SPECIALTIES = {
+  "Women's Health": { revenuePerVisit: 250, patientsPerProviderDay: 20, denialRate: 0.08 },
+  "OB/GYN": { revenuePerVisit: 250, patientsPerProviderDay: 20, denialRate: 0.08 },
+  "Primary Care": { revenuePerVisit: 175, patientsPerProviderDay: 22, denialRate: 0.08 },
+  Pediatrics: { revenuePerVisit: 140, patientsPerProviderDay: 25, denialRate: 0.08 },
+  "Urgent Care": { revenuePerVisit: 200, patientsPerProviderDay: 35, denialRate: 0.08 },
+  "Behavioral Health": { revenuePerVisit: 175, patientsPerProviderDay: 10, denialRate: 0.08 },
+  "Mental Health": { revenuePerVisit: 175, patientsPerProviderDay: 12, denialRate: 0.08 },
+  Orthopedics: { revenuePerVisit: 400, patientsPerProviderDay: 20, denialRate: 0.1 },
+  "General / Not Sure": {
+    revenuePerVisit: 215.56,
+    patientsPerProviderDay: 20.67,
+    denialRate: 0.0822,
+  },
+} as const;
+
+export const SPECIALTY = SPECIALTIES["Women's Health"];
+
+/** Inputs to the leak. What a practice loses today. */
 export const ASSUMPTIONS: Record<string, Constant> = {
   avgVisitRevenue: {
-    value: 145,
-    label: "Net revenue per completed visit",
-    display: "$145",
-    status: "placeholder",
-    source:
-      "Blended office-visit reimbursement. Benchmarked off the CMS Physician Fee Schedule for established-patient E/M, which women's health exceeds once ultrasound and in-office procedures are counted. We ignore that mix and use the lower number.",
-    internal:
-      "Carries the largest component of the leak. Marketing to confirm the blended figure before the show.",
-  },
-  loadedHourlyRate: {
-    value: 26,
-    label: "Loaded front desk hourly cost",
-    display: "$26/hr",
+    value: SPECIALTY.revenuePerVisit,
+    label: "Revenue per completed visit",
+    display: "$250",
     status: "sourced",
     source:
-      "BLS occupational wage for medical secretaries and administrative assistants, loaded roughly 1.3x for payroll tax and benefits.",
+      "Average revenue per visit for women's health, from the MGMA financials and operations benchmarks (S1, S8).",
+  },
+  minutesPerIntakeToday: {
+    value: 17,
+    label: "Front desk minutes per patient on registration today",
+    display: "17 min",
+    status: "sourced",
+    source:
+      "Paper and clipboard intake measured at 15 to 20 minutes per patient in NIH-indexed time studies; the midpoint is used (S5).",
+  },
+  minutesSaved: {
+    value: 12,
+    label: "Of which digital intake removes",
+    display: "12 min",
+    status: "sourced",
+    source:
+      "Digital intake completes in under 3 minutes against 15 to 20 on paper. The benchmark delta for women's health is 12 minutes (S5).",
+  },
+  staffHoursSavedPerFteWeek: {
+    value: 12,
+    label: "Ceiling on hours saved per front desk person per week",
+    display: "12 hrs",
+    status: "sourced",
+    source:
+      "Case studies at Intermountain, Penn Medicine and Mayo report 10 to 15 hours a week per front desk FTE from automating data entry, insurance verification and form scanning (S5).",
+    internal:
+      "Used as a cap rather than as the driver. The per-patient figure scales with volume, which the per-FTE figure does not; capping one with the other keeps a high-volume practice honest and a low-volume one from claiming hours it does not have.",
+  },
+  frontDeskHourlyRate: {
+    value: 22,
+    label: "Front desk hourly rate",
+    display: "$22/hr",
+    status: "sourced",
+    source:
+      "BLS 2024 median wage for medical secretaries and administrative assistants (S7).",
+    internal:
+      "This is the unloaded median, which is what the data team's workbook uses. Loading it for payroll tax and benefits would put it nearer $28 and raise the staff line by a quarter. Ask them which they intended.",
+  },
+  denialRate: {
+    value: SPECIALTY.denialRate,
+    label: "First-pass claim denial rate",
+    display: "8%",
+    status: "sourced",
+    source: "MGMA DataDive Practice Operations, single-specialty aggregate (S1).",
+  },
+  frontEndDenialShare: {
+    value: 0.27,
+    label: "Denials that start at registration",
+    display: "27%",
+    status: "sourced",
+    source:
+      "Share of denials originating in registration and eligibility errors, MGMA via Change Healthcare. 86% of denials are preventable (S2).",
+  },
+  costToRework: {
+    value: 25,
+    label: "Cost to rework one denied claim",
+    display: "$25",
+    status: "sourced",
+    source:
+      "MGMA benchmark, also cited by the AMA and HFMA. Change Healthcare puts it as high as $118 with overhead; the conservative figure is used (S3).",
+  },
+  adminCostPerIntake: {
+    value: 4.9,
+    label: "Paper and admin cost per intake that automation removes",
+    display: "$4.90",
+    status: "sourced",
+    source:
+      "An NIH-indexed study of a five-provider practice measured $19.60 per intake before automation and $14.70 after (S10).",
+    internal:
+      "Only the $4.90 delta is counted, not the $19.60 gross. The gross figure almost certainly contains front desk labour, which is already the staff line, and adding both would double count it. Worth confirming with the data team.",
+  },
+  workingDays: {
+    value: 264,
+    label: "Clinic days a year",
+    display: "264",
+    status: "sourced",
+    source: "22 clinic days a month, from the data team's workbook.",
+    internal:
+      "264 assumes no closures at all. Our own figure was 250. Theirs is used for consistency; it makes every annual number about 6% larger.",
   },
   patientResponsibility: {
     value: 32,
@@ -73,7 +168,8 @@ export const ASSUMPTIONS: Record<string, Constant> = {
     status: "placeholder",
     source:
       "Average copay plus coinsurance and deductible owed by the patient on an office visit.",
-    internal: "Replace with the average off our own book of customers.",
+    internal:
+      "Ours. The workbook has no patient-collection driver at all, so this whole component is unsourced.",
   },
   writeOffRate: {
     value: 0.4,
@@ -81,59 +177,16 @@ export const ASSUMPTIONS: Record<string, Constant> = {
     display: "40%",
     status: "placeholder",
     source:
-      "Share of patient balances not collected at the time of service that are eventually written off rather than recovered by statements or collections.",
-    internal: "Invented. Needs a real write-off rate.",
-  },
-  minutesPerIntake: {
-    value: 14,
-    label: "Front desk minutes per patient on registration",
-    display: "14 min",
-    status: "placeholder",
-    source:
-      "Checking them in, keying the form into the chart, and chasing the coverage. Excludes the patient's own form-filling time.",
-    internal:
-      "Locked at 14 by Logan rather than asked for. It drives both the staff component and a quarter of the score, so it is the highest-leverage constant in the model after the recovery rates.",
-  },
-  reworkRate: {
-    value: 0.05,
-    label: "Claims reworked for registration errors",
-    display: "5%",
-    status: "placeholder",
-    source:
-      "Share of claims needing rework because of a demographic, coverage or eligibility error caught after the fact. Industry initial-denial rates run higher; this counts only the registration-driven slice.",
-    internal:
-      "Needs a citation. Smallest component, so the least urgent of the four.",
-  },
-  costToRework: {
-    value: 25,
-    label: "Cost to rework one claim",
-    display: "$25",
-    status: "sourced",
-    source:
-      "Widely cited per-claim rework cost: staff time to identify, correct and resubmit.",
-  },
-  workingDays: {
-    value: 250,
-    label: "Clinic days per year",
-    display: "250",
-    status: "sourced",
-    source: "Five days a week, less holidays and closures.",
-  },
-  paidHoursPerFte: {
-    value: 2080,
-    label: "Paid hours per front desk FTE",
-    display: "2,080",
-    status: "sourced",
-    source: "Used only to cap the staff-time component. See below.",
+      "Share of balances not collected at the time of service that are eventually written off rather than recovered.",
+    internal: "Ours. Needs a real write-off rate.",
   },
 };
 
 /**
- * Inputs to the ROI. What share of each leak component Yosi actually recovers.
+ * The share of each component we claim to remove.
  *
- * These are the numbers a CFO will push hardest on, and they are the ones we
- * have the least right to guess at. Every one is a placeholder until it comes
- * off our own book of customers.
+ * Three of the five now come from the workbook. The other two are the two
+ * components the workbook does not model at all, so they remain ours.
  */
 export const RECOVERY: Record<CalcComponent["key"], Constant> = {
   missed: {
@@ -142,27 +195,33 @@ export const RECOVERY: Record<CalcComponent["key"], Constant> = {
     display: "35%",
     status: "placeholder",
     source:
-      "Share of no-shows avoided by pre-visit reminders, digital intake completed before arrival, and waitlist backfill.",
+      "Share of no-shows avoided by pre-visit reminders, intake completed before arrival and waitlist backfill.",
     internal:
-      "The single most aggressive number in the model and the first one a CFO will attack. Needs before/after data from real customers.",
+      "Ours, and the single most aggressive number left in the model. The data team's workbook has no no-show driver, which is itself worth asking about: they either could not source one or did not think we should claim it.",
   },
   staff: {
-    value: 0.6,
-    label: "Manual entry removed",
-    display: "60%",
-    status: "placeholder",
+    value: 12 / 17,
+    label: "Registration time removed",
+    display: "71%",
+    status: "sourced",
     source:
-      "Share of front desk registration minutes removed when the patient completes intake before arrival and it writes back to the chart. The remainder is exceptions, walk-ins and the patients who will always need help.",
-    internal: "Should be the easiest to evidence, because we can measure it.",
+      "12 of the 17 minutes a paper intake takes are removed when the patient completes it before arrival and it writes back to the chart (S5).",
   },
-  rework: {
-    value: 0.5,
-    label: "Registration rework avoided",
-    display: "50%",
-    status: "placeholder",
+  denials: {
+    value: 0.7,
+    label: "Registration denials avoided",
+    display: "70%",
+    status: "sourced",
     source:
-      "Share of registration-driven claim rework avoided by verifying eligibility before the visit rather than after.",
-    internal: "Needs a customer denial-rate before/after.",
+      "Reduction in registration-driven denials from verifying eligibility before the visit. The data team's workbook uses 70%; Deloitte puts automated claim scrubbing as high as 85% (S9).",
+  },
+  admin: {
+    value: 1,
+    label: "Paper and admin cost removed",
+    display: "100%",
+    status: "sourced",
+    source:
+      "The $4.90 is already the measured before-and-after difference, so all of it is the saving (S10).",
   },
   collection: {
     value: 0.5,
@@ -170,18 +229,13 @@ export const RECOVERY: Record<CalcComponent["key"], Constant> = {
     display: "50%",
     status: "placeholder",
     source:
-      "Share of the currently-uncollected balance captured when the ask happens on the phone before the visit rather than at the desk.",
-    internal: "Needs a customer collection-rate before/after.",
+      "Share of the currently uncollected balance captured when the ask happens on the phone before the visit rather than at the desk.",
+    internal: "Ours. The workbook has no collection driver.",
   },
 };
 
 /**
- * What a new patient is worth in their first year.
- *
- * The growth half needs one figure the leak half does not: a new patient is
- * not one visit. This is deliberately first-year only. Lifetime value is a
- * bigger, truer and far less defensible number, and at a booth the bigger
- * number is the one that gets you argued with rather than believed.
+ * The growth half. Money that never arrives, rather than money leaking out.
  */
 export const GROWTH = {
   visitsPerNewPatient: {
@@ -190,8 +244,8 @@ export const GROWTH = {
     display: "2.4",
     status: "placeholder" as const,
     source:
-      "A first visit plus the follow-ups it leads to, inside twelve months. Women's health runs higher than this once obstetrics is counted; we use the lower figure.",
-    internal: "Needs a real figure off our own book.",
+      "A first visit plus the follow-ups it leads to, inside twelve months. Deliberately first-year only.",
+    internal: "Ours. Needs a real figure off our own book.",
   },
   reviewUplift: {
     value: 0.08,
@@ -199,9 +253,9 @@ export const GROWTH = {
     display: "8%",
     status: "placeholder" as const,
     source:
-      "Asking every patient for a review after the visit moves the rating and the count, which moves where you rank when somebody searches for a practice near them.",
+      "Asking every patient for a review after the visit moves the rating and the count, which moves where you rank when somebody searches for a practice nearby.",
     internal:
-      "The softest number in the model. It chains through local search ranking, which we do not control and cannot measure directly. Treat as directional until somebody has before-and-after data.",
+      "Ours, and the softest number in the model. It chains through local search ranking, which we neither control nor measure.",
   },
   bookingUplift: {
     value: 0.12,
@@ -210,12 +264,29 @@ export const GROWTH = {
     status: "placeholder" as const,
     source:
       "Share of people who find you and then give up because booking means phoning during office hours.",
-    internal: "Needs a real drop-off figure. Should be measurable from our own booking funnel.",
+    internal: "Ours. Should be measurable from our own booking funnel.",
+  },
+  capacityConversion: {
+    value: 0.3,
+    label: "Freed front desk time that becomes new appointments",
+    display: "30%",
+    status: "sourced" as const,
+    source:
+      "The data team's workbook converts 30% of freed staff time into additional visits at half an hour each. Their own note calls this a ceiling rather than a promise.",
+    internal:
+      "Implemented as given, but flag it: freed FRONT DESK hours do not create PROVIDER capacity, and the constraint on seeing more patients is the provider. This is the line most likely to be challenged, and their README already says to present it as a ceiling.",
+  },
+  minutesPerAppointment: {
+    value: 30,
+    label: "Provider time per additional appointment",
+    display: "30 min",
+    status: "sourced" as const,
+    source: "Half an hour a visit, from the data team's workbook.",
   },
 };
 
 export type CalcComponent = {
-  key: "missed" | "staff" | "rework" | "collection";
+  key: "missed" | "staff" | "denials" | "admin" | "collection";
   label: string;
   amount: number;
   formula: string;
@@ -225,11 +296,9 @@ export type CalcComponent = {
 export type CalcResult = {
   inputs: CalcInputs;
   visitsPerYear: number;
+  keptVisits: number;
   components: CalcComponent[];
   total: number;
-  /** Staff component as a share of the front desk's total paid hours. */
-  staffShareOfPayroll: number;
-  staffCapped: boolean;
   assumptions: typeof ASSUMPTIONS;
 };
 
@@ -263,26 +332,28 @@ export function calculate(rawInputs: Partial<CalcInputs>): CalcResult {
   const inputs = clampInputs(rawInputs);
   const A = ASSUMPTIONS;
   const visitsPerYear = inputs.patientsPerDay * A.workingDays.value;
+  // Only the visits that happen generate a claim, a form or a balance.
+  const keptVisits = visitsPerYear * (1 - inputs.noShowRate);
 
   const missed = visitsPerYear * inputs.noShowRate * A.avgVisitRevenue.value;
 
-  const staffRaw =
-    (A.minutesPerIntake.value / 60) * visitsPerYear * A.loadedHourlyRate.value;
-  // You cannot save more front desk time than the front desk is paid for. The
-  // headcount input exists to enforce that ceiling. Without it, a big practice
-  // with a small desk produces a number that a CFO throws out on sight.
-  const staffCap =
-    inputs.frontDeskStaff * A.paidHoursPerFte.value * A.loadedHourlyRate.value;
-  const staff = Math.min(staffRaw, staffCap);
-  const staffCapped = staffRaw > staffCap;
+  const staff =
+    (A.minutesPerIntakeToday.value / 60) *
+    keptVisits *
+    A.frontDeskHourlyRate.value;
 
-  const rework = visitsPerYear * A.reworkRate.value * A.costToRework.value;
+  const denials =
+    keptVisits *
+    A.denialRate.value *
+    A.frontEndDenialShare.value *
+    A.costToRework.value;
 
-  // Only the visits that actually happen owe anything.
-  const keptVisits = visitsPerYear * (1 - inputs.noShowRate);
+  const admin = keptVisits * A.adminCostPerIntake.value;
+
   const owed = keptVisits * A.patientResponsibility.value;
-  const collection =
-    owed * (1 - inputs.collectedRate) * A.writeOffRate.value;
+  const collection = owed * (1 - inputs.collectedRate) * A.writeOffRate.value;
+
+  const visits = Math.round(keptVisits).toLocaleString("en-US");
 
   const components: CalcComponent[] = [
     {
@@ -290,40 +361,44 @@ export function calculate(rawInputs: Partial<CalcInputs>): CalcResult {
       label: "Missed visit revenue",
       amount: missed,
       formula: `${inputs.patientsPerDay}/day × ${A.workingDays.display} days × ${pct(inputs.noShowRate)} no-show × ${A.avgVisitRevenue.display}`,
-      note: "Appointments that never happened. Reminders and pre-visit intake are what move this.",
+      note: "Appointments that never happened. Reminders and intake finished before arrival are what move this.",
     },
     {
       key: "staff",
-      label: "Front desk time on manual entry",
+      label: "Front desk time on registration",
       amount: staff,
-      formula: `${A.minutesPerIntake.display} × ${inputs.patientsPerDay}/day × ${A.workingDays.display} days × ${A.loadedHourlyRate.display}`,
-      note: staffCapped
-        ? `Capped at ${inputs.frontDeskStaff} FTE of paid hours. The raw figure exceeded what your desk is paid for.`
-        : "Hours your desk spends keying in what the patient already wrote down.",
+      formula: `${A.minutesPerIntakeToday.display} × ${visits} visits × ${A.frontDeskHourlyRate.display}`,
+      note: "Hours your desk spends checking patients in and keying in what they already wrote down.",
     },
     {
-      key: "rework",
-      label: "Claim rework from intake errors",
-      amount: rework,
-      formula: `${inputs.patientsPerDay}/day × ${A.workingDays.display} days × ${A.reworkRate.display} × ${A.costToRework.display}`,
-      note: "Denials traced back to a bad demographic or an unverified plan.",
+      key: "admin",
+      label: "Paper, printing and scanning",
+      amount: admin,
+      formula: `${visits} visits × ${A.adminCostPerIntake.display}`,
+      note: "The measured difference between running an intake on paper and running it digitally.",
     },
     {
       key: "collection",
       label: "Patient balances written off",
       amount: collection,
-      formula: `${Math.round(keptVisits).toLocaleString("en-US")} visits × ${A.patientResponsibility.display} × ${pct(1 - inputs.collectedRate)} uncollected × ${A.writeOffRate.display}`,
+      formula: `${visits} visits × ${A.patientResponsibility.display} × ${pct(1 - inputs.collectedRate)} uncollected × ${A.writeOffRate.display}`,
       note: "What is owed at the desk, not collected at the desk, and never recovered.",
+    },
+    {
+      key: "denials",
+      label: "Claim rework from registration errors",
+      amount: denials,
+      formula: `${visits} claims × ${A.denialRate.display} denied × ${A.frontEndDenialShare.display} from registration × ${A.costToRework.display}`,
+      note: "Denials traced back to a bad demographic or an unverified plan.",
     },
   ];
 
   return {
     inputs,
     visitsPerYear,
+    keptVisits,
     components,
     total: components.reduce((s, c) => s + c.amount, 0),
-    staffShareOfPayroll: staff / staffCap,
-    staffCapped,
     assumptions: A,
   };
 }
@@ -338,8 +413,7 @@ export function calculate(rawInputs: Partial<CalcInputs>): CalcResult {
 // and a buyer who conflates them stops believing both.
 //
 // Neither is netted against what Yosi costs. Price is a conversation to have
-// with a number in front of you, not a variable to bury inside one, and a
-// booth is the wrong place to have it.
+// with a number in front of you, not a variable to bury inside one.
 // ---------------------------------------------------------------------------
 
 export type ValueLine = {
@@ -347,18 +421,56 @@ export type ValueLine = {
   label: string;
   basis: string;
   amount: number;
+  capped?: boolean;
 };
 
-export type RecoveryResult = { lines: ValueLine[]; total: number };
+export type RecoveryResult = {
+  lines: ValueLine[];
+  total: number;
+  /** Front desk hours a year the staff line actually frees. */
+  hoursFreed: number;
+  staffCapped: boolean;
+};
 
 export function recovery(result: CalcResult): RecoveryResult {
-  const lines: ValueLine[] = result.components.map((c) => ({
-    key: c.key,
-    label: RECOVERY[c.key].label,
-    basis: `${pct(RECOVERY[c.key].value)} of ${usd(c.amount)}`,
-    amount: c.amount * RECOVERY[c.key].value,
-  }));
-  return { lines, total: lines.reduce((s, l) => s + l.amount, 0) };
+  const A = ASSUMPTIONS;
+  const { inputs, keptVisits } = result;
+
+  // The per-patient figure scales with volume; the per-FTE ceiling does not.
+  // Capping one with the other stops a high-volume practice from claiming more
+  // hours than its desk works, which is the first thing a CFO checks.
+  const rawHours = (A.minutesSaved.value / 60) * keptVisits;
+  const capHours =
+    A.staffHoursSavedPerFteWeek.value * 52 * inputs.frontDeskStaff;
+  const hoursFreed = Math.min(rawHours, capHours);
+  const staffCapped = rawHours > capHours;
+
+  const lines: ValueLine[] = result.components.map((c) => {
+    if (c.key === "staff") {
+      return {
+        key: c.key,
+        label: RECOVERY.staff.label,
+        basis: staffCapped
+          ? `${Math.round(hoursFreed).toLocaleString("en-US")} hrs, capped at ${A.staffHoursSavedPerFteWeek.display}/week for ${inputs.frontDeskStaff} people`
+          : `${A.minutesSaved.display} of ${A.minutesPerIntakeToday.display} per patient`,
+        amount: hoursFreed * A.frontDeskHourlyRate.value,
+        capped: staffCapped,
+      };
+    }
+    return {
+      key: c.key,
+      label: RECOVERY[c.key].label,
+      basis: `${pct(RECOVERY[c.key].value)} of ${usd(c.amount)}`,
+      amount: c.amount * RECOVERY[c.key].value,
+    };
+  });
+
+  return {
+    lines,
+    total: lines.reduce((s, l) => s + l.amount, 0),
+    hoursFreed,
+    staffCapped,
+  };
 }
 
 export type GrowthContext = {
@@ -372,16 +484,22 @@ export type GrowthResult = {
   lines: ValueLine[];
   total: number;
   newPatientValue: number;
-  /** True when they already do both and there is nothing here to win. */
+  /** True when there is nothing here to win. */
   alreadyDoing: boolean;
 };
 
 /**
- * New patients they are not getting.
+ * Money that never arrives.
  *
- * Only the gap is counted. A practice that already asks for reviews and
- * already takes online bookings gets nothing here and is told so, which is the
- * whole reason the number is worth reading when it is not zero.
+ * Three lines. The capacity one is the data team's, and it is the largest and
+ * the shakiest: it converts freed FRONT DESK hours into PROVIDER appointments,
+ * and the constraint on seeing more patients is the provider. Their own note
+ * calls it a ceiling rather than a promise, and the screen says so.
+ *
+ * The two reach lines are only counted where there is a gap. A practice that
+ * already asks for reviews and already takes bookings online gets neither, and
+ * is told so, which is the whole reason the number is worth reading when it is
+ * not zero.
  */
 export function growth(
   result: CalcResult,
@@ -393,6 +511,20 @@ export function growth(
     GROWTH.visitsPerNewPatient.value * A.avgVisitRevenue.value;
 
   const lines: ValueLine[] = [];
+
+  const { hoursFreed } = recovery(result);
+  const extraAppointments =
+    (hoursFreed * GROWTH.capacityConversion.value) /
+    (GROWTH.minutesPerAppointment.value / 60);
+  if (extraAppointments >= 1) {
+    lines.push({
+      key: "capacity",
+      label: "Appointments you'd have room for",
+      basis: `${Math.round(hoursFreed).toLocaleString("en-US")} front desk hrs freed × ${GROWTH.capacityConversion.display} ÷ ${GROWTH.minutesPerAppointment.display} × ${A.avgVisitRevenue.display}`,
+      amount: extraAppointments * A.avgVisitRevenue.value,
+    });
+  }
+
   if (!ctx.asksForReviews) {
     lines.push({
       key: "reviews",
@@ -418,31 +550,22 @@ export function growth(
   };
 }
 
-/**
- * Role changes what gets read first, not what the number is.
- *
- * Weighting the *total* by who is answering is the fastest way to earn the
- * "sales toy" label the calculator is supposed to avoid, because two people at the
- * same practice would get two different answers and neither would trust
- * either. So role reorders the components and writes the lead line; the
- * arithmetic is identical for everyone.
- */
 export const ROLE_EMPHASIS: Record<
   string,
   { order: CalcComponent["key"][]; owns: CalcComponent["key"]; owner: string }
 > = {
   billing: {
-    order: ["rework", "collection", "missed", "staff"],
-    owns: "rework",
+    order: ["denials", "collection", "missed", "staff", "admin"],
+    owns: "denials",
     owner: "lands in your AR",
   },
   frontdesk: {
-    order: ["staff", "missed", "collection", "rework"],
+    order: ["staff", "admin", "missed", "collection", "denials"],
     owns: "staff",
     owner: "is hours at your desk",
   },
   owner: {
-    order: ["missed", "collection", "rework", "staff"],
+    order: ["missed", "collection", "staff", "admin", "denials"],
     owns: "missed",
     owner: "is revenue that never posted",
   },
@@ -478,7 +601,7 @@ export function roleLead(
   const share = Math.round((mine.amount / result.total) * 100);
 
   if (biggest.key === emphasis.owns) {
-    return `${usd(mine.amount)} of it ${emphasis.owner}, the largest of the four.`;
+    return `${usd(mine.amount)} of it ${emphasis.owner}, the largest of the five.`;
   }
   return `${usd(mine.amount)} of it ${emphasis.owner}, about ${share}%. The bigger driver is ${biggest.label.toLowerCase()}.`;
 }

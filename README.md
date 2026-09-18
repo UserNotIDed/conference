@@ -62,17 +62,18 @@ Four components, summed. Every constant is printed next to the figure it
 produced, tagged **Ours** or **Sourced**.
 
 ```
-missed     = patients/day × clinic days × no-show rate × net revenue per visit
-staff      = 14 min ÷ 60 × patients/day × clinic days × loaded hourly rate
-             capped at: headcount × paid hours per FTE × loaded hourly rate
-rework     = patients/day × clinic days × rework rate × cost to rework a claim
+missed     = patients/day × clinic days × no-show rate × revenue per visit
+staff      = 17 min ÷ 60 × kept visits × front desk hourly rate
+admin      = kept visits × paper and admin cost removed per intake
 collection = kept visits × patient responsibility
              × (1 − collected up front) × write-off rate
+denials    = kept visits × denial rate × front-end share × cost to rework
 ```
 
-The cap on `staff` exists because you cannot save more front desk time than the
-front desk is paid for. Without it, a high-volume practice with a small desk
-produces a figure a CFO throws out on sight.
+Most of those constants come from the data team's benchmark workbook
+(September 2026), which cites MGMA, BLS, HFMA and NIH-indexed studies. No-shows
+and patient collections are the two components it does not model, so those are
+still ours and are tagged that way on the prospect's screen.
 
 ### What fixing it is worth
 
@@ -81,10 +82,22 @@ Two halves that do different jobs and are never added together on screen.
 ```
 recovered = Σ (each leak component × its recovery rate)
 
-growth    = new patients/year × uplift × (visits per new patient × net revenue)
-            reviews  uplift counted only if nobody asks for reviews today
-            booking  uplift counted only if patients cannot book online today
+growth    = capacity: front desk hours freed × 30% ÷ 30 min × revenue/visit
+          + reviews:  new patients/yr × 8%  × (2.4 visits × revenue/visit)
+          + booking:  new patients/yr × 12% × (2.4 visits × revenue/visit)
+
+            capacity always counted; the other two only where there is a gap
 ```
+
+The staff recovery is capped at the workbook's per-FTE ceiling (12 hrs a week
+each). The per-patient figure scales with volume and the per-FTE one does not,
+so capping one with the other stops a high-volume practice from claiming more
+hours than its desk actually works.
+
+The capacity line is the data team's and it is the largest single figure on the
+screen. It converts freed **front desk** hours into **provider** appointments,
+and the constraint on seeing more patients is the provider. Their own README
+calls it a ceiling rather than a promise, and the screen says so.
 
 Recovery is money leaking out of an operation that already exists. Growth is
 money the practice has never earned. One is an argument about waste and the

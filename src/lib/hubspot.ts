@@ -251,8 +251,15 @@ export const PROPERTIES: PropertyDef[] = [
     note: "Also the best single field to segment on: a big number here is an operations conversation.",
   },
   {
-    name: "booth_leak_rework",
-    label: "Booth: leak: claim rework ($)",
+    name: "booth_leak_denials",
+    label: "Booth: leak: registration denials ($)",
+    type: "number",
+    form: "diagnosis",
+    note: "",
+  },
+  {
+    name: "booth_leak_admin",
+    label: "Booth: leak: paper and admin ($)",
     type: "number",
     form: "diagnosis",
     note: "",
@@ -448,4 +455,4 @@ export function csvRow(row: Row): string[] {
 }
 
 /** The one assumption the follow-up email has to restate. */
-export const LOCKED_MINUTES = ASSUMPTIONS.minutesPerIntake.display;
+export const LOCKED_MINUTES = ASSUMPTIONS.minutesPerIntakeToday.display;

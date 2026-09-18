@@ -43,19 +43,26 @@ type Row = {
 const NONE = "already sourced";
 
 const OWNER = {
-  avgVisitRevenue: "Marketing",
-  loadedHourlyRate: NONE,
+  avgVisitRevenue: NONE,
+  minutesPerIntakeToday: NONE,
+  minutesSaved: NONE,
+  staffHoursSavedPerFteWeek: NONE,
+  frontDeskHourlyRate: NONE,
+  denialRate: NONE,
+  frontEndDenialShare: NONE,
+  adminCostPerIntake: NONE,
   patientResponsibility: "RCM",
   writeOffRate: "RCM",
-  reworkRate: "RCM",
   costToRework: NONE,
   workingDays: NONE,
-  paidHoursPerFte: NONE,
   missed: "Customer success",
-  staff: "Customer success",
-  rework: "Customer success",
+  denials: NONE,
+  admin: NONE,
+  staff: NONE,
   collection: "Customer success",
   visitsPerNewPatient: "RCM",
+  capacityConversion: NONE,
+  minutesPerAppointment: NONE,
   reviewUplift: "Marketing",
   bookingUplift: "Customer success",
 } as const;
@@ -140,9 +147,43 @@ const doc = `# Practice health check: criteria to validate
 \`src/lib/calc.ts\` and \`src/lib/score.ts\` and regenerate, or this sheet and the
 app will disagree.*
 
-Everything marked **⚠️ Ours** is a number we made up so the screens would work.
-It is on the attendee's phone, under "What are we assuming?", tagged as ours,
-so it is arguable in public, which is the point. It still has to be right.
+Most of the model now comes from the data team's benchmark workbook (September
+2026), which cites MGMA, BLS, HFMA and NIH-indexed studies and deliberately
+excludes every competitor. Those constants are marked **Sourced** with their
+source key.
+
+Everything still marked **⚠️ Ours** is a number we made up so the screens would
+work. It is on the attendee's phone, under "What are we assuming?", tagged as
+ours, so it is arguable in public, which is the point. It still has to be right.
+
+## What the workbook does not cover
+
+Three things in the app have no benchmark behind them, and two of them are
+load-bearing.
+
+1. **No-shows.** The workbook has no no-show driver at all. It is the largest
+   single component of the leak and its 35% recovery rate is ours. Worth asking
+   the data team whether they could not source one or decided we should not
+   claim it.
+2. **Patient collections.** No driver in the workbook either. The whole
+   component is ours.
+3. **Reviews and online booking.** Ours. The workbook's growth driver is
+   capacity, not reach.
+
+## Two things to put back to the data team
+
+- **The hourly rate is unloaded.** $22 is the BLS median wage. Loading it for
+  payroll tax and benefits puts it nearer $28 and raises the staff line by
+  about a quarter. Which did they intend?
+- **The $19.60 per intake almost certainly contains labour**, which is already
+  the staff line. We count only the $4.90 before-and-after delta so the two
+  cannot double count, but that means we are not using their largest driver at
+  full weight. Confirm that is right.
+- **The capacity line converts front desk hours into provider appointments.**
+  Freed reception time does not create clinical capacity; the constraint on
+  seeing more patients is the provider. Their own README calls this a ceiling
+  rather than a promise, and the screen says so, but the arithmetic still
+  treats one hour of reception time as one hour of appointment slots.
 
 ---
 
@@ -150,7 +191,7 @@ so it is arguable in public, which is the point. It still has to be right.
 
 Four sliders, section 3. Nothing else is asked, and nothing is looked up.
 Minutes per patient on registration is **not** asked. It is locked at
-\`${ASSUMPTIONS.minutesPerIntake.display}\` and printed in the assumptions.
+\`${ASSUMPTIONS.minutesPerIntakeToday.display}\` and printed in the assumptions.
 
 | Input | Range | Used by |
 | --- | --- | --- |
@@ -218,7 +259,7 @@ Four dimensions, each scored 0–100 from an answer they gave, then weighted.
 | Money collected up front | ${WEIGHTS.collection}% | Share collected before or at the visit | ${Math.round(BANDS.collected.best * 100)}% | ${Math.round(BANDS.collected.worst * 100)}% |
 
 Between the two ends, straight line. Registration minutes per person per day is
-\`patients/day × ${ASSUMPTIONS.minutesPerIntake.value} minutes ÷ headcount\`.
+\`patients/day × ${ASSUMPTIONS.minutesPerIntakeToday.value} minutes ÷ headcount\`.
 
 ### How intake gets done, scored
 
@@ -272,15 +313,20 @@ ${worked()}
 
 ## 5 · What we need back
 
-1. **The four recovery rates.** Highest priority: they are the entire ROI half
-   and none of them is evidenced. No-shows first; it is the largest and the
-   least defensible.
-2. **Net revenue per completed visit.** Carries the largest single component of
-   the leak.
-3. **Patient responsibility per visit** and the **write-off rate**.
-4. **Price.** Whatever the ROI should be divided by.
-5. **The weights and bands in section 3.** Argue with them, because they were set to
-   produce sensible-looking scores, which is not the same as being right.
+1. **A no-show recovery rate, or a decision not to claim one.** It is the
+   largest component of the leak and the only recovery rate still invented.
+2. **Patient responsibility per visit** and the **write-off rate**, or a
+   decision to drop that component.
+3. **Answers to the three questions above** about the hourly rate, the $19.60,
+   and the capacity conversion.
+4. **The weights and bands in section 3.** Argue with them, because they were
+   set to produce sensible-looking scores, which is not the same as being
+   right.
+5. **The three growth constants.** Visits per new patient, and the review and
+   booking uplifts.
+
+Nothing here needs a price. Cost was removed from the model deliberately: a
+booth is the wrong place to divide by it.
 
 Anything you change, change it in \`src/lib/calc.ts\` or \`src/lib/score.ts\` and
 run \`npm run criteria\`. The prospect's screen, the follow-up and this sheet all
