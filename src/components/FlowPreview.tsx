@@ -64,14 +64,14 @@ const SCREENS: Entry[] = [
     answered: true,
     label: "Practice health score",
     group: "diagnosis",
-    note: "Ring, band, four weighted dimensions, the scoring.",
+    note: "Ring, band, five weighted dimensions, the scoring.",
   },
   {
     id: "money",
     answered: true,
-    label: "Leak and ROI",
+    label: "What Yosi puts back",
     group: "diagnosis",
-    note: "Four leak components, what we recover, what we cost.",
+    note: "The claim, the leak behind it, the working folded away.",
   },
   {
     id: "booking",

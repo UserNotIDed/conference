@@ -18,7 +18,7 @@ Port 4000 is pinned in both `package.json` and `.claude/launch.json`
 A conference booth demo for USWHA, framed as **"check the health of your
 practice"**. The prospect answers about their own practice. There is no patient
 roleplay and nothing is simulated. Every answer is a lead field. It ends with a
-practice health score, an annual leak figure, an ROI, and a booking CTA.
+practice health score, a figure for what Yosi puts back, and a booking CTA.
 
 This repo is standalone; the patient prototype lives separately in the
 Health-Passport repo and nothing here depends on it.
@@ -85,14 +85,13 @@ Health-Passport repo and nothing here depends on it.
   real values to argue with, and `{{ contact.booth_* }}` tokens to paste in.
   Any figure the email shows has to exist as a property in `hubspot.ts`.
 - **Links always start at screen one.** `?resume=1` opts into resuming.
-- **No delivery promise on the charger.**
 
 ## Where things live
 
 | File | What |
 |---|---|
 | `src/lib/flow-content.ts` | Every word, in screen order. Edit copy here. |
-| `src/lib/calc.ts` | The leak and the ROI. Constants, formulas, recovery rates, price. |
+| `src/lib/calc.ts` | The leak, the recovery and the no-show upside. Constants and formulas. |
 | `src/lib/score.ts` | The practice health score: weights, bands, posture. |
 | `scripts/criteria.ts` | Generates `CRITERIA.md` from those two. `npm run criteria`. |
 | `scripts/hubspot-setup.ts` | Generates `HUBSPOT-SETUP.md`. `npm run hubspot`. |
@@ -114,8 +113,8 @@ Health-Passport repo and nothing here depends on it.
    no-show, headcount, patients per FTE). Somebody has to actually send it.
 3. **Every placeholder in `CRITERIA.md`.** That sheet is generated from the
    code, lists what each number is, who owns it and what it needs. The four
-   recovery rates and the price are the ones that gate the ROI claim; the score
-   weights and bands are invented outright.
+   patient-collection constants are the last unbenchmarked lines in the leak;
+   the score weights and bands are invented outright.
 4. **The two HubSpot form GUIDs.** `HUBSPOT_FORM_LEAD` and
    `HUBSPOT_FORM_DIAGNOSIS`. `/admin` shows both as "not set" until they are,
    and the mapping and payloads are already visible there without them.

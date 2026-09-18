@@ -237,32 +237,50 @@ counting a complaint about them again would score the same problem twice.
 ### The leak: four components, summed
 
 \`\`\`
-missed     = patients/day × clinic days × no-show rate × net revenue per visit
-staff      = minutes each ÷ 60 × patients/day × clinic days × loaded hourly rate
-             capped at: headcount × paid hours per FTE × loaded hourly rate
-rework     = patients/day × clinic days × rework rate × cost to rework one claim
+staff      = 17 min ÷ 60 × kept visits × front desk hourly rate
+admin      = kept visits × paper and admin cost removed per intake
 collection = kept visits × patient responsibility
              × (1 − collected up front) × write-off rate
+denials    = kept visits × denial rate × front-end share × cost to rework
 
 kept visits = patients/day × clinic days × (1 − no-show rate)
 \`\`\`
 
-The cap on \`staff\` exists because you cannot save more front desk time than
-the front desk is paid for. Without it, a high-volume practice with a small desk
-produces a figure a CFO throws out on sight.
+No-shows are **not** in there. They used to be, at roughly three quarters of
+the total, and they were the component we could evidence least, so the leak was
+dominated by the number we had the weakest claim on. They are costed separately
+now, on their own card, with no recovery rate attached. See below.
 
-### The return
+### What we put back
 
 \`\`\`
 recovered = Σ (each leak component × its recovery rate)
-cost      = platform fee × 12  +  completed intakes × per-intake price
-net       = recovered − cost
-multiple  = recovered ÷ cost          (gross, not net; the screen says so)
-payback   = cost ÷ (recovered ÷ 12)   months
+
+hours     = 12 min ÷ 60 × kept visits
+            capped at 12 hrs/week per front desk person
 \`\`\`
 
-Completed intakes, not booked visits, because a patient who no-shows does not fill in
-a form, so we do not bill for one.
+The cap exists because the per-patient figure scales with volume and the
+per-FTE benchmark does not. Capping one with the other stops a high-volume
+practice from claiming more hours back than its desk actually works, which is
+the first thing anyone checks.
+
+**Nothing is netted off for what Yosi costs.** Price is a conversation to have
+with a number in front of you, not a variable buried inside one.
+
+### Shown but never claimed from
+
+\`\`\`
+no-show cost = patients/day × clinic days × no-show rate × revenue per visit
+\`\`\`
+
+Stated as a cost, with no recovery percentage. The cost is arithmetic on their
+own no-show rate and is not arguable; a recovery rate would have been. It is
+the opening for scheduling and reminders rather than for intake, and it is
+usually the largest figure on their screen.
+
+The two reach gaps, reviews and online booking, are named the same way and
+carry no figure at all.
 
 ${table("Constants in the leak", ASSUMPTIONS as unknown as Record<string, Row>, "What we add to their answers to turn them into money.")}
 ${table("Recovery rates", RECOVERY as unknown as Record<string, Row>, "The share of each component we claim to recover. **These are the numbers a CFO will attack.** Every one is invented today.")}
