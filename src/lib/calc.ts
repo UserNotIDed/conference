@@ -117,7 +117,7 @@ export const ASSUMPTIONS: Record<string, Constant> = {
     source:
       "BLS 2024 median wage for medical secretaries and administrative assistants (S7).",
     internal:
-      "This is the unloaded median, which is what the data team's workbook uses. Loading it for payroll tax and benefits would put it nearer $28 and raise the staff line by a quarter. Ask them which they intended.",
+      "The unloaded BLS median, as the workbook uses it. Settled: we stay unloaded. Loading for payroll tax and benefits would put it near $28 and raise the staff line by about a quarter, so this is the conservative reading.",
   },
   denialRate: {
     value: SPECIALTY.denialRate,
@@ -148,9 +148,9 @@ export const ASSUMPTIONS: Record<string, Constant> = {
     display: "$4.90",
     status: "sourced",
     source:
-      "An NIH-indexed study of a five-provider practice measured $19.60 per intake before automation and $14.70 after (S10).",
+      "An NIH-indexed study of a five-provider practice measured $19.60 per intake before automation and $14.70 after. The $4.90 difference is the saving (S10).",
     internal:
-      "Only the $4.90 delta is counted, not the $19.60 gross. The gross figure almost certainly contains front desk labour, which is already the staff line, and adding both would double count it. Worth confirming with the data team.",
+      "This is the data team's driver 3 at full weight: their workbook uses the $4.90 delta, not the $19.60 gross, and so do we. Counting the gross would double count front desk labour, which is already the staff line. Nothing is being held back here.",
   },
   workingDays: {
     value: 264,
@@ -162,23 +162,24 @@ export const ASSUMPTIONS: Record<string, Constant> = {
       "264 assumes no closures at all. Our own figure was 250. Theirs is used for consistency; it makes every annual number about 6% larger.",
   },
   patientResponsibility: {
-    value: 32,
+    value: 30,
     label: "Patient responsibility per visit",
-    display: "$32",
+    display: "$30",
     status: "placeholder",
     source:
-      "Average copay plus coinsurance and deductible owed by the patient on an office visit.",
+      "What the patient owes at an office visit. Employer-plan copays for a specialist visit sit in the $30 to $45 range and primary care lower; we use a figure at the bottom of that and ignore coinsurance and deductibles entirely, so the real number is higher.",
     internal:
-      "Ours. The workbook has no patient-collection driver at all, so this whole component is unsourced.",
+      "Our estimate. The workbook has no patient-collection driver. Deliberately set below typical specialist copays so the component under-reads rather than over-reads.",
   },
   writeOffRate: {
-    value: 0.4,
+    value: 0.3,
     label: "Uncollected balance never recovered",
-    display: "40%",
+    display: "30%",
     status: "placeholder",
     source:
-      "Share of balances not collected at the time of service that are eventually written off rather than recovered.",
-    internal: "Ours. Needs a real write-off rate.",
+      "Once a patient has left, the balance gets harder to collect with every week that passes. This is the share that is eventually written off rather than recovered by statements or collections.",
+    internal:
+      "Our estimate, and deliberately conservative: the commonly quoted figures for patient balances that go uncollected are higher than this.",
   },
 };
 
@@ -190,14 +191,14 @@ export const ASSUMPTIONS: Record<string, Constant> = {
  */
 export const RECOVERY: Record<CalcComponent["key"], Constant> = {
   missed: {
-    value: 0.35,
+    value: 0.2,
     label: "No-shows recovered",
-    display: "35%",
+    display: "20%",
     status: "placeholder",
     source:
-      "Share of no-shows avoided by pre-visit reminders, intake completed before arrival and waitlist backfill.",
+      "Automated reminders and intake finished before arrival reduce non-attendance. Controlled trials of appointment reminders report larger reductions than this; a fifth is at the cautious end of that range and assumes you already do something today.",
     internal:
-      "Ours, and the single most aggressive number left in the model. The data team's workbook has no no-show driver, which is itself worth asking about: they either could not source one or did not think we should claim it.",
+      "Our estimate, down from 35%. The workbook has no no-show driver. Set below the published range on purpose: it is the largest component of the leak, so it is the number most likely to be challenged, and under-claiming costs us less than over-claiming.",
   },
   staff: {
     value: 12 / 17,
@@ -224,64 +225,44 @@ export const RECOVERY: Record<CalcComponent["key"], Constant> = {
       "The $4.90 is already the measured before-and-after difference, so all of it is the saving (S10).",
   },
   collection: {
-    value: 0.5,
+    value: 0.4,
     label: "Patient balance recovered",
-    display: "50%",
+    display: "40%",
     status: "placeholder",
     source:
-      "Share of the currently uncollected balance captured when the ask happens on the phone before the visit rather than at the desk.",
-    internal: "Ours. The workbook has no collection driver.",
+      "Share of the currently uncollected balance captured when the ask happens on the phone before the visit, rather than at a desk with a queue behind it.",
+    internal:
+      "Our estimate, down from 50%. The workbook has no collection driver.",
   },
 };
 
 /**
- * The growth half. Money that never arrives, rather than money leaking out.
+ * What else is on the table.
+ *
+ * No dollar figures here any more, on purpose.
+ *
+ * There were three: a conversion of freed front desk hours into provider
+ * appointments, and two for reviews and online booking. The first turned
+ * reception time into clinical capacity, which is not how a clinic is
+ * constrained, and the workbook's own note called it a ceiling rather than a
+ * promise. The other two chained through local search ranking, which we
+ * neither control nor measure. All three were the biggest numbers on the
+ * screen and the easiest to argue with, which is the worst combination a
+ * booth can have.
+ *
+ * What is left is the hours, which are measured, and the two gaps, which are
+ * facts about their practice rather than claims about ours. A named
+ * opportunity with no price on it survives scrutiny; a large invented number
+ * takes the sourced ones down with it.
  */
 export const GROWTH = {
-  visitsPerNewPatient: {
-    value: 2.4,
-    label: "Visits from a new patient in year one",
-    display: "2.4",
-    status: "placeholder" as const,
-    source:
-      "A first visit plus the follow-ups it leads to, inside twelve months. Deliberately first-year only.",
-    internal: "Ours. Needs a real figure off our own book.",
-  },
-  reviewUplift: {
-    value: 0.08,
-    label: "More new patients from a better review profile",
-    display: "8%",
-    status: "placeholder" as const,
-    source:
-      "Asking every patient for a review after the visit moves the rating and the count, which moves where you rank when somebody searches for a practice nearby.",
-    internal:
-      "Ours, and the softest number in the model. It chains through local search ranking, which we neither control nor measure.",
-  },
-  bookingUplift: {
-    value: 0.12,
-    label: "More new patients from online booking",
-    display: "12%",
-    status: "placeholder" as const,
-    source:
-      "Share of people who find you and then give up because booking means phoning during office hours.",
-    internal: "Ours. Should be measurable from our own booking funnel.",
-  },
-  capacityConversion: {
-    value: 0.3,
-    label: "Freed front desk time that becomes new appointments",
-    display: "30%",
+  staffHoursNote: {
+    value: 0,
+    label: "Freed front desk hours",
+    display: "hours, not dollars",
     status: "sourced" as const,
     source:
-      "The data team's workbook converts 30% of freed staff time into additional visits at half an hour each. Their own note calls this a ceiling rather than a promise.",
-    internal:
-      "Implemented as given, but flag it: freed FRONT DESK hours do not create PROVIDER capacity, and the constraint on seeing more patients is the provider. This is the line most likely to be challenged, and their README already says to present it as a ceiling.",
-  },
-  minutesPerAppointment: {
-    value: 30,
-    label: "Provider time per additional appointment",
-    display: "30 min",
-    status: "sourced" as const,
-    source: "Half an hour a visit, from the data team's workbook.",
+      "We report the hours the desk gets back and stop there. What a practice does with them, whether that is more appointments, shorter queues or going home on time, is their call and not a number we should be putting on their screen.",
   },
 };
 
@@ -480,73 +461,47 @@ export type GrowthContext = {
   asksForReviews?: boolean;
 };
 
+export type GrowthOpportunity = { key: string; label: string; note: string };
+
 export type GrowthResult = {
-  lines: ValueLine[];
-  total: number;
-  newPatientValue: number;
+  /** Front desk hours a year the recovery frees up. Measured, not converted. */
+  hoursFreed: number;
+  /** Named, unpriced. */
+  opportunities: GrowthOpportunity[];
   /** True when there is nothing here to win. */
   alreadyDoing: boolean;
 };
 
 /**
- * Money that never arrives.
+ * The two gaps, named and not priced.
  *
- * Three lines. The capacity one is the data team's, and it is the largest and
- * the shakiest: it converts freed FRONT DESK hours into PROVIDER appointments,
- * and the constraint on seeing more patients is the provider. Their own note
- * calls it a ceiling rather than a promise, and the screen says so.
- *
- * The two reach lines are only counted where there is a gap. A practice that
- * already asks for reviews and already takes bookings online gets neither, and
- * is told so, which is the whole reason the number is worth reading when it is
- * not zero.
+ * Only counted where there is one. A practice that already asks for reviews
+ * and already takes bookings online gets neither and is told so, which is the
+ * whole reason the section is worth reading when it is not empty.
  */
 export function growth(
   result: CalcResult,
   ctx: GrowthContext = {},
 ): GrowthResult {
-  const A = ASSUMPTIONS;
-  const newPerYear = result.inputs.newPatientsPerMonth * 12;
-  const newPatientValue =
-    GROWTH.visitsPerNewPatient.value * A.avgVisitRevenue.value;
-
-  const lines: ValueLine[] = [];
-
-  const { hoursFreed } = recovery(result);
-  const extraAppointments =
-    (hoursFreed * GROWTH.capacityConversion.value) /
-    (GROWTH.minutesPerAppointment.value / 60);
-  if (extraAppointments >= 1) {
-    lines.push({
-      key: "capacity",
-      label: "Appointments you'd have room for",
-      basis: `${Math.round(hoursFreed).toLocaleString("en-US")} front desk hrs freed × ${GROWTH.capacityConversion.display} ÷ ${GROWTH.minutesPerAppointment.display} × ${A.avgVisitRevenue.display}`,
-      amount: extraAppointments * A.avgVisitRevenue.value,
-    });
-  }
-
+  const opportunities: GrowthOpportunity[] = [];
   if (!ctx.asksForReviews) {
-    lines.push({
+    opportunities.push({
       key: "reviews",
-      label: "Found by more people",
-      basis: `${newPerYear.toLocaleString("en-US")} new patients a year × ${GROWTH.reviewUplift.display} × ${usd(newPatientValue)}`,
-      amount: newPerYear * GROWTH.reviewUplift.value * newPatientValue,
+      label: "Nobody is asking your patients for a review",
+      note: "A survey after every visit puts the happy ones on Google. It costs the practice nothing and it is the single easiest thing on this list to switch on.",
     });
   }
   if (!ctx.onlineBooking) {
-    lines.push({
+    opportunities.push({
       key: "booking",
-      label: "Booked instead of lost",
-      basis: `${newPerYear.toLocaleString("en-US")} new patients a year × ${GROWTH.bookingUplift.display} × ${usd(newPatientValue)}`,
-      amount: newPerYear * GROWTH.bookingUplift.value * newPatientValue,
+      label: "Booking still means phoning you",
+      note: "People who find you outside office hours, or who would rather not phone at all, are the ones you never hear from.",
     });
   }
-
   return {
-    lines,
-    total: lines.reduce((s, l) => s + l.amount, 0),
-    newPatientValue,
-    alreadyDoing: lines.length === 0,
+    hoursFreed: recovery(result).hoursFreed,
+    opportunities,
+    alreadyDoing: opportunities.length === 0,
   };
 }
 

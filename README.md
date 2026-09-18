@@ -82,22 +82,24 @@ Two halves that do different jobs and are never added together on screen.
 ```
 recovered = Σ (each leak component × its recovery rate)
 
-growth    = capacity: front desk hours freed × 30% ÷ 30 min × revenue/visit
-          + reviews:  new patients/yr × 8%  × (2.4 visits × revenue/visit)
-          + booking:  new patients/yr × 12% × (2.4 visits × revenue/visit)
-
-            capacity always counted; the other two only where there is a gap
+hours     = minutes saved ÷ 60 × kept visits
+            capped at 12 hrs/week per front desk person
 ```
 
-The staff recovery is capped at the workbook's per-FTE ceiling (12 hrs a week
-each). The per-patient figure scales with volume and the per-FTE one does not,
-so capping one with the other stops a high-volume practice from claiming more
-hours than its desk actually works.
+The staff recovery is capped at the workbook's per-FTE ceiling. The per-patient
+figure scales with volume and the per-FTE one does not, so capping one with the
+other stops a high-volume practice from claiming more hours than its desk
+actually works.
 
-The capacity line is the data team's and it is the largest single figure on the
-screen. It converts freed **front desk** hours into **provider** appointments,
-and the constraint on seeing more patients is the provider. Their own README
-calls it a ceiling rather than a promise, and the screen says so.
+**There is no dollar figure on the growth half.** There were three: a
+conversion of freed front desk hours into provider appointments, and two for
+reviews and online booking. The first turned reception time into clinical
+capacity, which is not how a clinic is constrained. The other two chained
+through local search ranking, which we neither control nor measure. All three
+were the largest numbers on the screen and the easiest to argue with, which is
+the worst combination a booth can have, so they were removed rather than
+softened. The hours are reported as hours, and the two gaps are named without a
+price on them.
 
 Recovery is money leaking out of an operation that already exists. Growth is
 money the practice has never earned. One is an argument about waste and the

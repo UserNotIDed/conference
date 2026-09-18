@@ -122,30 +122,32 @@ export const FLOW = {
   // -------------------------------------------------------------------------
   money: {
     kicker: "Estimated annual leak",
-    recoveryKicker: "What you'd get back",
-    recoveryHeadline: "{amount} a year, recovered",
+    summaryRecovered: "You'd get back",
+    summaryHours: "Desk hours back a year",
+    detailLeak: "Where it comes from",
+    detailLeakSummary: "{n} components, with the arithmetic",
+    detailRecovery: "How we get to {amount}",
+    detailRecoverySummary: "What share of each one we remove",
+    gapsSummary: "{n} you could fix without us",
+    showWorkSummary: "Every figure we added to your answers",
     recoverySub:
       "A share of each figure above, not all of it. Most of the shares come from published benchmarks; the two that are ours are marked as ours below.",
-    growthKicker: "And what you're not winning yet",
-    growthHeadline: "{amount} a year in patients you never see",
-    growthSub:
-      "Different money from the figure above. That one is leaking out of something you already do; this is demand that never reaches you.",
-    growthNone:
-      "Nothing here. You already ask for reviews and you already take bookings online, which is rarer than you would think.",
-    growthNoteReviews:
-      "A survey after every visit puts your happy patients on Google, which is what moves where you rank when somebody searches nearby.",
-    growthNoteBooking:
-      "People who find you and then have to phone during office hours are the ones you never hear from.",
-    growthNoteCapacity:
-      "A ceiling rather than a promise: it assumes the desk hours you get back turn into appointments somebody has room to see. Worth arguing about, and the biggest single figure on this screen.",
+    gapsLabel: "Other things worth fixing",
+    gapsNone:
+      "Nothing else on the list. You already ask for reviews and you already take bookings online, which is rarer than you would think.",
+    // Short here, in prime space. The full version is in the assumptions.
+    estimator:
+      "An estimator, not an audit. What you'd actually see depends on your payer mix, your schedule and how your desk runs today.",
+    estimatorLong:
+      "This is an estimator built from four answers and the figures below, not an audit of your books. Every practice is different. Payer mix, appointment length, how your schedule is built and how your front desk runs today all move these numbers, in both directions.",
     cta: "Book a demo",
     skip: "Email it to me instead",
     showWork: "What are we assuming?",
     hideWork: "Hide the assumptions",
     assumptionsIntro:
       "Some of these are yours and some are ours. Ours are marked, and they are the right thing to argue with. Tell us what your number is and we'll rerun it.",
-    placeholderTag: "Ours",
-    sourcedTag: "Sourced",
+    placeholderTag: "Our estimate",
+    sourcedTag: "Benchmarked",
     benchmarkTitle: "How does that compare?",
     benchmarkBody:
       "We're asking every practice at this show the same questions. We'll send you where you land against them.",

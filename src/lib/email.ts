@@ -20,7 +20,6 @@
 
 import {
   ASSUMPTIONS,
-  GROWTH,
   INPUT_DEFAULTS,
   RECOVERY,
   calculate,
@@ -231,7 +230,11 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
   const gapLabel = tok(mode, "booth_biggest_gap", gap.label);
   const leakTotal = tok(mode, "booth_annual_leak", usdRounded(money.total));
   const recovered = tok(mode, "booth_annual_recovery", usdRounded(back.total));
-  const upsideAmount = tok(mode, "booth_annual_growth", usdRounded(upside.total));
+  const hoursFreed = tok(
+    mode,
+    "booth_hours_freed",
+    Math.round(upside.hoursFreed).toLocaleString("en-US"),
+  );
 
   const byKey = Object.fromEntries(money.components.map((c) => [c.key, c]));
   const leakLines = (["missed", "staff", "admin", "collection", "denials"] as const)
@@ -270,53 +273,39 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
       : dimensionLines;
 
   /**
-   * The growth block, or an honest absence of one.
+   * The hours, and the two gaps. No dollar figure on either.
    *
-   * A practice that already asks for reviews and already takes bookings online
-   * has nothing to win here, and "$0 a year in patients you never see" is a
-   * worse thing to send than no block at all. In the token render we cannot
-   * know which they are, so the copy has to work either way: HubSpot has no
-   * conditionals we can rely on in a rich text module.
+   * There was one and it was the biggest number in the email, built by
+   * converting freed reception hours into clinical capacity. It was also the
+   * easiest line in here to argue with, and a large arguable number takes the
+   * sourced ones down with it.
    */
-  const growthBlock =
-    mode === "hubspot"
-      ? `<div style="border-top:1px solid #cffafe;margin-top:14px;padding-top:14px;">
+  const gapList = upside.opportunities
+    .map(
+      (o) => `<li style="margin:0 0 6px 0;">${o.label}</li>`,
+    )
+    .join("");
+
+  const growthBlock = `<div style="border-top:1px solid #cffafe;margin-top:14px;padding-top:14px;">
               <div style="font:700 11px/1 ${FONT};letter-spacing:0.06em;text-transform:uppercase;color:${MUTE};">
-                And what you are not winning yet
+                And the time
               </div>
               <div style="font:800 20px/1.25 ${FONT};color:${INK};letter-spacing:-0.02em;padding-top:6px;">
-                ${upsideAmount} a year in patients you never see
+                ${hoursFreed} front desk hours a year
               </div>
               <div style="font:500 13.5px/1.5 ${FONT};color:${SUB};padding-top:8px;">
-                Different money from the figure above. That one is leaking out of
-                something you already do; this is demand that never reaches you.
-                It is what a review after every visit and a booking link are
-                worth at your volume. If it reads zero, you already do both.
+                What your desk gets back. We have deliberately not turned that into
+                a revenue figure: what you do with the hours is your call, not our
+                arithmetic.
               </div>
-            </div>`
-      : upside.alreadyDoing
-        ? `<div style="border-top:1px solid #cffafe;margin-top:14px;padding-top:14px;">
-              <div style="font:700 11px/1 ${FONT};letter-spacing:0.06em;text-transform:uppercase;color:${MUTE};">
-                And what you are not winning yet
-              </div>
-              <div style="font:500 13.5px/1.5 ${FONT};color:${SUB};padding-top:8px;">
-                Nothing. You already ask for reviews and you already take bookings
-                online, which is rarer than you would think.
-              </div>
-            </div>`
-        : `<div style="border-top:1px solid #cffafe;margin-top:14px;padding-top:14px;">
-              <div style="font:700 11px/1 ${FONT};letter-spacing:0.06em;text-transform:uppercase;color:${MUTE};">
-                And what you are not winning yet
-              </div>
-              <div style="font:800 20px/1.25 ${FONT};color:${INK};letter-spacing:-0.02em;padding-top:6px;">
-                ${upsideAmount} a year in patients you never see
-              </div>
-              <div style="font:500 13.5px/1.5 ${FONT};color:${SUB};padding-top:8px;">
-                Different money from the figure above. That one is leaking out of
-                something you already do; this is demand that never reaches you.
-                ${upside.lines.map((l) => l.label).join(", ").toLowerCase()}, at your
-                volume. The capacity line is a ceiling rather than a promise.
-              </div>
+              ${
+                mode === "hubspot" || upside.alreadyDoing
+                  ? ""
+                  : `<div style="font:500 13.5px/1.5 ${FONT};color:${SUB};padding-top:10px;">
+                       Two other things worth fixing:
+                       <ul style="margin:8px 0 0 0;padding-left:18px;">${gapList}</ul>
+                     </div>`
+              }
             </div>`;
 
   const assumptions = [
@@ -335,9 +324,7 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
     RECOVERY.denials,
     RECOVERY.admin,
     RECOVERY.collection,
-    GROWTH.visitsPerNewPatient,
-    GROWTH.reviewUplift,
-    GROWTH.bookingUplift,
+
   ]
     .map(
       (a) => `
@@ -516,8 +503,9 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
   <tr>
     <td style="padding:22px 28px 26px 28px;">
       <div style="border-top:1px solid ${HAIRLINE};padding-top:16px;font:500 12px/1.6 ${FONT};color:${MUTE};">
-        You answered these questions at the Yosi booth. The figures are an estimate built from
-        four answers and the assumptions above, not an audit of your books.
+        You answered these questions at the Yosi booth. This is an estimator, not an
+        audit. Every practice is different, and what you would actually see depends
+        on your payer mix, your schedule and how your front desk runs today.
         <br>
         {{ unsubscribe_link }}
       </div>

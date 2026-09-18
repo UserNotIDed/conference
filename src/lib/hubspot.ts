@@ -279,11 +279,11 @@ export const PROPERTIES: PropertyDef[] = [
     note: "The share of the leak we claim to recover. Nothing is netted off for price; that conversation happens with a human.",
   },
   {
-    name: "booth_annual_growth",
-    label: "Booth: new-patient upside ($)",
+    name: "booth_hours_freed",
+    label: "Booth: front desk hours freed a year",
     type: "number",
     form: "diagnosis",
-    note: "Patients they never see because nobody asks for reviews or because booking means phoning. Zero when they already do both.",
+    note: "Measured, not converted into revenue. Often the line that lands hardest with an operations buyer.",
   },
   {
     name: "booth_new_patients_per_month",
@@ -404,7 +404,7 @@ export function contactProperties(
       }
       put("booth_annual_leak", Math.round(money.total));
       put("booth_annual_recovery", Math.round(back.total));
-      put("booth_annual_growth", Math.round(upside.total));
+      put("booth_hours_freed", Math.round(upside.hoursFreed));
     }
 
     // Written whether true or false: a pre-ticked box that never reaches the

@@ -60,9 +60,7 @@ const OWNER = {
   admin: NONE,
   staff: NONE,
   collection: "Customer success",
-  visitsPerNewPatient: "RCM",
-  capacityConversion: NONE,
-  minutesPerAppointment: NONE,
+  staffHoursNote: NONE,
   reviewUplift: "Marketing",
   bookingUplift: "Customer success",
 } as const;
@@ -130,9 +128,8 @@ function worked(): string {
     ...r.components.map((c) => `| ${c.label} | ${usd(c.amount)} | ${c.formula} |`),
     "",
     `**Recoverable: ${usd(back.total)}.** A share of each component above.`,
-    `**New-patient upside: ${usd(up.total)}**, for a practice that neither asks`,
-    "for reviews nor takes bookings online. Different money: the leak is coming",
-    "out of something they already do, this never reaches them at all.",
+    `**Front desk hours freed: ${Math.round(up.hoursFreed).toLocaleString("en-US")} a year.**`,
+    "Reported as hours. There is deliberately no dollar figure on them.",
     "",
     "Nothing is netted off for what Yosi costs. Price is a conversation to have",
     "with a number in front of you, not a variable buried inside one.",
@@ -170,20 +167,40 @@ load-bearing.
 3. **Reviews and online booking.** Ours. The workbook's growth driver is
    capacity, not reach.
 
-## Two things to put back to the data team
+## Three questions, now settled
 
-- **The hourly rate is unloaded.** $22 is the BLS median wage. Loading it for
-  payroll tax and benefits puts it nearer $28 and raises the staff line by
-  about a quarter. Which did they intend?
-- **The $19.60 per intake almost certainly contains labour**, which is already
-  the staff line. We count only the $4.90 before-and-after delta so the two
-  cannot double count, but that means we are not using their largest driver at
-  full weight. Confirm that is right.
-- **The capacity line converts front desk hours into provider appointments.**
-  Freed reception time does not create clinical capacity; the constraint on
-  seeing more patients is the provider. Their own README calls this a ceiling
-  rather than a promise, and the screen says so, but the arithmetic still
-  treats one hour of reception time as one hour of appointment slots.
+- **The hourly rate stays unloaded.** $22 is the BLS median wage. Loading it
+  for payroll tax and benefits would put it near $28 and raise the staff line
+  by about a quarter, so what we show is the conservative reading.
+- **The admin driver runs at full weight.** The workbook's driver is the $4.90
+  before-and-after difference, and that is what we use. The $19.60 gross
+  contains front desk labour, which is already the staff line, so using the
+  gross would double count rather than strengthen anything.
+- **The capacity conversion is gone.** It turned freed reception hours into
+  clinical appointments, and a clinic is constrained by its providers, not its
+  front desk. It was the largest figure on the screen and the easiest to argue
+  with, which is the worst combination a booth can have. The hours are still
+  reported, as hours.
+
+## Nothing on the screen should invite an argument
+
+Every figure now falls into one of two groups, and both are labelled on the
+prospect's own phone:
+
+- **Benchmarked.** From the workbook, naming its source key.
+- **Our estimate.** Ours, and deliberately set below the range we could have
+  justified. Under-claiming costs a booth conversation far less than
+  over-claiming: one leaves money on the table, the other loses the room.
+
+Three dollar figures were removed outright rather than softened, because no
+wording makes an arguable number safe: the capacity conversion, and the review
+and online-booking upsides. The first assumed reception hours become
+appointment slots; the other two chained through local search ranking, which
+we neither control nor measure. Both gaps are still named on the screen, with
+no price attached.
+
+Every surface also says plainly that this is an estimator and not an audit,
+and that results vary with payer mix, schedule and how the desk runs today.
 
 ---
 
@@ -242,7 +259,7 @@ a form, so we do not bill for one.
 
 ${table("Constants in the leak", ASSUMPTIONS as unknown as Record<string, Row>, "What we add to their answers to turn them into money.")}
 ${table("Recovery rates", RECOVERY as unknown as Record<string, Row>, "The share of each component we claim to recover. **These are the numbers a CFO will attack.** Every one is invented today.")}
-${table("The growth half", GROWTH as unknown as Record<string, Row>, "What a new patient is worth, and what share of new patients a better review profile and online booking are worth. The softest numbers in the model.")}
+${table("The growth half", GROWTH as unknown as Record<string, Row>, "Reduced to one entry. The three dollar figures that used to be here were the biggest and the most arguable numbers in the model, so they were removed rather than softened.")}
 
 ---
 

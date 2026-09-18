@@ -55,7 +55,7 @@ all in one group (create it, call it *Booth*) so they are easy to find later.
 | `booth_leak_admin` | Booth: leak: paper and admin ($) | Number | diagnosis |  |
 | `booth_leak_collection` | Booth: leak: balances written off ($) | Number | diagnosis |  |
 | `booth_annual_recovery` | Booth: recoverable from the leak ($) | Number | diagnosis |  |
-| `booth_annual_growth` | Booth: new-patient upside ($) | Number | diagnosis |  |
+| `booth_hours_freed` | Booth: front desk hours freed a year | Number | diagnosis |  |
 | `booth_new_patients_per_month` | Booth: new patients a month | Number | diagnosis |  |
 | `booth_online_booking` | Booth: patients can book online | Single checkbox | diagnosis |  |
 | `booth_asks_for_reviews` | Booth: asks for a review after the visit | Single checkbox | diagnosis |  |
@@ -100,7 +100,7 @@ put the phone down and walk off. That is the whole reason it is separate.
 
 ### Form 2: "Booth: diagnosis"
 
-Add these fields: `booth_tech_stack`, `booth_ehr`, `booth_incumbent`, `booth_intake_satisfaction`, `booth_pain_points`, `booth_patients_per_day`, `booth_no_show_rate`, `booth_front_desk_fte`, `booth_collected_up_front`, `booth_health_score`, `booth_health_band`, `booth_biggest_gap`, `booth_annual_leak`, `booth_leak_missed`, `booth_leak_staff`, `booth_leak_denials`, `booth_leak_admin`, `booth_leak_collection`, `booth_annual_recovery`, `booth_annual_growth`, `booth_new_patients_per_month`, `booth_online_booking`, `booth_asks_for_reviews`, `booth_benchmark_optin`, `booth_booking_clicked`, plus `email`, which every submission needs as the dedupe key.
+Add these fields: `booth_tech_stack`, `booth_ehr`, `booth_incumbent`, `booth_intake_satisfaction`, `booth_pain_points`, `booth_patients_per_day`, `booth_no_show_rate`, `booth_front_desk_fte`, `booth_collected_up_front`, `booth_health_score`, `booth_health_band`, `booth_biggest_gap`, `booth_annual_leak`, `booth_leak_missed`, `booth_leak_staff`, `booth_leak_denials`, `booth_leak_admin`, `booth_leak_collection`, `booth_annual_recovery`, `booth_hours_freed`, `booth_new_patients_per_month`, `booth_online_booking`, `booth_asks_for_reviews`, `booth_benchmark_optin`, `booth_booking_clicked`, plus `email`, which every submission needs as the dedupe key.
 
 Fires when the score and the money land. This is the one the email listens to.
 

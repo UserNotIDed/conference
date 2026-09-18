@@ -218,6 +218,20 @@ function DimensionRow({
 
 /* ------------------------------------------------------------------------- */
 
+/**
+ * The money, as an executive summary with the working folded away.
+ *
+ * It used to be every figure at once: five leak components, five recovery
+ * lines, the gaps and the assumptions, all open. Perhaps two thousand pixels
+ * of arithmetic with the headline at the top of it, which is the wrong shape
+ * for a screen somebody reads standing up, holding a phone, mid-conversation.
+ * The detail was not wrong, it was just in front of the point.
+ *
+ * So: the number, what it means, and what to do about it, all above the fold.
+ * Everything that justifies it is one tap away and closed by default. The
+ * people who want the arithmetic are the people who will open it, and they are
+ * also the people worth having the argument with.
+ */
 export function ScreenMoney({
   session,
   inputs,
@@ -242,13 +256,12 @@ export function ScreenMoney({
   const ordered = orderComponents(result, session.role);
   const lead = roleLead(result, session.role);
   const shown = useCountUp(result.total, 1000);
-  const [showWork, setShowWork] = useState(false);
   // Pre-checked: they have just been shown a number, and "how do I compare" is
   // the question they are already asking. Opting out is one tap.
   const [optIn, setOptIn] = useState(session.capture.optIn ?? true);
 
   // A default nobody taps is still a choice, and it has to reach the record,
-  // otherwise every pre-ticked box reads as "declined" in the export. Written
+  // otherwise every pre-ticked box reads as declined in the export. Written
   // once on mount, and only when they have not already answered.
   useEffect(() => {
     if (session.capture.optIn === null || session.capture.optIn === undefined) {
@@ -258,164 +271,152 @@ export function ScreenMoney({
   }, []);
 
   const M = FLOW.money;
+  const hours = Math.round(upside.hoursFreed).toLocaleString("en-US");
 
   return (
     <Screen footer={<Button onClick={onNext}>{M.cta}</Button>}>
       <div className="animate-fade-up pt-6">
+        {/* ---- The lede. Nothing above it, nothing beside it. ---- */}
         <CapLabel>{M.kicker}</CapLabel>
-        <p className="mt-1.5 text-[44px] font-extrabold leading-none tracking-[-0.03em] text-ink tabular-nums">
+        <p className="mt-1.5 text-[48px] font-extrabold leading-none tracking-[-0.035em] text-ink tabular-nums">
           {usdRounded(shown)}
         </p>
         {lead ? (
-          <p className="mt-2.5 text-[14px] font-medium text-ink-sub">{lead}</p>
+          <p className="mt-2.5 text-[14px] font-medium leading-[1.45] text-ink-sub">
+            {lead}
+          </p>
         ) : null}
 
-        <div className="mt-6 space-y-2.5">
-          {ordered.map((c) => (
-            <div
-              key={c.key}
-              className="rounded-[14px] border border-hairline bg-white px-4 py-3.5"
-            >
-              <div className="flex items-baseline justify-between gap-3">
-                <span className="text-[14px] font-semibold text-ink">{c.label}</span>
-                <span className="shrink-0 text-[15px] font-extrabold tabular-nums text-ink">
-                  {usd(c.amount)}
-                </span>
-              </div>
-              <p className="mt-1 text-[12px] font-medium leading-[1.45] text-ink-mute">
-                {c.formula}
-              </p>
-              {c.note ? (
-                <p className="mt-1.5 text-[12px] leading-[1.45] text-ink-sub">
-                  {c.note}
-                </p>
-              ) : null}
+        {/* ---- The two numbers that answer "so what". ---- */}
+        {/* items-stretch so a two-line label on one tile does not drop its
+            number below the other one's. */}
+        <div className="mt-5 grid grid-cols-2 items-stretch gap-2.5">
+          <Stat
+            label={M.summaryRecovered}
+            value={usdRounded(back.total)}
+            tone="teal"
+          />
+          <Stat label={M.summaryHours} value={hours} />
+        </div>
+
+        <p className="mt-3 text-[12.5px] font-medium leading-[1.5] text-ink-mute">
+          {M.estimator}
+        </p>
+
+        {/* ---- Everything that justifies it, closed. ---- */}
+        <div className="mt-6 space-y-2">
+          <Disclosure
+            title={M.detailLeak}
+            summary={fill(M.detailLeakSummary, { n: ordered.length })}
+          >
+            <div className="space-y-2.5 pt-1">
+              {ordered.map((c) => (
+                <div key={c.key}>
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className="text-[13.5px] font-semibold text-ink">
+                      {c.label}
+                    </span>
+                    <span className="shrink-0 text-[14px] font-extrabold tabular-nums text-ink">
+                      {usd(c.amount)}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-[11.5px] font-medium leading-[1.4] text-ink-mute">
+                    {c.formula}
+                  </p>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </Disclosure>
 
-        {/* ---- What you get back. A share of the four above, not all of
-               it, and nothing netted off for what we cost: price is a
-               conversation to have with a number in front of you, not a
-               variable buried inside one. ---- */}
-        <div className="mt-7 rounded-[18px] border border-teal/25 bg-teal-bg p-4">
-          <CapLabel>{M.recoveryKicker}</CapLabel>
-          <p className="mt-1.5 text-[24px] font-extrabold leading-[1.15] tracking-[-0.025em] text-ink">
-            {fill(M.recoveryHeadline, { amount: usdRounded(back.total) })}
-          </p>
-          <p className="mt-2 text-[13px] font-medium leading-[1.45] text-ink-sub">
-            {M.recoverySub}
-          </p>
-          <div className="mt-3.5 space-y-1.5 rounded-[14px] border border-teal/15 bg-white p-3.5">
-            {back.lines.map((l) => (
-              <div key={l.key} className="flex items-baseline justify-between gap-3">
-                <span className="text-[12.5px] font-medium text-ink-sub">
-                  {l.label} <span className="text-ink-pale">({l.basis})</span>
-                </span>
-                <span className="shrink-0 text-[13px] font-bold tabular-nums text-ink">
-                  {usd(l.amount)}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+          <Disclosure
+            title={fill(M.detailRecovery, { amount: usdRounded(back.total) })}
+            summary={M.detailRecoverySummary}
+          >
+            <div className="space-y-2 pt-1">
+              {back.lines.map((l) => (
+                <div
+                  key={l.key}
+                  className="flex items-baseline justify-between gap-3"
+                >
+                  <span className="text-[12.5px] font-medium text-ink-sub">
+                    {l.label} <span className="text-ink-pale">({l.basis})</span>
+                  </span>
+                  <span className="shrink-0 text-[13px] font-bold tabular-nums text-ink">
+                    {usd(l.amount)}
+                  </span>
+                </div>
+              ))}
+              <p className="border-t border-hairline pt-2 text-[12px] leading-[1.5] text-ink-mute">
+                {M.recoverySub}
+              </p>
+            </div>
+          </Disclosure>
 
-        {/* ---- Growth. Deliberately its own block and never added to the
-               figure above: one is money leaking out of something they
-               already do, the other is demand that never reaches them, and a
-               buyer who catches you conflating the two stops believing
-               both. ---- */}
-        <div className="mt-3 rounded-[18px] border border-hairline bg-white p-4">
-          <CapLabel>{M.growthKicker}</CapLabel>
-          {upside.alreadyDoing ? (
-            <p className="mt-2 text-[13.5px] font-medium leading-[1.5] text-ink-sub">
-              {M.growthNone}
-            </p>
-          ) : (
-            <>
-              <p className="mt-1.5 text-[24px] font-extrabold leading-[1.15] tracking-[-0.025em] text-ink">
-                {fill(M.growthHeadline, { amount: usdRounded(upside.total) })}
-              </p>
-              <p className="mt-2 text-[13px] font-medium leading-[1.45] text-ink-sub">
-                {M.growthSub}
-              </p>
-              <div className="mt-3.5 space-y-2.5">
-                {upside.lines.map((l) => (
-                  <div
-                    key={l.key}
-                    className="rounded-[14px] border border-hairline bg-canvas p-3.5"
-                  >
-                    <div className="flex items-baseline justify-between gap-3">
-                      <span className="text-[13.5px] font-semibold text-ink">
-                        {l.label}
-                      </span>
-                      <span className="shrink-0 text-[14px] font-extrabold tabular-nums text-ink">
-                        {usd(l.amount)}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-[12px] font-medium leading-[1.45] text-ink-mute">
-                      {l.basis}
+          {upside.alreadyDoing ? null : (
+            <Disclosure
+              title={M.gapsLabel}
+              summary={fill(M.gapsSummary, { n: upside.opportunities.length })}
+            >
+              <div className="space-y-2.5 pt-1">
+                {upside.opportunities.map((o) => (
+                  <div key={o.key}>
+                    <p className="text-[13.5px] font-semibold text-ink">
+                      {o.label}
                     </p>
-                    <p className="mt-1.5 text-[12px] leading-[1.45] text-ink-sub">
-                      {l.key === "reviews"
-                        ? M.growthNoteReviews
-                        : l.key === "capacity"
-                          ? M.growthNoteCapacity
-                          : M.growthNoteBooking}
+                    <p className="mt-1 text-[12.5px] leading-[1.45] text-ink-sub">
+                      {o.note}
                     </p>
                   </div>
                 ))}
               </div>
-            </>
+            </Disclosure>
           )}
+
+          <Disclosure title={M.showWork} summary={M.showWorkSummary}>
+            <div className="space-y-3 pt-1">
+              <p className="text-[12.5px] leading-[1.5] text-ink-sub">
+                {M.estimatorLong}
+              </p>
+              <p className="text-[12.5px] leading-[1.5] text-ink-sub">
+                {M.assumptionsIntro}
+              </p>
+              {allConstants().map((a) => (
+                <div key={a.label} className="border-t border-hairline pt-3">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className="text-[13px] font-semibold text-ink">
+                      {a.label}
+                    </span>
+                    <span className="shrink-0 text-[13px] font-bold tabular-nums text-ink">
+                      {a.display}
+                    </span>
+                  </div>
+                  <span
+                    className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.05em] ${
+                      a.status === "placeholder"
+                        ? "bg-amber-bg text-amber-dk"
+                        : "bg-canvas text-ink-mute"
+                    }`}
+                  >
+                    {a.status === "placeholder"
+                      ? M.placeholderTag
+                      : M.sourcedTag}
+                  </span>
+                  <p className="mt-1.5 text-[12px] leading-[1.45] text-ink-mute">
+                    {a.source}
+                  </p>
+                </div>
+              ))}
+              <p className="border-t border-hairline pt-3 text-[12px] leading-[1.5] text-ink-mute">
+                Based on {inputs.patientsPerDay} patients a day,{" "}
+                {pct(inputs.noShowRate)} no-show, {inputs.frontDeskStaff} at the
+                front desk, {pct(inputs.collectedRate)} collected up front and{" "}
+                {inputs.newPatientsPerMonth} new patients a month.
+              </p>
+            </div>
+          </Disclosure>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setShowWork((v) => !v)}
-          className="mt-4 min-h-[44px] text-[13px] font-bold text-teal"
-        >
-          {showWork ? M.hideWork : M.showWork}
-        </button>
-
-        {showWork ? (
-          <div className="space-y-3 rounded-[14px] border border-hairline bg-white p-4">
-            <p className="text-[12.5px] leading-[1.5] text-ink-sub">
-              {M.assumptionsIntro}
-            </p>
-            {allConstants().map((a) => (
-              <div key={a.label} className="border-t border-hairline pt-3">
-                <div className="flex items-baseline justify-between gap-3">
-                  <span className="text-[13px] font-semibold text-ink">{a.label}</span>
-                  <span className="shrink-0 text-[13px] font-bold tabular-nums text-ink">
-                    {a.display}
-                  </span>
-                </div>
-                <span
-                  className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.05em] ${
-                    a.status === "placeholder"
-                      ? "bg-amber-bg text-amber-dk"
-                      : "bg-canvas text-ink-mute"
-                  }`}
-                >
-                  {a.status === "placeholder" ? M.placeholderTag : M.sourcedTag}
-                </span>
-                <p className="mt-1.5 text-[12px] leading-[1.45] text-ink-mute">
-                  {a.source}
-                </p>
-              </div>
-            ))}
-          </div>
-        ) : null}
-
-        <p className="mt-4 text-[12px] leading-[1.5] text-ink-mute">
-          Based on {inputs.patientsPerDay} patients a day, {pct(inputs.noShowRate)}{" "}
-          no-show, {inputs.frontDeskStaff} at the front desk,{" "}
-          {pct(inputs.collectedRate)} collected up front and{" "}
-          {inputs.newPatientsPerMonth} new patients a month.
-        </p>
-
-        <div className="mt-6 rounded-[14px] border border-hairline bg-white p-4">
+        <div className="mt-5 rounded-[14px] border border-hairline bg-white p-4">
           <p className="text-[14px] font-semibold text-ink">{M.benchmarkTitle}</p>
           <p className="mt-1 text-[12.5px] leading-[1.5] text-ink-sub">
             {M.benchmarkBody}
@@ -444,6 +445,89 @@ export function ScreenMoney({
         </div>
       </div>
     </Screen>
+  );
+}
+
+/** One of the two numbers that answer "so what" without needing the working. */
+function Stat({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone?: "teal";
+}) {
+  return (
+    <div
+      className={`flex flex-col justify-between rounded-[14px] border p-3.5 ${
+        tone === "teal" ? "border-teal/25 bg-teal-bg" : "border-hairline bg-white"
+      }`}
+    >
+      <p className="min-h-[26px] text-[10px] font-bold uppercase leading-[1.3] tracking-[0.05em] text-ink-mute">
+        {label}
+      </p>
+      <p className="mt-1.5 text-[22px] font-extrabold leading-none tracking-[-0.025em] text-ink tabular-nums">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+/**
+ * A closed row that says what is inside it.
+ *
+ * The summary line matters as much as the title: a row reading only "Where it
+ * comes from" is a guess, and nobody taps a guess in a loud room. A row that
+ * already tells you it is five components is a decision.
+ */
+function Disclosure({
+  title,
+  summary,
+  children,
+}: {
+  title: string;
+  summary: string;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="overflow-hidden rounded-[14px] border border-hairline bg-white">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition active:scale-[0.995]"
+      >
+        <span className="min-w-0 flex-1">
+          <span className="block text-[14px] font-bold text-ink">{title}</span>
+          <span className="mt-0.5 block text-[12px] font-medium leading-[1.35] text-ink-mute">
+            {summary}
+          </span>
+        </span>
+        <svg
+          viewBox="0 0 24 24"
+          className={`h-4 w-4 shrink-0 text-ink-pale transition-transform duration-200 ${
+            open ? "rotate-180" : ""
+          }`}
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="m6 9 6 6 6-6"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+      {open ? (
+        <div className="animate-fade-up border-t border-hairline px-4 pb-4 pt-3">
+          {children}
+        </div>
+      ) : null}
+    </div>
   );
 }
 

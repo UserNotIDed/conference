@@ -27,20 +27,40 @@ load-bearing.
 3. **Reviews and online booking.** Ours. The workbook's growth driver is
    capacity, not reach.
 
-## Two things to put back to the data team
+## Three questions, now settled
 
-- **The hourly rate is unloaded.** $22 is the BLS median wage. Loading it for
-  payroll tax and benefits puts it nearer $28 and raises the staff line by
-  about a quarter. Which did they intend?
-- **The $19.60 per intake almost certainly contains labour**, which is already
-  the staff line. We count only the $4.90 before-and-after delta so the two
-  cannot double count, but that means we are not using their largest driver at
-  full weight. Confirm that is right.
-- **The capacity line converts front desk hours into provider appointments.**
-  Freed reception time does not create clinical capacity; the constraint on
-  seeing more patients is the provider. Their own README calls this a ceiling
-  rather than a promise, and the screen says so, but the arithmetic still
-  treats one hour of reception time as one hour of appointment slots.
+- **The hourly rate stays unloaded.** $22 is the BLS median wage. Loading it
+  for payroll tax and benefits would put it near $28 and raise the staff line
+  by about a quarter, so what we show is the conservative reading.
+- **The admin driver runs at full weight.** The workbook's driver is the $4.90
+  before-and-after difference, and that is what we use. The $19.60 gross
+  contains front desk labour, which is already the staff line, so using the
+  gross would double count rather than strengthen anything.
+- **The capacity conversion is gone.** It turned freed reception hours into
+  clinical appointments, and a clinic is constrained by its providers, not its
+  front desk. It was the largest figure on the screen and the easiest to argue
+  with, which is the worst combination a booth can have. The hours are still
+  reported, as hours.
+
+## Nothing on the screen should invite an argument
+
+Every figure now falls into one of two groups, and both are labelled on the
+prospect's own phone:
+
+- **Benchmarked.** From the workbook, naming its source key.
+- **Our estimate.** Ours, and deliberately set below the range we could have
+  justified. Under-claiming costs a booth conversation far less than
+  over-claiming: one leaves money on the table, the other loses the room.
+
+Three dollar figures were removed outright rather than softened, because no
+wording makes an arguable number safe: the capacity conversion, and the review
+and online-booking upsides. The first assumed reception hours become
+appointment slots; the other two chained through local search ranking, which
+we neither control nor measure. Both gaps are still named on the screen, with
+no price attached.
+
+Every surface also says plainly that this is an estimator and not an audit,
+and that results vary with payer mix, schedule and how the desk runs today.
 
 ---
 
@@ -113,8 +133,8 @@ What we add to their answers to turn them into money.
 | **Cost to rework one denied claim** | `$25` | Sourced | already sourced | Signed off. |
 | **Paper and admin cost per intake that automation removes** | `$4.90` | Sourced | already sourced | Signed off. |
 | **Clinic days a year** | `264` | Sourced | already sourced | Signed off. |
-| **Patient responsibility per visit** | `$32` | ⚠️ **Ours** | RCM | Ours. The workbook has no patient-collection driver at all, so this whole component is unsourced. |
-| **Uncollected balance never recovered** | `40%` | ⚠️ **Ours** | RCM | Ours. Needs a real write-off rate. |
+| **Patient responsibility per visit** | `$30` | ⚠️ **Ours** | RCM | Our estimate. The workbook has no patient-collection driver. Deliberately set below typical specialist copays so the component under-reads rather than over-reads. |
+| **Uncollected balance never recovered** | `30%` | ⚠️ **Ours** | RCM | Our estimate, and deliberately conservative: the commonly quoted figures for patient balances that go uncollected are higher than this. |
 
 ### Recovery rates
 
@@ -122,23 +142,19 @@ The share of each component we claim to recover. **These are the numbers a CFO w
 
 | Constant | Value | Status | Owner | What it needs |
 | --- | --- | --- | --- | --- |
-| **No-shows recovered** | `35%` | ⚠️ **Ours** | Customer success | Ours, and the single most aggressive number left in the model. The data team's workbook has no no-show driver, which is itself worth asking about: they either could not source one or did not think we should claim it. |
+| **No-shows recovered** | `20%` | ⚠️ **Ours** | Customer success | Our estimate, down from 35%. The workbook has no no-show driver. Set below the published range on purpose: it is the largest component of the leak, so it is the number most likely to be challenged, and under-claiming costs us less than over-claiming. |
 | **Registration time removed** | `71%` | Sourced | already sourced | Signed off. |
 | **Registration denials avoided** | `70%` | Sourced | already sourced | Signed off. |
 | **Paper and admin cost removed** | `100%` | Sourced | already sourced | Signed off. |
-| **Patient balance recovered** | `50%` | ⚠️ **Ours** | Customer success | Ours. The workbook has no collection driver. |
+| **Patient balance recovered** | `40%` | ⚠️ **Ours** | Customer success | Our estimate, down from 50%. The workbook has no collection driver. |
 
 ### The growth half
 
-What a new patient is worth, and what share of new patients a better review profile and online booking are worth. The softest numbers in the model.
+Reduced to one entry. The three dollar figures that used to be here were the biggest and the most arguable numbers in the model, so they were removed rather than softened.
 
 | Constant | Value | Status | Owner | What it needs |
 | --- | --- | --- | --- | --- |
-| **Visits from a new patient in year one** | `2.4` | ⚠️ **Ours** | RCM | Ours. Needs a real figure off our own book. |
-| **More new patients from a better review profile** | `8%` | ⚠️ **Ours** | Marketing | Ours, and the softest number in the model. It chains through local search ranking, which we neither control nor measure. |
-| **More new patients from online booking** | `12%` | ⚠️ **Ours** | Customer success | Ours. Should be measurable from our own booking funnel. |
-| **Freed front desk time that becomes new appointments** | `30%` | Sourced | already sourced | Signed off. |
-| **Provider time per additional appointment** | `30 min` | Sourced | already sourced | Signed off. |
+| **Freed front desk hours** | `hours, not dollars` | Sourced | already sourced | Signed off. |
 
 
 ---
@@ -219,20 +235,19 @@ already running athenahealth and an intake vendor they are unhappy with.
 | Money collected up front | 40 | 15% | 6.0 |
 | Getting found and booked | 15 | 20% | 3.0 |
 
-**Annual leak: $600,452**
+**Annual leak: $581,040**
 
 | Component | Amount | Formula |
 | --- | --- | --- |
 | Missed visit revenue | $415,800 | 45/day × 264 days × 14% no-show × $250 |
 | Front desk time on registration | $63,685 | 17 min × 10,217 visits × $22/hr |
 | Paper, printing and scanning | $50,062 | 10,217 visits × $4.90 |
-| Patient balances written off | $65,388 | 10,217 visits × $32 × 50% uncollected × 40% |
+| Patient balances written off | $45,976 | 10,217 visits × $30 × 50% uncollected × 30% |
 | Claim rework from registration errors | $5,517 | 10,217 claims × 8% denied × 27% from registration × $25 |
 
-**Recoverable: $273,332.** A share of each component above.
-**New-patient upside: $331,200**, for a practice that neither asks
-for reviews nor takes bookings online. Different money: the leak is coming
-out of something they already do, this never reaches them at all.
+**Recoverable: $196,659.** A share of each component above.
+**Front desk hours freed: 1,872 a year.**
+Reported as hours. There is deliberately no dollar figure on them.
 
 Nothing is netted off for what Yosi costs. Price is a conversation to have
 with a number in front of you, not a variable buried inside one.
