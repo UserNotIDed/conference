@@ -190,16 +190,6 @@ export const ASSUMPTIONS: Record<string, Constant> = {
  * components the workbook does not model at all, so they remain ours.
  */
 export const RECOVERY: Record<CalcComponent["key"], Constant> = {
-  missed: {
-    value: 0.2,
-    label: "No-shows recovered",
-    display: "20%",
-    status: "placeholder",
-    source:
-      "Automated reminders and intake finished before arrival reduce non-attendance. Controlled trials of appointment reminders report larger reductions than this; a fifth is at the cautious end of that range and assumes you already do something today.",
-    internal:
-      "Our estimate, down from 35%. The workbook has no no-show driver. Set below the published range on purpose: it is the largest component of the leak, so it is the number most likely to be challenged, and under-claiming costs us less than over-claiming.",
-  },
   staff: {
     value: 12 / 17,
     label: "Registration time removed",
@@ -267,7 +257,7 @@ export const GROWTH = {
 };
 
 export type CalcComponent = {
-  key: "missed" | "staff" | "denials" | "admin" | "collection";
+  key: "staff" | "denials" | "admin" | "collection";
   label: string;
   amount: number;
   formula: string;
@@ -316,8 +306,6 @@ export function calculate(rawInputs: Partial<CalcInputs>): CalcResult {
   // Only the visits that happen generate a claim, a form or a balance.
   const keptVisits = visitsPerYear * (1 - inputs.noShowRate);
 
-  const missed = visitsPerYear * inputs.noShowRate * A.avgVisitRevenue.value;
-
   const staff =
     (A.minutesPerIntakeToday.value / 60) *
     keptVisits *
@@ -337,13 +325,6 @@ export function calculate(rawInputs: Partial<CalcInputs>): CalcResult {
   const visits = Math.round(keptVisits).toLocaleString("en-US");
 
   const components: CalcComponent[] = [
-    {
-      key: "missed",
-      label: "Missed visit revenue",
-      amount: missed,
-      formula: `${inputs.patientsPerDay}/day × ${A.workingDays.display} days × ${pct(inputs.noShowRate)} no-show × ${A.avgVisitRevenue.display}`,
-      note: "Appointments that never happened. Reminders and intake finished before arrival are what move this.",
-    },
     {
       key: "staff",
       label: "Front desk time on registration",
@@ -461,7 +442,14 @@ export type GrowthContext = {
   asksForReviews?: boolean;
 };
 
-export type GrowthOpportunity = { key: string; label: string; note: string };
+export type GrowthOpportunity = {
+  key: string;
+  label: string;
+  note: string;
+  /** Some are worth a figure. None of them is a claim about what we recover. */
+  amount?: number;
+  basis?: string;
+};
 
 export type GrowthResult = {
   /** Front desk hours a year the recovery frees up. Measured, not converted. */
@@ -483,7 +471,37 @@ export function growth(
   result: CalcResult,
   ctx: GrowthContext = {},
 ): GrowthResult {
+  const A = ASSUMPTIONS;
+  const { inputs, visitsPerYear } = result;
   const opportunities: GrowthOpportunity[] = [];
+
+  /**
+   * No-shows. Costed, deliberately not claimed.
+   *
+   * This used to be a leak component with a 20% recovery rate on it, and it
+   * was two thirds of the leak, which meant the headline was dominated by the
+   * one thing we could evidence least. Taking it out lifted the capture ratio
+   * from about a third to about seventy per cent and left every remaining
+   * line benchmarked.
+   *
+   * It is still here because it is the largest number in the practice and
+   * because reminders and scheduling are exactly what move it. What changed is
+   * that we state the cost, which is arithmetic on their own no-show rate, and
+   * say nothing about the share we would take off it. The cost is not
+   * arguable. A recovery rate would have been.
+   */
+  const noShowCost =
+    visitsPerYear * inputs.noShowRate * A.avgVisitRevenue.value;
+  if (noShowCost > 0) {
+    opportunities.push({
+      key: "noshow",
+      label: "Patients who do not turn up",
+      amount: noShowCost,
+      basis: `${inputs.patientsPerDay}/day × ${A.workingDays.display} days × ${pct(inputs.noShowRate)} no-show × ${A.avgVisitRevenue.display}`,
+      note: "Not counted in either figure above. Reminders and scheduling are what move a no-show rate, and we would rather show you the cost than guess at the share of it we would take off. It is the easiest number on this page for you to check yourself.",
+    });
+  }
+
   if (!ctx.asksForReviews) {
     opportunities.push({
       key: "reviews",
@@ -510,18 +528,18 @@ export const ROLE_EMPHASIS: Record<
   { order: CalcComponent["key"][]; owns: CalcComponent["key"]; owner: string }
 > = {
   billing: {
-    order: ["denials", "collection", "missed", "staff", "admin"],
+    order: ["denials", "collection", "staff", "admin"],
     owns: "denials",
     owner: "lands in your AR",
   },
   frontdesk: {
-    order: ["staff", "admin", "missed", "collection", "denials"],
+    order: ["staff", "admin", "collection", "denials"],
     owns: "staff",
     owner: "is hours at your desk",
   },
   owner: {
-    order: ["missed", "collection", "staff", "admin", "denials"],
-    owns: "missed",
+    order: ["collection", "staff", "admin", "denials"],
+    owns: "collection",
     owner: "is revenue that never posted",
   },
 };
@@ -556,7 +574,7 @@ export function roleLead(
   const share = Math.round((mine.amount / result.total) * 100);
 
   if (biggest.key === emphasis.owns) {
-    return `${usd(mine.amount)} of it ${emphasis.owner}, the largest of the five.`;
+    return `${usd(mine.amount)} of it ${emphasis.owner}, the largest of the four.`;
   }
   return `${usd(mine.amount)} of it ${emphasis.owner}, about ${share}%. The bigger driver is ${biggest.label.toLowerCase()}.`;
 }

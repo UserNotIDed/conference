@@ -62,7 +62,6 @@ Four components, summed. Every constant is printed next to the figure it
 produced, tagged **Ours** or **Sourced**.
 
 ```
-missed     = patients/day × clinic days × no-show rate × revenue per visit
 staff      = 17 min ÷ 60 × kept visits × front desk hourly rate
 admin      = kept visits × paper and admin cost removed per intake
 collection = kept visits × patient responsibility

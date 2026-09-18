@@ -52,12 +52,18 @@ Health-Passport repo and nothing here depends on it.
   progress bar and an HTML email, and an email cannot see a stylesheet. The
   ring, the dimension bars and the email all read it; they used to each keep
   their own thresholds and had already drifted.
-- **The money screen leads with what Yosi puts back, not with the leak.** The
-  leak is roughly three quarters no-shows, and no-shows are the component we
-  claim least of, so leading with it meant leading with a number of which we
-  recover about a third. Anyone who did that division found it out for
-  themselves. We say it first instead: here is what we put back, here is the
-  whole problem it comes out of, here is why they differ.
+- **The money screen leads with what Yosi puts back, not with the leak.**
+  Saying the ratio ourselves is stronger than being caught at it, and the leak
+  earns its place as the denominator: without it the recovery figure is an
+  unanchored vendor claim.
+- **No-shows are costed but never claimed from.** They are out of the leak and
+  out of the recovery entirely, which took the capture ratio from about a third
+  to around 70% and left every remaining line benchmarked. They appear on their
+  own card, with the cost, which is pure arithmetic on the prospect's own
+  no-show rate, and with no recovery percentage attached. The cost is not
+  arguable; a rate would have been. It is the opening for scheduling and
+  reminders rather than for intake, and it is usually the biggest number on the
+  screen.
 - **Score and money do different jobs, on different screens.** The score answers
   "where do I stand", which is what the landing page promised. The money answers
   "so what", which is what books a meeting. On one screen the reader picks

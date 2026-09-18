@@ -237,11 +237,11 @@ export const PROPERTIES: PropertyDef[] = [
     note: "What we told them. Put it in the email and bring it to the call.",
   },
   {
-    name: "booth_leak_missed",
-    label: "Booth: leak: missed visit revenue ($)",
+    name: "booth_noshow_cost",
+    label: "Booth: annual cost of no-shows ($)",
     type: "number",
     form: "diagnosis",
-    note: "The four components stored separately so the follow-up email can show the breakdown without us computing anything at send time.",
+    note: "Deliberately outside the leak and the recovery figures: we state the cost and claim no share of it. Usually the largest number on their screen, and the cleanest opening for a scheduling and reminders conversation.",
   },
   {
     name: "booth_leak_staff",
@@ -402,6 +402,8 @@ export function contactProperties(
       for (const c of money.components) {
         put(`booth_leak_${c.key}`, Math.round(c.amount));
       }
+      const noShow = upside.opportunities.find((o) => o.key === "noshow");
+      put("booth_noshow_cost", noShow ? Math.round(noShow.amount ?? 0) : null);
       put("booth_annual_leak", Math.round(money.total));
       put("booth_annual_recovery", Math.round(back.total));
       put("booth_hours_freed", Math.round(upside.hoursFreed));

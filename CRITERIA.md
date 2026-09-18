@@ -142,7 +142,6 @@ The share of each component we claim to recover. **These are the numbers a CFO w
 
 | Constant | Value | Status | Owner | What it needs |
 | --- | --- | --- | --- | --- |
-| **No-shows recovered** | `20%` | ⚠️ **Ours** | Customer success | Our estimate, down from 35%. The workbook has no no-show driver. Set below the published range on purpose: it is the largest component of the leak, so it is the number most likely to be challenged, and under-claiming costs us less than over-claiming. |
 | **Registration time removed** | `71%` | Sourced | already sourced | Signed off. |
 | **Registration denials avoided** | `70%` | Sourced | already sourced | Signed off. |
 | **Paper and admin cost removed** | `100%` | Sourced | already sourced | Signed off. |
@@ -235,20 +234,23 @@ already running athenahealth and an intake vendor they are unhappy with.
 | Money collected up front | 40 | 15% | 6.0 |
 | Getting found and booked | 15 | 20% | 3.0 |
 
-**Annual leak: $581,040**
+**Annual leak: $165,240**
 
 | Component | Amount | Formula |
 | --- | --- | --- |
-| Missed visit revenue | $415,800 | 45/day × 264 days × 14% no-show × $250 |
 | Front desk time on registration | $63,685 | 17 min × 10,217 visits × $22/hr |
 | Paper, printing and scanning | $50,062 | 10,217 visits × $4.90 |
 | Patient balances written off | $45,976 | 10,217 visits × $30 × 50% uncollected × 30% |
 | Claim rework from registration errors | $5,517 | 10,217 claims × 8% denied × 27% from registration × $25 |
 
-**What Yosi puts back: $196,659**, which is what the screen leads with.
-That is 34% of the leak. The gap is almost entirely
-no-shows: they are the biggest component and the one we claim least of, so
-leading with the leak meant leading with a figure anyone could divide down.
+**What Yosi puts back: $113,499**, which is what the screen leads with.
+That is 69% of the leak, and every line in it is benchmarked.
+
+**Shown separately, and claimed from not at all: $415,800 a year in no-shows.**
+Arithmetic on their own no-show rate. We state the cost and say nothing
+about the share we would recover, because the cost is not arguable and a
+recovery rate would have been. It is the opening for scheduling and
+reminders rather than for intake.
 **Front desk hours freed: 1,872 a year.**
 Reported as hours. There is deliberately no dollar figure on them.
 
@@ -260,9 +262,7 @@ with a number in front of you, not a variable buried inside one.
 
 ## 5 · What we need back
 
-1. **A no-show recovery rate, or a decision not to claim one.** It is the
-   largest component of the leak and the only recovery rate still invented.
-2. **Patient responsibility per visit** and the **write-off rate**, or a
+1. **Patient responsibility per visit** and the **write-off rate**, or a
    decision to drop that component.
 3. **Answers to the three questions above** about the hourly rate, the $19.60,
    and the capacity conversion.

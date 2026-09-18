@@ -128,9 +128,13 @@ function worked(): string {
     ...r.components.map((c) => `| ${c.label} | ${usd(c.amount)} | ${c.formula} |`),
     "",
     `**What Yosi puts back: ${usd(back.total)}**, which is what the screen leads with.`,
-    `That is ${Math.round((back.total / r.total) * 100)}% of the leak. The gap is almost entirely`,
-    "no-shows: they are the biggest component and the one we claim least of, so",
-    "leading with the leak meant leading with a figure anyone could divide down.",
+    `That is ${Math.round((back.total / r.total) * 100)}% of the leak, and every line in it is benchmarked.`,
+    "",
+    `**Shown separately, and claimed from not at all: ${usd(up.opportunities.find((o) => o.key === "noshow")?.amount ?? 0)} a year in no-shows.**`,
+    "Arithmetic on their own no-show rate. We state the cost and say nothing",
+    "about the share we would recover, because the cost is not arguable and a",
+    "recovery rate would have been. It is the opening for scheduling and",
+    "reminders rather than for intake.",
     `**Front desk hours freed: ${Math.round(up.hoursFreed).toLocaleString("en-US")} a year.**`,
     "Reported as hours. There is deliberately no dollar figure on them.",
     "",
@@ -333,9 +337,7 @@ ${worked()}
 
 ## 5 · What we need back
 
-1. **A no-show recovery rate, or a decision not to claim one.** It is the
-   largest component of the leak and the only recovery rate still invented.
-2. **Patient responsibility per visit** and the **write-off rate**, or a
+1. **Patient responsibility per visit** and the **write-off rate**, or a
    decision to drop that component.
 3. **Answers to the three questions above** about the hourly rate, the $19.60,
    and the capacity conversion.

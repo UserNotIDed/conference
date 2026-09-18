@@ -132,7 +132,9 @@ export const FLOW = {
     detailRecoverySummary: "Component by component, and what share of each",
     detailLeak: "Where the {amount} comes from",
     detailLeakSummary: "{n} components, with the arithmetic",
-    gapsSummary: "{n} you could fix without us",
+    asideKicker: "And separately",
+    asideCta: "That one is scheduling and reminders, not intake.",
+    gapsSummary: "{n} you could do without us",
     showWorkSummary: "Every figure we added to your answers",
     recoverySub:
       "A share of each figure above, not all of it. Most of the shares come from published benchmarks; the two that are ours are marked as ours below.",

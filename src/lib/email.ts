@@ -237,7 +237,7 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
   );
 
   const byKey = Object.fromEntries(money.components.map((c) => [c.key, c]));
-  const leakLines = (["missed", "staff", "admin", "collection", "denials"] as const)
+  const leakLines = (["staff", "admin", "collection", "denials"] as const)
     .map((k) =>
       leakRow(
         byKey[k].label,
@@ -282,7 +282,10 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
    */
   const gapList = upside.opportunities
     .map(
-      (o) => `<li style="margin:0 0 6px 0;">${o.label}</li>`,
+      (o) =>
+        `<li style="margin:0 0 6px 0;">${o.label}${
+          o.amount ? `: <strong style="font-weight:700;">${usd(o.amount)} a year</strong>` : ""
+        }</li>`,
     )
     .join("");
 
@@ -302,7 +305,7 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
                 mode === "hubspot" || upside.alreadyDoing
                   ? ""
                   : `<div style="font:500 13.5px/1.5 ${FONT};color:${SUB};padding-top:10px;">
-                       Two other things worth fixing:
+                       Worth looking at separately, and not counted in either figure above:
                        <ul style="margin:8px 0 0 0;padding-left:18px;">${gapList}</ul>
                      </div>`
               }
@@ -319,7 +322,6 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
     ASSUMPTIONS.costToRework,
     ASSUMPTIONS.patientResponsibility,
     ASSUMPTIONS.writeOffRate,
-    RECOVERY.missed,
     RECOVERY.staff,
     RECOVERY.denials,
     RECOVERY.admin,

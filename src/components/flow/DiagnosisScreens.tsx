@@ -280,6 +280,12 @@ export function ScreenMoney({
 
   const M = FLOW.money;
   const hours = Math.round(upside.hoursFreed).toLocaleString("en-US");
+  // The no-show figure is usually the largest number on the screen and it is
+  // the one we claim nothing from, so it gets its own card rather than a row
+  // inside a closed disclosure. Visible, costed, and clearly not part of the
+  // two figures above it.
+  const noShow = upside.opportunities.find((o) => o.key === "noshow");
+  const gaps = upside.opportunities.filter((o) => o.key !== "noshow");
 
   return (
     <Screen footer={<Button onClick={onNext}>{M.cta}</Button>}>
@@ -305,8 +311,31 @@ export function ScreenMoney({
           {M.estimator}
         </p>
 
+        {noShow ? (
+          <div className="mt-5 rounded-[16px] border border-amber-line bg-amber-bg p-4">
+            <div className="flex items-baseline justify-between gap-3">
+              <CapLabel>{M.asideKicker}</CapLabel>
+              <span className="shrink-0 text-[20px] font-extrabold leading-none tracking-[-0.02em] text-ink tabular-nums">
+                {usd(noShow.amount ?? 0)}
+              </span>
+            </div>
+            <p className="mt-1.5 text-[14px] font-bold leading-[1.3] text-ink">
+              {noShow.label}
+            </p>
+            <p className="mt-1 text-[11.5px] font-medium leading-[1.4] text-ink-mute">
+              {noShow.basis}
+            </p>
+            <p className="mt-2 text-[12.5px] leading-[1.5] text-ink-sub">
+              {noShow.note}
+            </p>
+            <p className="mt-2 text-[12.5px] font-semibold leading-[1.45] text-ink">
+              {M.asideCta}
+            </p>
+          </div>
+        ) : null}
+
         {/* ---- Everything that justifies it, closed. ---- */}
-        <div className="mt-6 space-y-2">
+        <div className="mt-5 space-y-2">
           <Disclosure
             title={fill(M.detailRecovery, { amount: usdRounded(back.total) })}
             summary={M.detailRecoverySummary}
@@ -359,18 +388,33 @@ export function ScreenMoney({
             </div>
           </Disclosure>
 
-          {upside.alreadyDoing ? null : (
+          {gaps.length === 0 ? null : (
             <Disclosure
               title={M.gapsLabel}
-              summary={fill(M.gapsSummary, { n: upside.opportunities.length })}
+              summary={fill(M.gapsSummary, { n: gaps.length })}
             >
               <div className="space-y-2.5 pt-1">
-                {upside.opportunities.map((o) => (
+                {gaps.map((o) => (
                   <div key={o.key}>
-                    <p className="text-[13.5px] font-semibold text-ink">
-                      {o.label}
-                    </p>
-                    <p className="mt-1 text-[12.5px] leading-[1.45] text-ink-sub">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <p className="text-[13.5px] font-semibold text-ink">
+                        {o.label}
+                      </p>
+                      {/* A figure where we have one that is pure arithmetic on
+                          their own answers, and none where we would have had
+                          to guess at a rate. */}
+                      {o.amount ? (
+                        <p className="shrink-0 text-[15px] font-extrabold tabular-nums text-ink">
+                          {usd(o.amount)}
+                        </p>
+                      ) : null}
+                    </div>
+                    {o.basis ? (
+                      <p className="mt-0.5 text-[11.5px] font-medium leading-[1.4] text-ink-mute">
+                        {o.basis}
+                      </p>
+                    ) : null}
+                    <p className="mt-1.5 text-[12.5px] leading-[1.45] text-ink-sub">
                       {o.note}
                     </p>
                   </div>
