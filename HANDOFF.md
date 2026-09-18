@@ -111,10 +111,6 @@ Health-Passport repo and nothing here depends on it.
 
 ## Open, needs your call
 
-0. **Pick a direction for the money screen.** `/roi` shows three against the
-   live figures. Scratch surface: delete it once one is chosen, because
-   leaving design options deployed is how a prospect ends up on one.
-
 1. **Booking URL.** `NEXT_PUBLIC_BOOKING_URL`, defaults to `https://yosi.health`.
    Swap in the real scheduler when you have it.
 2. **The benchmark report.** The opt-in promises a front desk benchmark built

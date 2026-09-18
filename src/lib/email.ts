@@ -233,6 +233,13 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
   const gapLabel = tok(mode, "booth_biggest_gap", gap.label);
   const leakTotal = tok(mode, "booth_annual_leak", usdRounded(money.total));
   const recovered = tok(mode, "booth_annual_recovery", usdRounded(back.total));
+  // The unit the practice is bought in, alongside the annual figure. In the
+  // token render HubSpot cannot divide, so it carries its own property.
+  const perProviderBack = tok(
+    mode,
+    "booth_back_per_provider_month",
+    usd(back.total / data.inputs.providers / 12),
+  );
   const hoursFreed = tok(
     mode,
     "booth_hours_freed",
@@ -437,6 +444,9 @@ export function renderEmail(data: EmailData, mode: EmailMode = "preview"): {
             </div>
             <div style="font:800 28px/1.15 ${FONT};color:${INK};letter-spacing:-0.03em;padding-top:6px;">
               ${recovered} a year
+            </div>
+            <div style="font:700 14px/1.4 ${FONT};color:${INK};padding-top:4px;">
+              ${perProviderBack} per provider, per month
             </div>
             <div style="font:500 13.5px/1.5 ${FONT};color:${SUB};padding-top:8px;">
               Out of the ${leakTotal} a year intake costs you in total. We do not claim

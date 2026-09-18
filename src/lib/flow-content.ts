@@ -123,39 +123,58 @@ export const FLOW = {
   // The money. Leak first, then what fixing it returns.
   // -------------------------------------------------------------------------
   money: {
-    kicker: "What Yosi puts back",
-    // {leak} is their whole figure. Naming it ourselves, in the same breath,
-    // is the difference between context and something they catch us at.
+    kicker: "Per provider, per month",
+    backSuffix: "back",
+    // {cost} and {n} are theirs.
     headlineSub:
-      "A year, at your volume. Intake costs you {leak} a year in total; we do not claim to fix all of it, and both numbers are broken down below.",
-    summaryLeak: "Costing you today",
-    summaryHours: "Desk hours back a year",
+      "Intake costs you {cost} per provider per month, across {n} providers. We take {back} of that off.",
+    totalLabel: "Across the whole practice",
+    totalBack: "{amount} back a year",
+    totalCost: "out of {amount} it costs you now",
+    rowCost: "What intake costs you",
+    rowBack: "What we take off",
+
+    // The second act. Bigger than everything above it, and a different
+    // product conversation, so it gets a different register on the screen.
+    noShowKicker: "The biggest one, and it is not intake",
+    noShowUnit: "per provider, per month",
+    // {annual} is the practice-wide figure.
+    noShowAnnual: "{annual} a year in appointments that never happened",
+    noShowLead:
+      "Not counted in anything above. A no-show is not an intake problem and we have not pretended it is one. It is a reminders and scheduling problem, and that is a different part of what we do:",
+    noShowFeatures: [
+      "Automated reminders and confirmations, so the message reaches them",
+      "Two-way messaging, so a patient who cannot make it can say so",
+      "Self-scheduling, so the slot refills itself instead of sitting empty",
+    ],
+    noShowFoot:
+      "We show you the cost and put no recovery figure on it. That one you can measure yourself, which is rather the point.",
+
+    hoursLabel: "And the time",
+    // {hours} per provider per month, {total} across the practice.
+    hoursBody:
+      "{hours} front desk hours a month, per provider. {total} a year across the practice. What you do with them is your call, and we have not turned them into a revenue figure.",
+
     detailRecovery: "How we get to {amount}",
     detailRecoverySummary: "Component by component, and what share of each",
     detailLeak: "Where the {amount} comes from",
     detailLeakSummary: "{n} components, with the arithmetic",
-    asideKicker: "And separately",
-    asideCta: "That one is scheduling and reminders, not intake.",
-    gapsSummary: "{n} you could do without us",
-    showWorkSummary: "Every figure we added to your answers",
-    recoverySub:
-      "A share of each figure above, not all of it. Most of the shares come from published benchmarks; the two that are ours are marked as ours below.",
     gapsLabel: "Other things worth fixing",
-    gapsNone:
-      "Nothing else on the list. You already ask for reviews and you already take bookings online, which is rarer than you would think.",
-    // Short here, in prime space. The full version is in the assumptions.
-    estimator:
-      "An estimator, not an audit. What you'd actually see depends on your payer mix, your schedule and how your desk runs today.",
-    estimatorLong:
-      "This is an estimator built from four answers and the figures below, not an audit of your books. Every practice is different. Payer mix, appointment length, how your schedule is built and how your front desk runs today all move these numbers, in both directions.",
-    cta: "Book a demo",
-    skip: "Email it to me instead",
+    gapsSummary: "{n} you could do without us",
     showWork: "What are we assuming?",
+    showWorkSummary: "Every figure we added to your answers",
     hideWork: "Hide the assumptions",
     assumptionsIntro:
       "Some of these are yours and some are ours. Ours are marked, and they are the right thing to argue with. Tell us what your number is and we'll rerun it.",
+    estimator:
+      "An estimator, not an audit. What you'd actually see depends on your payer mix, your schedule and how your desk runs today.",
+    estimatorLong:
+      "This is an estimator built from six answers and the figures below, not an audit of your books. Every practice is different. Payer mix, appointment length, how your schedule is built and how your front desk runs today all move these numbers, in both directions.",
     placeholderTag: "Our estimate",
     sourcedTag: "Benchmarked",
+    cta: "Book a demo",
+    recoverySub:
+      "A share of each figure, not all of it. Most of the shares come from published benchmarks; the two that are ours are marked.",
     benchmarkTitle: "How does that compare?",
     benchmarkBody:
       "We're asking every practice at this show the same questions. We'll send you where you land against them.",

@@ -263,7 +263,6 @@ export function ScreenMoney({
   );
   const ordered = orderComponents(result, session.role);
   const lead = roleLead(result, session.role);
-  const shown = useCountUp(back.total, 1000);
   // Pre-checked: they have just been shown a number, and "how do I compare" is
   // the question they are already asking. Opting out is one tap.
   const [optIn, setOptIn] = useState(session.capture.optIn ?? true);
@@ -279,60 +278,120 @@ export function ScreenMoney({
   }, []);
 
   const M = FLOW.money;
-  const hours = Math.round(upside.hoursFreed).toLocaleString("en-US");
-  // The no-show figure is usually the largest number on the screen and it is
-  // the one we claim nothing from, so it gets its own card rather than a row
-  // inside a closed disclosure. Visible, costed, and clearly not part of the
-  // two figures above it.
+
+  // Per provider per month, because that is the unit a practice is bought in.
+  // Nobody approves an annual number; they approve a monthly one per provider,
+  // and the decision gets made in that frame whatever we put on the screen.
+  // The practice-wide annual figures are right underneath, because the monthly
+  // one on its own is small enough to shrug at.
+  const per = (annual: number) => annual / inputs.providers / 12;
+  const costPm = per(result.total);
+  const backPm = per(back.total);
+  const shownPm = useCountUp(backPm, 900);
+
   const noShow = upside.opportunities.find((o) => o.key === "noshow");
   const gaps = upside.opportunities.filter((o) => o.key !== "noshow");
+  const hoursPm = upside.hoursFreed / inputs.providers / 12;
 
   return (
     <Screen footer={<Button onClick={onNext}>{M.cta}</Button>}>
       <div className="animate-fade-up pt-6">
-        {/* ---- The lede: what we put back, not what is wrong. ---- */}
+        {/* ---- The lede, in the unit they buy in. ---- */}
         <CapLabel>{M.kicker}</CapLabel>
-        <p className="mt-1.5 text-[48px] font-extrabold leading-none tracking-[-0.035em] text-ink tabular-nums">
-          {usdRounded(shown)}
-        </p>
+        <div className="mt-1.5 flex items-end gap-2">
+          <p className="text-[52px] font-extrabold leading-[0.88] tracking-[-0.04em] text-ink tabular-nums">
+            {usd(shownPm)}
+          </p>
+          <p className="pb-1.5 text-[16px] font-bold text-ink-sub">
+            {M.backSuffix}
+          </p>
+        </div>
         <p className="mt-2.5 text-[14px] font-medium leading-[1.45] text-ink-sub">
-          {fill(M.headlineSub, { leak: usdRounded(result.total) })}
+          {fill(M.headlineSub, {
+            cost: usd(costPm),
+            n: inputs.providers,
+            back: usd(backPm),
+          })}
         </p>
 
-        {/* ---- The whole problem, and the time. ---- */}
-        {/* items-stretch so a two-line label on one tile does not drop its
-            number below the other one's. */}
-        <div className="mt-5 grid grid-cols-2 items-stretch gap-2.5">
-          <Stat label={M.summaryLeak} value={usdRounded(result.total)} />
-          <Stat label={M.summaryHours} value={hours} tone="teal" />
+        {/* ---- The same money at practice scale, so the monthly figure is
+               not mistaken for the size of the problem. ---- */}
+        <div className="mt-4 rounded-[14px] border border-teal/25 bg-teal-bg px-4 py-3">
+          <CapLabel>{M.totalLabel}</CapLabel>
+          <p className="mt-1 text-[20px] font-extrabold leading-[1.15] tracking-[-0.02em] text-ink tabular-nums">
+            {fill(M.totalBack, { amount: usdRounded(back.total) })}
+          </p>
+          <p className="mt-0.5 text-[13px] font-medium text-ink-sub">
+            {fill(M.totalCost, { amount: usdRounded(result.total) })}
+          </p>
         </div>
 
-        <p className="mt-3 text-[12.5px] font-medium leading-[1.5] text-ink-mute">
-          {M.estimator}
-        </p>
+        <div className="mt-4 space-y-2">
+          <MoneyRow label={M.rowCost} value={usd(costPm)} />
+          <MoneyRow label={M.rowBack} value={usd(backPm)} accent />
+        </div>
 
+        {/* ---- The second act. Bigger than everything above it and a
+               different product, so it gets a different register rather than
+               a footnote. ---- */}
         {noShow ? (
-          <div className="mt-5 rounded-[16px] border border-amber-line bg-amber-bg p-4">
-            <div className="flex items-baseline justify-between gap-3">
-              <CapLabel>{M.asideKicker}</CapLabel>
-              <span className="shrink-0 text-[20px] font-extrabold leading-none tracking-[-0.02em] text-ink tabular-nums">
-                {usd(noShow.amount ?? 0)}
+          <div className="mt-5 overflow-hidden rounded-[18px] bg-ink">
+            <div className="p-5">
+              <span className="text-[11px] font-bold uppercase tracking-[0.06em] text-white/55">
+                {M.noShowKicker}
               </span>
+              <div className="mt-2 flex items-end gap-2">
+                <p className="text-[38px] font-extrabold leading-[0.9] tracking-[-0.035em] text-white tabular-nums">
+                  {usd(per(noShow.amount ?? 0))}
+                </p>
+                <p className="pb-1 text-[12px] font-bold leading-[1.3] text-white/60">
+                  {M.noShowUnit}
+                </p>
+              </div>
+              <p className="mt-2 text-[14px] font-bold leading-[1.3] text-white">
+                {fill(M.noShowAnnual, {
+                  annual: usdRounded(noShow.amount ?? 0),
+                })}
+              </p>
+              <p className="mt-1 text-[11.5px] font-medium leading-[1.4] text-white/50">
+                {noShow.basis}
+              </p>
+
+              <p className="mt-3.5 text-[13px] leading-[1.55] text-white/80">
+                {M.noShowLead}
+              </p>
+              <ul className="mt-3 space-y-2">
+                {M.noShowFeatures.map((f) => (
+                  <li key={f} className="flex items-start gap-2.5">
+                    <span className="mt-[3px] flex h-[16px] w-[16px] shrink-0 items-center justify-center rounded-full bg-teal text-white">
+                      <Check className="h-2.5 w-2.5" />
+                    </span>
+                    <span className="text-[13px] font-semibold leading-[1.4] text-white">
+                      {f}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3.5 border-t border-white/15 pt-3 text-[12px] leading-[1.5] text-white/55">
+                {M.noShowFoot}
+              </p>
             </div>
-            <p className="mt-1.5 text-[14px] font-bold leading-[1.3] text-ink">
-              {noShow.label}
-            </p>
-            <p className="mt-1 text-[11.5px] font-medium leading-[1.4] text-ink-mute">
-              {noShow.basis}
-            </p>
-            <p className="mt-2 text-[12.5px] leading-[1.5] text-ink-sub">
-              {noShow.note}
-            </p>
-            <p className="mt-2 text-[12.5px] font-semibold leading-[1.45] text-ink">
-              {M.asideCta}
-            </p>
           </div>
         ) : null}
+
+        <div className="mt-3 rounded-[14px] border border-hairline bg-canvas p-4">
+          <CapLabel>{M.hoursLabel}</CapLabel>
+          <p className="mt-1.5 text-[13px] font-medium leading-[1.5] text-ink-sub">
+            {fill(M.hoursBody, {
+              hours: hoursPm.toFixed(1),
+              total: Math.round(upside.hoursFreed).toLocaleString("en-US"),
+            })}
+          </p>
+        </div>
+
+        <p className="mt-4 text-[12.5px] font-medium leading-[1.5] text-ink-mute">
+          {M.estimator}
+        </p>
 
         {/* ---- Everything that justifies it, closed. ---- */}
         <div className="mt-5 space-y-2">
@@ -499,28 +558,30 @@ export function ScreenMoney({
   );
 }
 
-/** One of the two numbers that answer "so what" without needing the working. */
-function Stat({
+/** One line of the comparison. The accented one is the claim. */
+function MoneyRow({
   label,
   value,
-  tone,
+  accent,
 }: {
   label: string;
   value: string;
-  tone?: "teal";
+  accent?: boolean;
 }) {
   return (
     <div
-      className={`flex flex-col justify-between rounded-[14px] border p-3.5 ${
-        tone === "teal" ? "border-teal/25 bg-teal-bg" : "border-hairline bg-white"
+      className={`flex items-baseline justify-between gap-3 rounded-[14px] border px-4 py-3.5 ${
+        accent ? "border-teal/30 bg-teal-bg" : "border-hairline bg-white"
       }`}
     >
-      <p className="min-h-[26px] text-[10px] font-bold uppercase leading-[1.3] tracking-[0.05em] text-ink-mute">
-        {label}
-      </p>
-      <p className="mt-1.5 text-[22px] font-extrabold leading-none tracking-[-0.025em] text-ink tabular-nums">
+      <span className="text-[13.5px] font-semibold text-ink">{label}</span>
+      <span
+        className={`shrink-0 tabular-nums text-ink ${
+          accent ? "text-[22px] font-extrabold" : "text-[17px] font-bold"
+        }`}
+      >
         {value}
-      </p>
+      </span>
     </div>
   );
 }

@@ -286,6 +286,13 @@ export const PROPERTIES: PropertyDef[] = [
     note: "The share of the leak we claim to recover. Nothing is netted off for price; that conversation happens with a human.",
   },
   {
+    name: "booth_back_per_provider_month",
+    label: "Booth: recoverable per provider per month ($)",
+    type: "number",
+    form: "diagnosis",
+    note: "The same money as booth_annual_recovery in the unit we bill in. This is the one to put in the email and to say out loud on a call.",
+  },
+  {
     name: "booth_hours_freed",
     label: "Booth: front desk hours freed a year",
     type: "number",
@@ -414,6 +421,10 @@ export function contactProperties(
       put("booth_noshow_cost", noShow ? Math.round(noShow.amount ?? 0) : null);
       put("booth_annual_leak", Math.round(money.total));
       put("booth_annual_recovery", Math.round(back.total));
+      put(
+        "booth_back_per_provider_month",
+        Math.round(back.total / inputs.providers / 12),
+      );
       put("booth_hours_freed", Math.round(upside.hoursFreed));
     }
 
