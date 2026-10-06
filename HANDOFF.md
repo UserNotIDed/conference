@@ -45,7 +45,7 @@ Health-Passport repo and nothing here depends on it.
 | Who drives | The prospect, alone | A rep, on a call |
 | Shape | One screen at a time, portrait | One 16:9 card, landscape |
 | Price | Never | Typed by the rep, never stored |
-| Shape of output | A screen at a time | Two 16:9 slides |
+| Shape of output | A screen at a time | Three 16:9 slides |
 | Gate | Open, it is meant to be found | Passcode, it is meant not to be |
 | Lives at | `/` | `/discovery` |
 
@@ -55,6 +55,11 @@ rather than the spend, carries the health ring and the evidence behind each
 figure, and ends with what they ticked and what they said. Bento rather than
 a column: a readout is not an argument with a beginning and an end, it is a
 board somebody scans in the ten seconds before they start talking.
+
+Three slides, one job each. The first version put the whole model on one
+slide and it was unreadable as a slide, which is the only thing it had to be.
+One: the number. Two: the working, for when somebody asks. Three: what the
+call turned up. Slide one is under a hundred words.
 
 Built to the deck template: a sentence for a headline, their own answers down
 the left, components in the middle each naming where its rate came from, and

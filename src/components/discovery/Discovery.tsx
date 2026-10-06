@@ -33,7 +33,7 @@ export function Discovery() {
   const [onlineBooking, setOnlineBooking] = useState(false);
   const [asksForReviews, setAsksForReviews] = useState(false);
   const [present, setPresent] = useState(false);
-  const [slide, setSlide] = useState<1 | 2>(1);
+  const [slide, setSlide] = useState<1 | 2 | 3>(1);
   // Today, in the format the slide prints. Editable, because a readout often
   // gets written up the morning after the call it refers to.
   const [callDate, setCallDate] = useState(() =>
@@ -68,7 +68,7 @@ export function Discovery() {
           </div>
           <div className="flex items-center gap-2">
           <div className="flex rounded-[14px] border border-hairline bg-white p-1">
-            {([1, 2] as const).map((n) => (
+            {([1, 2, 3] as const).map((n) => (
               <button
                 key={n}
                 type="button"
@@ -250,8 +250,8 @@ export function Discovery() {
             </div>
             <p className="mt-3 text-[12px] text-ink-mute">
               16:9, so a screenshot drops straight onto a slide. Hide the
-              controls first and grab just the card. Slide 1 is what you
-              present; slide 2 is the recap for the follow-up.
+              controls first and grab just the card. One: the number. Two: the
+              working, if they ask. Three: what the call turned up.
             </p>
           </main>
         </div>
