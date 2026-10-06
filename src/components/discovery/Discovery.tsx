@@ -33,6 +33,16 @@ export function Discovery() {
   const [onlineBooking, setOnlineBooking] = useState(false);
   const [asksForReviews, setAsksForReviews] = useState(false);
   const [present, setPresent] = useState(false);
+  const [slide, setSlide] = useState<1 | 2>(1);
+  // Today, in the format the slide prints. Editable, because a readout often
+  // gets written up the morning after the call it refers to.
+  const [callDate, setCallDate] = useState(() =>
+    new Date().toLocaleDateString("en-US", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }),
+  );
 
   const set = <K extends keyof CalcInputs>(k: K) => (n: number) =>
     setV((p) => ({ ...p, [k]: n }));
@@ -56,6 +66,21 @@ export function Discovery() {
               for the follow-up. Nothing here is saved.
             </p>
           </div>
+          <div className="flex items-center gap-2">
+          <div className="flex rounded-[14px] border border-hairline bg-white p-1">
+            {([1, 2] as const).map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => setSlide(n)}
+                className={`min-h-[36px] rounded-[10px] px-4 text-[13px] font-bold transition ${
+                  slide === n ? "bg-ink text-white" : "text-ink-sub"
+                }`}
+              >
+                Slide {n}
+              </button>
+            ))}
+          </div>
           <button
             type="button"
             onClick={() => setPresent((p) => !p)}
@@ -67,6 +92,7 @@ export function Discovery() {
           >
             {present ? "Show the controls" : "Hide the controls"}
           </button>
+          </div>
         </header>
 
         <div
@@ -80,6 +106,9 @@ export function Discovery() {
                 onChange={setPractice}
                 placeholder="Lakeview Women's Health"
               />
+              <div className="mt-3">
+                <Field label="Call date" value={callDate} onChange={setCallDate} />
+              </div>
 
               <div className="mt-5 space-y-4">
                 <Num label="Providers" value={v.providers} onChange={set("providers")} min={1} max={60} />
@@ -204,6 +233,8 @@ export function Discovery() {
                 inputs={v}
                 practice={practice.trim() || "This practice"}
                 locations={locations}
+                callDate={callDate}
+                slide={slide}
                 interests={interests}
                 concerns={concerns}
                 monthlyRate={
@@ -219,7 +250,8 @@ export function Discovery() {
             </div>
             <p className="mt-3 text-[12px] text-ink-mute">
               16:9, so a screenshot drops straight onto a slide. Hide the
-              controls first and grab just the card.
+              controls first and grab just the card. Slide 1 is what you
+              present; slide 2 is the recap for the follow-up.
             </p>
           </main>
         </div>

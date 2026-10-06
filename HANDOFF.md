@@ -45,7 +45,7 @@ Health-Passport repo and nothing here depends on it.
 | Who drives | The prospect, alone | A rep, on a call |
 | Shape | One screen at a time, portrait | One 16:9 card, landscape |
 | Price | Never | Typed by the rep, never stored |
-| Shape of output | A screen at a time | One bento board, scanned |
+| Shape of output | A screen at a time | Two 16:9 slides |
 | Gate | Open, it is meant to be found | Passcode, it is meant not to be |
 | Lives at | `/` | `/discovery` |
 
@@ -54,7 +54,20 @@ only reason it can carry a price at all. It leads with the return multiple
 rather than the spend, carries the health ring and the evidence behind each
 figure, and ends with what they ticked and what they said. Bento rather than
 a column: a readout is not an argument with a beginning and an end, it is a
-board somebody scans in the ten seconds before they start talking. Everything in it is sized in `cqw`,
+board somebody scans in the ten seconds before they start talking.
+
+Built to the deck template: a sentence for a headline, their own answers down
+the left, components in the middle each naming where its rate came from, and
+the value in a dark card on the right. **One deliberate departure.** The
+template's pills read "Yosi customer result" and ours cannot: we do not have
+customer results, we have MGMA, BLS and NIH-indexed studies. The pills name
+the real source instead. Same job on the slide, and it survives being asked
+which customers.
+
+`--color-magenta` is deck-only. The product has five working colours and no
+decorative one, which is right for a screen somebody fills in and wrong for a
+slide somebody scans. It appears on `/discovery` and nowhere a prospect
+self-serving can reach. Everything in it is sized in `cqw`,
 so the card on screen and the card in a screenshot are the same composition
 at any window size. Fixed pixel type would reflow and the layout a rep
 rehearsed with would not be the one they present.

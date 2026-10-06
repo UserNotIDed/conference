@@ -25,6 +25,15 @@
   --color-green-bg: #effbf5;
   --color-red: #dc2626;
 
+  /*
+   * Deck only. The product has five working colours and no decorative one,
+   * which is right for a screen somebody fills in and wrong for a slide
+   * somebody scans: a deck needs one colour that means "this is the number".
+   * Used on /discovery and nowhere a patient or a prospect self-serving can
+   * reach, so the product palette stays as it was.
+   */
+  --color-magenta: #e8336d;
+
   --font-sans:
     "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
 
