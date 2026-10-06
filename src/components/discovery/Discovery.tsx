@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { Readout } from "./Readout";
 import { INPUT_DEFAULTS, type CalcInputs } from "@/lib/calc";
-import { COMMON_TOOLS, SATISFACTION } from "@/lib/tech-stack";
+import { SATISFACTION } from "@/lib/tech-stack";
+import { SERVICES, TIERS } from "@/lib/services";
+import { ToolSearch } from "./ToolSearch";
 
 /**
  * The discovery tool. A rep drives it on a call while sharing their screen.
@@ -22,8 +24,11 @@ import { COMMON_TOOLS, SATISFACTION } from "@/lib/tech-stack";
 export function Discovery() {
   const [v, setV] = useState<CalcInputs>(INPUT_DEFAULTS);
   const [practice, setPractice] = useState("");
+  const [locations, setLocations] = useState(1);
   const [rate, setRate] = useState("");
   const [stack, setStack] = useState<string[]>(["athenahealth"]);
+  const [interests, setInterests] = useState<string[]>([]);
+  const [concerns, setConcerns] = useState("");
   const [satisfaction, setSatisfaction] = useState<string | null>(null);
   const [onlineBooking, setOnlineBooking] = useState(false);
   const [asksForReviews, setAsksForReviews] = useState(false);
@@ -78,6 +83,7 @@ export function Discovery() {
 
               <div className="mt-5 space-y-4">
                 <Num label="Providers" value={v.providers} onChange={set("providers")} min={1} max={60} />
+                <Num label="Locations" value={locations} onChange={setLocations} min={1} max={40} />
                 <Num label="Patients a day" value={v.patientsPerDay} onChange={set("patientsPerDay")} min={1} max={400} />
                 <Num
                   label="No-show rate %"
@@ -99,43 +105,30 @@ export function Discovery() {
 
               <div className="mt-5 border-t border-hairline pt-4">
                 <Label>What they run</Label>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {COMMON_TOOLS.map((t) => {
-                    const on = stack.includes(t.name);
-                    return (
-                      <button
-                        key={t.name}
-                        type="button"
-                        onClick={() =>
-                          setStack((p) =>
-                            on ? p.filter((x) => x !== t.name) : [...p, t.name],
-                          )
-                        }
-                        className={`rounded-full border px-2.5 py-1 text-[11.5px] font-semibold transition ${
-                          on
-                            ? "border-blue bg-blue text-white"
-                            : "border-hairline bg-white text-ink-sub"
-                        }`}
-                      >
-                        {t.name}
-                      </button>
-                    );
-                  })}
+                <div className="mt-2">
+                  <ToolSearch selected={stack} onChange={setStack} />
                 </div>
 
-                <Label className="mt-4">How it&apos;s working out</Label>
-                <select
-                  value={satisfaction ?? ""}
-                  onChange={(e) => setSatisfaction(e.target.value || null)}
-                  className="mt-1.5 h-[40px] w-full rounded-[10px] border border-hairline bg-white px-2.5 text-[13px] font-medium text-ink"
-                >
-                  <option value="">Not asked</option>
-                  {SATISFACTION.map((o) => (
-                    <option key={o} value={o}>
-                      {o}
-                    </option>
-                  ))}
-                </select>
+                {/* Only once there is something to have an opinion about.
+                    Asking how it is working out before they have named
+                    anything is a question with no subject. */}
+                {stack.length > 0 ? (
+                  <>
+                    <Label className="mt-4">How it&apos;s working out</Label>
+                    <select
+                      value={satisfaction ?? ""}
+                      onChange={(e) => setSatisfaction(e.target.value || null)}
+                      className="mt-1.5 h-[40px] w-full rounded-[10px] border border-hairline bg-white px-2.5 text-[13px] font-medium text-ink"
+                    >
+                      <option value="">Not asked</option>
+                      {SATISFACTION.map((o) => (
+                        <option key={o} value={o}>
+                          {o}
+                        </option>
+                      ))}
+                    </select>
+                  </>
+                ) : null}
 
                 <div className="mt-3 space-y-1.5">
                   <Toggle label="Books online" on={onlineBooking} onClick={() => setOnlineBooking((p) => !p)} />
@@ -144,8 +137,53 @@ export function Discovery() {
               </div>
 
               <div className="mt-5 border-t border-hairline pt-4">
+                <Label>What they are interested in</Label>
+                <div className="mt-2 space-y-2.5">
+                  {TIERS.map((tier) => (
+                    <div key={tier}>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.05em] text-ink-pale">
+                        {tier}
+                      </p>
+                      <div className="mt-1 flex flex-wrap gap-1.5">
+                        {SERVICES.filter((sv) => sv.tier === tier).map((sv) => {
+                          const on = interests.includes(sv.id);
+                          return (
+                            <button
+                              key={sv.id}
+                              type="button"
+                              onClick={() =>
+                                setInterests((p) =>
+                                  on ? p.filter((x) => x !== sv.id) : [...p, sv.id],
+                                )
+                              }
+                              className={`rounded-full border px-2.5 py-1 text-[11.5px] font-semibold transition ${
+                                on
+                                  ? "border-teal bg-teal text-white"
+                                  : "border-hairline bg-white text-ink-sub"
+                              }`}
+                            >
+                              {sv.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <Label className="mt-4">Anything else on their mind</Label>
+                <textarea
+                  value={concerns}
+                  onChange={(e) => setConcerns(e.target.value.slice(0, 220))}
+                  rows={3}
+                  placeholder="Their words, not yours. Goes on the slide."
+                  className="mt-1.5 w-full resize-none rounded-[10px] border border-hairline bg-white px-2.5 py-2 text-[13px] font-medium leading-[1.45] text-ink outline-none placeholder:text-ink-pale focus:border-teal"
+                />
+              </div>
+
+              <div className="mt-5 border-t border-hairline pt-4">
                 <Field
-                  label="Our rate, $ per provider per month"
+                  label="Their rate, $ per provider per month"
                   value={rate}
                   onChange={setRate}
                   placeholder="Leave blank to omit"
@@ -165,6 +203,9 @@ export function Discovery() {
               <Readout
                 inputs={v}
                 practice={practice.trim() || "This practice"}
+                locations={locations}
+                interests={interests}
+                concerns={concerns}
                 monthlyRate={
                   rateNumber !== null && Number.isFinite(rateNumber) && rateNumber > 0
                     ? rateNumber

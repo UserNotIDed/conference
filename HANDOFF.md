@@ -45,11 +45,16 @@ Health-Passport repo and nothing here depends on it.
 | Who drives | The prospect, alone | A rep, on a call |
 | Shape | One screen at a time, portrait | One 16:9 card, landscape |
 | Price | Never | Typed by the rep, never stored |
+| Shape of output | A screen at a time | One bento board, scanned |
 | Gate | Open, it is meant to be found | Passcode, it is meant not to be |
 | Lives at | `/` | `/discovery` |
 
 The readout is the same arithmetic with a human in the room, which is the
-only reason it can carry a price at all. Everything in it is sized in `cqw`,
+only reason it can carry a price at all. It leads with the return multiple
+rather than the spend, carries the health ring and the evidence behind each
+figure, and ends with what they ticked and what they said. Bento rather than
+a column: a readout is not an argument with a beginning and an end, it is a
+board somebody scans in the ten seconds before they start talking. Everything in it is sized in `cqw`,
 so the card on screen and the card in a screenshot are the same composition
 at any window size. Fixed pixel type would reflow and the layout a rep
 rehearsed with would not be the one they present.
