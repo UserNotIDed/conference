@@ -38,6 +38,22 @@ Health-Passport repo and nothing here depends on it.
 | | What Yosi puts back | The claim, the leak it comes out of, the working folded away |
 | | Book a demo | Their figure in the headline → yosi.health, click recorded |
 
+## Two audiences, two surfaces
+
+| | Booth microsite | Discovery readout |
+|---|---|---|
+| Who drives | The prospect, alone | A rep, on a call |
+| Shape | One screen at a time, portrait | One 16:9 card, landscape |
+| Price | Never | Typed by the rep, never stored |
+| Gate | Open, it is meant to be found | Passcode, it is meant not to be |
+| Lives at | `/` | `/discovery` |
+
+The readout is the same arithmetic with a human in the room, which is the
+only reason it can carry a price at all. Everything in it is sized in `cqw`,
+so the card on screen and the card in a screenshot are the same composition
+at any window size. Fixed pixel type would reflow and the layout a rep
+rehearsed with would not be the one they present.
+
 ## Decisions that are settled. Do not re-litigate without asking
 
 - **There is no patient roleplay, and nothing is simulated.** The PIN, the card

@@ -33,6 +33,7 @@ which of them are sourced and which are still ours to defend.
 | `/start` | Mints a fresh session and opens it |
 | `/r/[token]` | The breakdown, as a page with no JavaScript |
 | `/booth` | Booth signage, with a sample score and the QR |
+| `/discovery` | Sales-only discovery readout. 16:9, screenshot-ready, passcode-gated. |
 | `/staff` | A front desk mirror. Parked; see below. |
 | `/api/sms` | Twilio inbound webhook. Superseded by the QR-direct plan. |
 
